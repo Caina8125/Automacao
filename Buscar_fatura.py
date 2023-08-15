@@ -74,6 +74,7 @@ class capturar_protocolo(PageElement):
             driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
             driver.find_element(*self.baixar).click()
             time.sleep(0.3)
+            
 
             #Bloco de código que insere o número da fatura na planilha
             fatura_site = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[3]').text
