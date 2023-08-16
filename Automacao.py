@@ -64,8 +64,7 @@ class Application:
         self.info = Label(self.quintoContainer, text="Carregando...",font=self.fontePadrao, background="white")
         self.info.pack()
 
-
-        lbl = ImageLabel(self.sextoContainer,background="white")
+        lbl = ImageLabel(self.quintoContainer,background="white")
         lbl.pack(side=LEFT)
         lbl.load('loader2.gif')
 
@@ -80,20 +79,10 @@ class Application:
             iniciar()
             
 #---------------------------------------------------------------------------------------------------------
-#Erro
-    def pararAutomacao(self):
-        sys.exit(0)
-
-    def dados(self):
-        dados = resp()
-        self.label_dinamica.set(dados)
-#----------------------------------------------------------------------------------------------------------
+#Classe do Gif
 
 class ImageLabel(tk.Label):
-    """
-    A Label that displays images, and plays them if they are gifs
-    :im: A PIL Image instance or a string filename
-    """
+   
     def load(self, im):
         if isinstance(im, str):
             im = Image.open(im)
@@ -125,7 +114,8 @@ class ImageLabel(tk.Label):
         if self.frames:
             self.config(image=next(self.frames))
             self.after(self.delay, self.next_frame)
-            
+
+
 #-------------------------------------------------------------------------------------------
     
 
