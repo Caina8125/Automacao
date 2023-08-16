@@ -10,6 +10,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from seleniumwire import webdriver
+import sys
 
 
 class PageElement(ABC):
@@ -42,8 +43,7 @@ class caminho(PageElement):
         try:
             self.driver.find_element(*self.alerta).click()
         except:
-            pass
-            # print('Não tem alerta')
+            print('Não tem alerta')
 
         driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
         time.sleep(3)
@@ -56,6 +56,7 @@ class capturar_protocolo(PageElement):
 
     def exe_capturar(self):
         global count
+        global resposta
         count = 0
 
         faturas_df = pd.read_excel(planilha)
@@ -66,15 +67,14 @@ class capturar_protocolo(PageElement):
             protocolo_plan =  f"{linha['Protocolo']}".replace(".0","")
             fatura_plan =  f"{linha['Faturas']}".replace(".0","")
             if ((f"{linha['Verificação']}" == "Fatura encontrada") or (protocolo_plan == "Total Geral")):
-                print('d')
-                # print(count,')',protocolo_plan, ": Fatura encontrada =>", fatura_plan)
+                print(count,')',protocolo_plan, ": Fatura encontrada =>", fatura_plan)
                 continue
 
-            print(count,')','Buscanco a fatura do Protocolo =>', protocolo_plan )
+            resposta = count,')','Buscanco a fatura do Protocolo =>', protocolo_plan
+            
             driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
             driver.find_element(*self.baixar).click()
             time.sleep(0.3)
-            
 
             #Bloco de código que insere o número da fatura na planilha
             fatura_site = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[3]').text
@@ -90,6 +90,10 @@ class capturar_protocolo(PageElement):
             capturar_protocolo(webdriver,url).confere()
 
             driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
+
+            resp()
+
+    
 
     def confere(self):
 
@@ -127,15 +131,22 @@ class capturar_protocolo(PageElement):
             writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
             df.to_excel(writer, 'Faturas', startrow= count, startcol=5, header=False, index=False)
             writer.save()
+    
+    
 
 
 
-# def getResposta():
-#     global resposta
-#     return resposta
+
 
 
 #-------------------------------------------------------------------------------------------------------------------------
+def resp():
+    return resposta
+
+def fechar():
+    print("Saindo do programa...")
+    sys.exit(0)
+    
 
 def iniciar():
 
@@ -172,14 +183,13 @@ def iniciar():
         senha = "amhpdf0073"
     )
 
-    caminho(driver, url).exe_caminho()
+    try:
+        caminho(driver, url).exe_caminho()
 
+        capturar_protocolo(driver, url).exe_capturar()
     
-    capturar_protocolo(driver, url).exe_capturar()
-
-    tkinter.messagebox.showinfo( 'Automação GEAP Financeiro' , 'Busca de Faturas na GEAP Concluído 😎✌' )
-
-    
-    tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
+        tkinter.messagebox.showinfo( 'Automação GEAP Financeiro' , 'Busca de Faturas na GEAP Concluído 😎✌' )
+    except:
+        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
 
 # iniciar()

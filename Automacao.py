@@ -3,8 +3,10 @@ import tkinter as tk
 from tkinter import ttk
 from Buscar_fatura import *
 from Atualiza import *
-
-
+import threading
+import sys
+from PIL import Image, ImageTk
+from itertools import count, cycle
 
 
 class Application:
@@ -27,7 +29,7 @@ class Application:
         self.quartoContainer.pack()
 
         self.quintoContainer = Frame(master, background="white")
-        self.quintoContainer["padx"] = 20
+        self.quintoContainer
         self.quintoContainer.pack()
 
         self.sextoContainer = Frame(master, background="white")
@@ -53,41 +55,79 @@ class Application:
         self.comboBox["background"] = 'white'
         self.comboBox.pack(side=LEFT)
 
-        # foto = tk.PhotoImage(file="loader.gif")
-        # self.img = tk.Label(self.quintoContainer,image=foto, border=0, background="white")
-        # self.img.foto = foto
-        # self.img["pady"] = 5
-        # self.img.pack()
 
-        # self.dadosAutomacao = Label(self.quintoContainer, background="white")
-        # self.dadosAutomacao["text"] = self.dadosTela
-        # self.dadosAutomacao.pack()
-
-        self.buttonIniciar = Button(self.sextoContainer, bg="#274360",foreground="white",width=10)
+        self.buttonIniciar = Button(self.sextoContainer, bg="#274360",foreground="white",width=10, command=lambda: threading.Thread(target=self.chamarAutomacao).start())
         self.buttonIniciar["text"] = "Iniciar"
-        self.buttonIniciar["command"] = self.chamarAutomacao
         self.buttonIniciar.pack(side=LEFT)
 
-        # self.buttonCancelar = Button(self.sextoContainer, background="red",foreground="white",width=10)
-        # self.buttonCancelar["text"] = "Parar"
-        # self.buttonCancelar["command"] = self.pararAutomacao
-        # self.buttonCancelar.pack()
+    def carregando(self):
+        self.info = Label(self.quintoContainer, text="Carregando...",font=self.fontePadrao, background="white")
+        self.info.pack()
 
 
+        lbl = ImageLabel(self.sextoContainer,background="white")
+        lbl.pack(side=LEFT)
+        lbl.load('loader2.gif')
+
+    def ocultar(self):
+        self.buttonIniciar.pack_forget()
 
     def chamarAutomacao(self):
         automacao = self.comboBox.get()
-        
         if automacao == "Financeiro - Buscar Faturas":
+            self.ocultar()
+            self.carregando()
             iniciar()
+            
+#---------------------------------------------------------------------------------------------------------
+#Erro
+    def pararAutomacao(self):
+        sys.exit(0)
 
-    # def pararAutomacao(self):
+    def dados(self):
+        dados = resp()
+        self.label_dinamica.set(dados)
+#----------------------------------------------------------------------------------------------------------
 
-    #     sys.exit(self.chamarAutomacao)
+class ImageLabel(tk.Label):
+    """
+    A Label that displays images, and plays them if they are gifs
+    :im: A PIL Image instance or a string filename
+    """
+    def load(self, im):
+        if isinstance(im, str):
+            im = Image.open(im)
+        frames = []
 
-    # def dadosTela(self):
-    #     getResposta()
-                
+        try:
+            for i in count(1):
+                frames.append(ImageTk.PhotoImage(im.copy()))
+                im.seek(i)
+        except EOFError:
+            pass
+        self.frames = cycle(frames)
+
+        try:
+            self.delay = im.info['duration']
+        except:
+            self.delay = 100
+
+        if len(frames) == 1:
+            self.config(image=next(self.frames))
+        else:
+            self.next_frame()
+
+    def unload(self):
+        self.config(image=None)
+        self.frames = None
+
+    def next_frame(self):
+        if self.frames:
+            self.config(image=next(self.frames))
+            self.after(self.delay, self.next_frame)
+            
+#-------------------------------------------------------------------------------------------
+    
 
 Script()
 
@@ -96,7 +136,7 @@ Application(root)
 root.title('AMHP - Automações')
 root.geometry("500x300")
 root.configure(background="white")
-root.resizable(width=0, height=0)
+root.resizable(width=False, height=False)
 
 # ctypes.windll.kernel32.FreeConsole()
 root.mainloop()
