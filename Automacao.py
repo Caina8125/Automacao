@@ -4,9 +4,9 @@ from tkinter import ttk
 from Buscar_fatura import *
 from Atualiza import *
 import threading
-import sys
 from PIL import Image, ImageTk
 from itertools import count, cycle
+import Relatorio
 
 
 class Application:
@@ -61,22 +61,45 @@ class Application:
         self.buttonIniciar.pack(side=LEFT)
 
     def carregando(self):
-        self.info = Label(self.quintoContainer, text="Carregando...",font=self.fontePadrao, background="white")
+        self.info = Label(self.quintoContainer, text= self.retorna,font=('Arial,10,bold'), background="white")
         self.info.pack()
 
-        lbl = ImageLabel(self.quintoContainer,background="white")
-        lbl.pack(side=LEFT)
-        lbl.load('loader2.gif')
+        self.lbl = ImageLabel(self.quintoContainer,background="white")
+        self.lbl.pack(side=LEFT)
+        self.lbl.load('loader2.gif')
 
     def ocultar(self):
         self.buttonIniciar.pack_forget()
+
+    def desocultar(self):
+        self.lbl.pack_forget()
+        self.buttonIniciar.pack()
+        
 
     def chamarAutomacao(self):
         automacao = self.comboBox.get()
         if automacao == "Financeiro - Buscar Faturas":
             self.ocultar()
+            try:
+                self.info.pack_forget()
+            except:
+                pass
             self.carregando()
-            iniciar()
+            iniciar
+            self.desocultar()
+            
+
+    def texto(self):
+        dado = Relatorio.lista
+    def retorna(self):
+        return
+
+    
+            
+#---------------------------------------------------------------------------------------------------------
+
+
+
             
 #---------------------------------------------------------------------------------------------------------
 #Classe do Gif
