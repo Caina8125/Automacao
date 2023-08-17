@@ -1,9 +1,9 @@
 # import Relatorio
-from Automacao import *
-from Buscar_fatura import iniciar
+# from Automacao import Application
+# from Buscar_fatura import iniciar
 
-def teste():
-    print("teste")
+# def teste():
+#     print("teste")
 
 
 

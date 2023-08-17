@@ -1,4 +1,4 @@
-from Automacao import * 
+# from Automacao import * 
 
 lista = ['Processando...']
 

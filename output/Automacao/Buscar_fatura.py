@@ -8,15 +8,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 from seleniumwire import webdriver
+from Relatorio import * 
+
 
 
 class PageElement(ABC):
-    def __init__(self, webdriver, url=''):
-        self.webdriver = webdriver
+    def __init__(self, driver, url=''):
+        self.driver = driver
         self.url = url
     def open(self):
-        self.webdriver.get(self.url)
+        self.driver.get(self.url)
 
 class Login(PageElement):
     multiusuario = (By.XPATH, '/html/body/div[3]/div[3]/div/form/div[1]/label')
@@ -26,22 +29,22 @@ class Login(PageElement):
     logar = (By.XPATH, '//*[@id="btnLogin"]')
 
     def exe_login(self, prestador, cpf, senha):
-        self.webdriver.find_element(*self.multiusuario).click()
-        self.webdriver.find_element(*self.prestador).send_keys(prestador)
-        self.webdriver.find_element(*self.cpf).send_keys(cpf)
-        self.webdriver.find_element(*self.senha).send_keys(senha)
-        self.webdriver.find_element(*self.logar).click()
+        self.driver.find_element(*self.multiusuario).click()
+        self.driver.find_element(*self.prestador).send_keys(prestador)
+        self.driver.find_element(*self.cpf).send_keys(cpf)
+        self.driver.find_element(*self.senha).send_keys(senha)
+        self.driver.find_element(*self.logar).click()
         time.sleep(4)
 
 class caminho(PageElement):
 
-    Alerta = (By.XPATH, '/html/body/div[2]/div/center/a')
+    alerta = (By.XPATH, '/html/body/div[2]/div/center/a')
 
     def exe_caminho(self):
         try:
-            self.webdriver.find_element(*self.Alerta).click()
+            self.driver.find_element(*self.alerta).click()
         except:
-            print('Não tem alerta')
+            textoDinamico('Não tem alerta')
 
         driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
         time.sleep(3)
@@ -54,23 +57,26 @@ class capturar_protocolo(PageElement):
 
     def exe_capturar(self):
         global count
+        # global resposta
+        global protocolo_plan
+
         count = 0
-        
+
         faturas_df = pd.read_excel(planilha)
         for index, linha in faturas_df.iterrows():
-            
             count = count + 1
 
             protocolo_plan =  f"{linha['Protocolo']}".replace(".0","")
             fatura_plan =  f"{linha['Faturas']}".replace(".0","")
             if ((f"{linha['Verificação']}" == "Fatura encontrada") or (protocolo_plan == "Total Geral")):
-                print(count,')',protocolo_plan, ": Fatura encontrada =>", fatura_plan)
+                textoDinamico(count,')',protocolo_plan, ": Fatura encontrada =>", fatura_plan)
                 continue
+
+            textoDinamico(count,')','Buscanco a fatura do Protocolo =>', protocolo_plan)
             
-            print(count,')','Buscanco a fatura do Protocolo =>', protocolo_plan )
             driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
             driver.find_element(*self.baixar).click()
-            time.sleep(0.7)
+            time.sleep(0.3)
 
             #Bloco de código que insere o número da fatura na planilha
             fatura_site = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[3]').text
@@ -82,7 +88,12 @@ class capturar_protocolo(PageElement):
             writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
             df.to_excel(writer, 'Faturas', startrow = count, startcol = 1, header=False, index=False)
             writer.save()
+
+            capturar_protocolo(webdriver,url).confere()
+
             driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
+
+    
 
     def confere(self):
 
@@ -120,15 +131,12 @@ class capturar_protocolo(PageElement):
             writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
             df.to_excel(writer, 'Faturas', startrow= count, startcol=5, header=False, index=False)
             writer.save()
+    
+    
 
-        
-        
-def getResposta():
-    global resposta
-    resposta = ''
+#-------------------------------------------------------------------------------------------------------------------------
 
     
-#-------------------------------------------------------------------------------------------------------------------------
 
 def iniciar():
 
@@ -146,26 +154,30 @@ def iniciar():
         }
     }
 
-    driver = webdriver.Chrome(seleniumwire_options= options)
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
 
-    driver.maximize_window()
+    driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
+
+    #ctypes.windll.kernel32.FreeConsole()
+
+    #driver.maximize_window()
 
     login_page = Login(driver , url)
-    
+
     login_page.open()
-   
+
     login_page.exe_login(
         prestador = "23003723",
         cpf = '66661692120',
         senha = "amhpdf0073"
     )
 
-    caminho(webdriver, url).exe_caminho()
     
-    try:
-        capturar_protocolo(webdriver, url).exe_capturar()
+    caminho(driver, url).exe_caminho()
 
-        tkinter.messagebox.showinfo( 'Automação GEAP Financeiro' , 'Busca de Faturas na GEAP Concluído 😎✌' )
+    capturar_protocolo(driver, url).exe_capturar()
 
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
+    tkinter.messagebox.showinfo( 'Automação GEAP Financeiro' , 'Busca de Faturas na GEAP Concluído 😎✌' )
+    
+    tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
