@@ -6,7 +6,7 @@ from Atualiza import *
 import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
-import Relatorio
+import ctypes
 
 
 class Application:
@@ -61,7 +61,7 @@ class Application:
         self.buttonIniciar.pack(side=LEFT)
 
     def carregando(self):
-        self.info = Label(self.quintoContainer, text= self.retorna,font=('Arial,10,bold'), background="white")
+        self.info = Label(self.quintoContainer, text= "Processando...",font=('Arial,10,bold'), background="white")
         self.info.pack()
 
         self.lbl = ImageLabel(self.quintoContainer,background="white")
@@ -85,14 +85,14 @@ class Application:
             except:
                 pass
             self.carregando()
-            iniciar
+            iniciar()
             self.desocultar()
             
 
-    def texto(self):
-        dado = Relatorio.lista
-    def retorna(self):
-        return
+    # def texto(self):
+    #     dado = Relatorio.lista
+    # def retorna(self):
+    #     return
 
     
             
@@ -151,5 +151,5 @@ root.geometry("500x300")
 root.configure(background="white")
 root.resizable(width=False, height=False)
 
-# ctypes.windll.kernel32.FreeConsole()
+ctypes.windll.kernel32.FreeConsole()
 root.mainloop()
