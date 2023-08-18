@@ -10,7 +10,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from seleniumwire import webdriver
-from Relatorio import * 
+# from Relatorio import textoDinamico
+# from Automacao import gif
 
 
 
@@ -44,7 +45,10 @@ class caminho(PageElement):
         try:
             self.driver.find_element(*self.alerta).click()
         except:
+            
             textoDinamico('Não tem alerta')
+            
+            # gif()
 
         driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
         time.sleep(3)
@@ -69,10 +73,10 @@ class capturar_protocolo(PageElement):
             protocolo_plan =  f"{linha['Protocolo']}".replace(".0","")
             fatura_plan =  f"{linha['Faturas']}".replace(".0","")
             if ((f"{linha['Verificação']}" == "Fatura encontrada") or (protocolo_plan == "Total Geral")):
-                textoDinamico(count,')',protocolo_plan, ": Fatura encontrada =>", fatura_plan)
+                textoDinamico(f"{count}){protocolo_plan} : Fatura encontrada => {fatura_plan}")
                 continue
 
-            textoDinamico(count,')','Buscanco a fatura do Protocolo =>', protocolo_plan)
+            textoDinamico(f"{count}) Buscanco a fatura do Protocolo => {protocolo_plan}")
             
             driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
             driver.find_element(*self.baixar).click()
@@ -178,6 +182,20 @@ def iniciar():
 
     capturar_protocolo(driver, url).exe_capturar()
 
-    tkinter.messagebox.showinfo( 'Automação GEAP Financeiro' , 'Busca de Faturas na GEAP Concluído 😎✌' )
+    try:
+        caminho(driver, url).exe_caminho()
+
+        capturar_protocolo(driver, url).exe_capturar()
+        tkinter.messagebox.showinfo( 'Automação GEAP Financeiro' , 'Busca de Faturas na GEAP Concluído 😎✌' )
+    except:
+        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
+
+
+def textoDinamico(texto):
+    global listar
+
+    lista = ['Processando...']
+
+    lista.insert(0,texto)
+
     
-    tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )

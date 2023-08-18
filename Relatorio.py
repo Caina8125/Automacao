@@ -1,8 +1,9 @@
-# from Automacao import * 
+# lista = ['Processando...']
 
-lista = ['Processando...']
+# def textoDinamico(texto="teste"):
 
-def textoDinamico(texto):
+#     lista.insert(0,texto)
 
-    lista.insert(0,texto)
-    print(lista)
+#     dado = lista[0]
+    
+

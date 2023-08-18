@@ -36,7 +36,7 @@ def Script():
     if(trasnfAtualiza == trasnfLocal):
         print("Mesma Hora")
     else:
-        #tkinter.messagebox.showinfo('Atualização','Uma atualização foi feita, o sistema será reiniciado')
+        tkinter.messagebox.showinfo('Atualização','Uma atualização foi feita, o sistema será reiniciado')
         print("executar atualização")
 
         executarAtualizacao()
@@ -44,7 +44,7 @@ def Script():
         dataAtualiza()
         
 
-Script()
+# Script()
 
 
 

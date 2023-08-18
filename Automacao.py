@@ -1,12 +1,15 @@
 from tkinter import *
 import tkinter as tk 
 from tkinter import ttk
-from Buscar_fatura import *
-from Atualiza import *
 import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
 import ctypes
+
+from Buscar_fatura import iniciar
+from Buscar_fatura import textoDinamico
+from Atualiza import *
+# from Relatorio import lista
 
 
 class Application:
@@ -29,7 +32,8 @@ class Application:
         self.quartoContainer.pack()
 
         self.quintoContainer = Frame(master, background="white")
-        self.quintoContainer
+        self.quintoContainer["padx"] = 20
+        self.quintoContainer["padx"] = 10
         self.quintoContainer.pack()
 
         self.sextoContainer = Frame(master, background="white")
@@ -60,8 +64,11 @@ class Application:
         self.buttonIniciar["text"] = "Iniciar"
         self.buttonIniciar.pack(side=LEFT)
 
-    def carregando(self):
-        self.info = Label(self.quintoContainer, text= "Processando...",font=('Arial,10,bold'), background="white")
+
+
+    def gif(self):
+        
+        self.info = Label(self.quintoContainer, text= "Trabalhando...",font=('Arial,10,bold'), background="white")
         self.info.pack()
 
         self.lbl = ImageLabel(self.quintoContainer,background="white")
@@ -73,20 +80,37 @@ class Application:
 
     def desocultar(self):
         self.lbl.pack_forget()
-        self.buttonIniciar.pack()
+        self.buttonIniciar.pack(side=LEFT)
+
+    def botaoHistorico(self):
+        self.info.pack_forget()
+
+        self.buttonHistorico = Button(self.sextoContainer, bg="#274360",foreground="white",width=10)
+        self.buttonHistorico["text"] = "Histórico"
+        self.buttonHistorico.pack(side=LEFT)
         
 
     def chamarAutomacao(self):
+        self.ocultar()
+        try:
+            self.info.pack_forget()
+            self.buttonHistorico.pack_forget()
+        except:
+            pass
+        self.gif()
+        # self.carregando()
+
         automacao = self.comboBox.get()
         if automacao == "Financeiro - Buscar Faturas":
-            self.ocultar()
-            try:
-                self.info.pack_forget()
-            except:
-                pass
-            self.carregando()
             iniciar()
-            self.desocultar()
+
+        self.desocultar()
+        self.botaoHistorico()
+
+# def carregando():
+#     Application.gif()
+
+    
             
 
     # def texto(self):
