@@ -7,9 +7,7 @@ from itertools import count, cycle
 import ctypes
 
 from Buscar_fatura import iniciar
-from Buscar_fatura import textoDinamico
 from Atualiza import *
-# from Relatorio import lista
 
 
 class Application:
@@ -47,6 +45,7 @@ class Application:
         self.cabecalho.pack()
 
         foto = tk.PhotoImage(file="logo.png")
+        
         self.img = tk.Label(self.segundoContainer,image=foto, border=0)
         self.img.foto = foto
         self.img["pady"] = 5
@@ -59,12 +58,9 @@ class Application:
         self.comboBox["background"] = 'white'
         self.comboBox.pack(side=LEFT)
 
-
         self.buttonIniciar = Button(self.sextoContainer, bg="#274360",foreground="white",width=10, command=lambda: threading.Thread(target=self.chamarAutomacao).start())
         self.buttonIniciar["text"] = "Iniciar"
         self.buttonIniciar.pack(side=LEFT)
-
-
 
     def gif(self):
         
@@ -88,7 +84,6 @@ class Application:
         self.buttonHistorico = Button(self.sextoContainer, bg="#274360",foreground="white",width=10)
         self.buttonHistorico["text"] = "Histórico"
         self.buttonHistorico.pack(side=LEFT)
-        
 
     def chamarAutomacao(self):
         self.ocultar()
@@ -97,34 +92,17 @@ class Application:
             self.buttonHistorico.pack_forget()
         except:
             pass
+
         self.gif()
-        # self.carregando()
 
         automacao = self.comboBox.get()
         if automacao == "Financeiro - Buscar Faturas":
             iniciar()
 
         self.desocultar()
+
         self.botaoHistorico()
-
-# def carregando():
-#     Application.gif()
-
-    
-            
-
-    # def texto(self):
-    #     dado = Relatorio.lista
-    # def retorna(self):
-    #     return
-
-    
-            
-#---------------------------------------------------------------------------------------------------------
-
-
-
-            
+     
 #---------------------------------------------------------------------------------------------------------
 #Classe do Gif
 
