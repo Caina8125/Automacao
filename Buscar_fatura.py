@@ -191,13 +191,9 @@ def iniciar():
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
 
 def textoDinamico(texto):
-    global listar
 
     lista = ['Processando...']
 
     lista.insert(0,texto)
-
-
-iniciar()
 
     

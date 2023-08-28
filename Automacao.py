@@ -5,7 +5,7 @@ import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
 import ctypes
-
+from Recursar_Duplicado import recursar_duplicado
 from Buscar_fatura import iniciar
 from Atualiza import *
 
@@ -54,7 +54,7 @@ class Application:
         self.nomeLabel = Label(self.terceiroContainer, text="Selecione a automação",font=self.fontePadrao, background="white")
         self.nomeLabel.pack(side=LEFT)
 
-        self.comboBox = ttk.Combobox(self.quartoContainer, values=["Glosa - Auditoria Geap", "Faturamento - Anexar Honorario Geap", "Financeiro - Buscar Faturas"], width=50)
+        self.comboBox = ttk.Combobox(self.quartoContainer, values=["Faturamento - Anexar Honorario Geap", "Financeiro - Buscar Faturas", "Glosa - Auditoria GEAP", "Glosa - Recursar Duplicado GEAP"], width=50)
         self.comboBox["background"] = 'white'
         self.comboBox.pack(side=LEFT)
 
@@ -98,6 +98,9 @@ class Application:
         automacao = self.comboBox.get()
         if automacao == "Financeiro - Buscar Faturas":
             iniciar()
+
+        elif automacao == "Glosa - Recursar Duplicado GEAP":
+            recursar_duplicado()
 
         self.desocultar()
 
@@ -152,6 +155,5 @@ root.title('AMHP - Automações')
 root.geometry("500x300")
 root.configure(background="white")
 root.resizable(width=False, height=False)
-
-ctypes.windll.kernel32.FreeConsole()
+# ctypes.windll.kernel32.FreeConsole()
 root.mainloop()
