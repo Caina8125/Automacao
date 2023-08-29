@@ -162,7 +162,7 @@ def iniciar():
     chrome_options.add_argument("--headless")
     servico = Service(ChromeDriverManager().install())
 
-    driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
+    driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
 
     #ctypes.windll.kernel32.FreeConsole()
 

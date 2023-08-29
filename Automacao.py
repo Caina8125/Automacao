@@ -8,6 +8,14 @@ import ctypes
 from Recursar_Duplicado import recursar_duplicado
 from Buscar_fatura import iniciar
 from Atualiza import *
+from Anexar_Honorario import anexar_guias
+from VerificarSituacao_BRB import verificar_brb
+from Auditoria_GEAP import ExtrairDados
+from Recursar_SemDuplicado import recursar_sem_duplicado
+from Recurso_Postal import recursar_postal
+from Recursar_Caixa import recursar_caixa
+from Recurso_Serpro import recursar_serpro
+from Recursar_SIS import recursar_sis
 
 
 class Application:
@@ -54,7 +62,20 @@ class Application:
         self.nomeLabel = Label(self.terceiroContainer, text="Selecione a automação",font=self.fontePadrao, background="white")
         self.nomeLabel.pack(side=LEFT)
 
-        self.comboBox = ttk.Combobox(self.quartoContainer, values=["Faturamento - Anexar Honorario Geap", "Financeiro - Buscar Faturas", "Glosa - Auditoria GEAP", "Glosa - Recursar Duplicado GEAP"], width=50)
+        self.comboBox = ttk.Combobox(self.quartoContainer, values=["Faturamento - Anexar Honorario Geap",
+                                                                   "Faturamento - Conferência GEAP",
+                                                                   "Faturamento - Verificar Situação BRB",
+                                                                   "Faturamento - Verificar Situação Fascal",
+                                                                   "Faturamento - Verificar Situação Gama",
+                                                                   "Financeiro - Buscar Faturas", 
+                                                                   "Glosa - Auditoria GEAP",
+                                                                   "Glosa - Recursar GEAP Duplicado",
+                                                                   "Glosa - Recursar GEAP Sem Duplicado",
+                                                                   "Glosa - Recursar Postal",
+                                                                   "Glosa - Recursar Saúde Caixa",
+                                                                   "Glosa - Recursar Serpro",
+                                                                   "Glosa - Recursar SIS"
+                                                                     ], width=50)
         self.comboBox["background"] = 'white'
         self.comboBox.pack(side=LEFT)
 
@@ -96,11 +117,42 @@ class Application:
         self.gif()
 
         automacao = self.comboBox.get()
-        if automacao == "Financeiro - Buscar Faturas":
+        if automacao == "Faturamento - Anexar Honorario Geap":
+            anexar_guias()
+
+        elif automacao == "Faturamento - Conferência GEAP":
+            ...
+
+        elif automacao == "Faturamento - Verificar Situação BRB":
+            verificar_brb()
+
+        elif automacao == "Faturamento - Verificar Situação Fascal":
+            ...        
+
+        elif automacao == "Financeiro - Buscar Faturas":
             iniciar()
 
-        elif automacao == "Glosa - Recursar Duplicado GEAP":
+        elif automacao == "Glosa - Auditoria GEAP":
+            auditoria = ExtrairDados()
+            auditoria.extrair_dados()
+
+        elif automacao == "Glosa - Recursar GEAP Duplicado":
             recursar_duplicado()
+        
+        elif automacao == "Glosa - Recursar GEAP Sem Duplicado":
+            recursar_sem_duplicado()
+
+        elif automacao == "Glosa - Recursar Postal":
+            recursar_postal()
+
+        elif automacao == "Glosa - Recursar Saúde Caixa":
+            recursar_caixa()
+
+        elif automacao == "Glosa - Recursar Serpro":
+            recursar_serpro()
+
+        elif automacao == "Glosa - Recursar SIS":
+            recursar_sis()
 
         self.desocultar()
 
