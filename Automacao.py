@@ -7,7 +7,7 @@ from itertools import count, cycle
 import ctypes
 from Recursar_Duplicado import recursar_duplicado
 from Buscar_fatura import iniciar
-from Atualiza import *
+from Atualiza_Local import *
 from Anexar_Honorario import anexar_guias
 from VerificarSituacao_BRB import verificar_brb
 from Auditoria_GEAP import ExtrairDados
@@ -16,7 +16,9 @@ from Recurso_Postal import recursar_postal
 from Recursar_Caixa import recursar_caixa
 from Recurso_Serpro import recursar_serpro
 from Recursar_SIS import recursar_sis
-
+from GEAP_Conferencia import conferencia
+from VerificarSituacao_Fascal import verificacao_fascal
+from AtualizaLabel import *
 
 class Application:
     def __init__(self, master=None):
@@ -97,6 +99,8 @@ class Application:
 
     def desocultar(self):
         self.lbl.pack_forget()
+
+    def botao_iniciar(self):
         self.buttonIniciar.pack(side=LEFT)
 
     def botaoHistorico(self):
@@ -114,47 +118,80 @@ class Application:
         except:
             pass
 
-        self.gif()
-
         automacao = self.comboBox.get()
         if automacao == "Faturamento - Anexar Honorario Geap":
+            self.gif()
             anexar_guias()
+            self.reiniciar()
 
         elif automacao == "Faturamento - Conferência GEAP":
-            ...
+            self.gif()
+            conferencia()
+            self.reiniciar()
 
         elif automacao == "Faturamento - Verificar Situação BRB":
+            self.gif()
             verificar_brb()
+            self.reiniciar()
 
         elif automacao == "Faturamento - Verificar Situação Fascal":
-            ...        
+            self.gif()
+            verificacao_fascal()
+            self.reiniciar()
+
+        # elif automacao == "Faturamento - Verificar Situação Gama":
+        #     ...       
 
         elif automacao == "Financeiro - Buscar Faturas":
+            self.gif()
             iniciar()
+            self.reiniciar()
 
         elif automacao == "Glosa - Auditoria GEAP":
+            self.gif()
             auditoria = ExtrairDados()
             auditoria.extrair_dados()
+            self.reiniciar()
 
         elif automacao == "Glosa - Recursar GEAP Duplicado":
+            self.gif()
             recursar_duplicado()
+            self.reiniciar()
         
         elif automacao == "Glosa - Recursar GEAP Sem Duplicado":
+            self.gif()
             recursar_sem_duplicado()
+            self.reiniciar()
 
         elif automacao == "Glosa - Recursar Postal":
+            self.gif()
             recursar_postal()
+            self.reiniciar()
 
         elif automacao == "Glosa - Recursar Saúde Caixa":
+            self.gif()
             recursar_caixa()
+            self.reiniciar()
 
         elif automacao == "Glosa - Recursar Serpro":
+            self.gif()
             recursar_serpro()
+            self.reiniciar()
 
         elif automacao == "Glosa - Recursar SIS":
+            self.gif()
             recursar_sis()
+            self.reiniciar()  
 
+        else:
+            self.botao_iniciar()
+
+    def reiniciar(self):
         self.desocultar()
+
+        ImageLabel().unload()
+
+        self.botao_iniciar()  
 
         self.botaoHistorico()
      
@@ -179,7 +216,7 @@ class ImageLabel(tk.Label):
         try:
             self.delay = im.info['duration']
         except:
-            self.delay = 100
+            self.delay = 80
 
         if len(frames) == 1:
             self.config(image=next(self.frames))
