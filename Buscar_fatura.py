@@ -143,44 +143,42 @@ class capturar_protocolo(PageElement):
     
 
 def iniciar():
+    try:
+        global planilha
+        global url
 
-    global planilha
-    global url
+        url = 'https://www2.geap.com.br/auth/prestador.asp'
+        planilha = filedialog.askopenfilename()
 
-    url = 'https://www2.geap.com.br/auth/prestador.asp'
-    planilha = filedialog.askopenfilename()
-
-    options = {
-        'proxy' : {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+        options = {
+            'proxy' : {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
         }
-    }
 
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    servico = Service(ChromeDriverManager().install())
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        servico = Service(ChromeDriverManager().install())
 
-    driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
 
-    #ctypes.windll.kernel32.FreeConsole()
+        #ctypes.windll.kernel32.FreeConsole()
 
-    #driver.maximize_window()
+        #driver.maximize_window()
 
-    login_page = Login(driver , url)
+        login_page = Login(driver , url)
 
-    login_page.open()
+        login_page.open()
 
-    login_page.exe_login(
-        prestador = "23003723",
-        cpf = '66661692120',
-        senha = "amhpdf0073"
-    )
-    
-    caminho(driver, url).exe_caminho()
-
-    capturar_protocolo(driver, url).exe_capturar()
-
+        login_page.exe_login(
+            prestador = "23003723",
+            cpf = '66661692120',
+            senha = "amhpdf0073"
+        )
+    except:
+        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
+        
     try:
         caminho(driver, url).exe_caminho()
 

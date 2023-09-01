@@ -116,31 +116,35 @@ class injetar_dados(PageElement):
 #-------------------------------------------------------------------------
 def verificacao_fascal():
     try:
-        processar_planilha()
-        remove()
-    except:
-        pass
 
-    planilha = filedialog.askopenfilename()
+        try:
+            processar_planilha()
+            remove()
+        except:
+            pass
 
-    url = 'https://novowebplanfascal.facilinformatica.com.br/GuiasTISS/Logon'
+        planilha = filedialog.askopenfilename()
 
-    chrome_options = Options()
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
+        url = 'https://novowebplanfascal.facilinformatica.com.br/GuiasTISS/Logon'
 
-    options = {
-    'proxy': {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+
+        options = {
+        'proxy': {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
         }
-    }
-    try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
     except:
-        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
 
     try:
         login_page = Login(driver, url)

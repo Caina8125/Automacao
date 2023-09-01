@@ -282,29 +282,32 @@ class Recurso(PageElement):
         self.driver.quit()
 #---------------------------------------------------------------------------------------------------------------------------------
 def recursar_sis():
-    global pasta
-    pasta = filedialog.askdirectory()
-
-    url = r'https://intra4p.senado.leg.br/WebAppPortal/Login?ReturnUrl=%2fWebAppPortal%2fdefault.aspx%3f'
-
-    chrome_options = Options()
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
-
-    options = {
-    'proxy': {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
-        }
-    }
-
     try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        global pasta
+        pasta = filedialog.askdirectory()
+
+        url = r'https://intra4p.senado.leg.br/WebAppPortal/Login?ReturnUrl=%2fWebAppPortal%2fdefault.aspx%3f'
+
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+
+        options = {
+        'proxy': {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
+        }
+
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
     except:
-        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
-    
+        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
+
     try:
         login_page = Login(driver, url)
         login_page.open()

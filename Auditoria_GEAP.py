@@ -6,6 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import os
+import tkinter
 
 class LogarGeap():
     proxies = {
@@ -63,44 +64,47 @@ class ExtrairDados(LogarGeap):
                 self.lista_id.append(f"https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/{id}")
         
     def extrair_dados(self):
-        self.logar()
-        self.gerar_token()
-        self.acessar_revisao_prestador()
-        self.pegar_id()
+        try:
+            self.logar()
+            self.gerar_token()
+            self.acessar_revisao_prestador()
+            self.pegar_id()
 
-        for link_guia in self.lista_id:
-            
-            response = requests.get(url=link_guia, headers=self.headers, proxies=self.proxies)
-            print(response)
-            data = response.json()
-            n_amhp = data['ResultData']["NumeroGuiaPrestador"]
-            nome_paciente = data['ResultData']["NomeBeneficiario"]
-            carteirinha = data["ResultData"]["NumeroCartao"]
-            link_aba = link_guia + '/abas'
-            response_aba = requests.get(url=link_aba, headers=self.headers, proxies=self.proxies)
-            data_aba = response_aba.json()
-            quant_procedimento = len(data_aba["ResultData"][6]["ResultData"]["Items"])
-            id = "https://www2.geap.com.br/AuditoriaDigital/guia/" + link_guia.replace("https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/", "")
-            motivo_glosa = []
-            for i in range(0, quant_procedimento):
-                id_procedimento = data_aba["ResultData"][6]["ResultData"]["Items"][i]["Id"]
-                link_procedimento = f'https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/itens/{id_procedimento}/historico-revisoes?tipoItem=Procedimentos'
-                response_procedimento = requests.get(url=link_procedimento, headers=self.headers, proxies=self.proxies)
-                data_procedimento = response_procedimento.json()
-                ultimo_motivo = len(data_procedimento["ResultData"]["Items"]) - 1
-                codigo_procedimento = data_procedimento["ResultData"]["Items"][ultimo_motivo]["Codigo"]
-                try:
-                    justificativa = data_procedimento["ResultData"]["Items"][ultimo_motivo]["Justificativa"]
-                    motivo_glosa.append(f'{codigo_procedimento} - {justificativa}')
+            for link_guia in self.lista_id:
+                
+                response = requests.get(url=link_guia, headers=self.headers, proxies=self.proxies)
+                print(response)
+                data = response.json()
+                n_amhp = data['ResultData']["NumeroGuiaPrestador"]
+                nome_paciente = data['ResultData']["NomeBeneficiario"]
+                carteirinha = data["ResultData"]["NumeroCartao"]
+                link_aba = link_guia + '/abas'
+                response_aba = requests.get(url=link_aba, headers=self.headers, proxies=self.proxies)
+                data_aba = response_aba.json()
+                quant_procedimento = len(data_aba["ResultData"][6]["ResultData"]["Items"])
+                id = "https://www2.geap.com.br/AuditoriaDigital/guia/" + link_guia.replace("https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/", "")
+                motivo_glosa = []
+                for i in range(0, quant_procedimento):
+                    id_procedimento = data_aba["ResultData"][6]["ResultData"]["Items"][i]["Id"]
+                    link_procedimento = f'https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/itens/{id_procedimento}/historico-revisoes?tipoItem=Procedimentos'
+                    response_procedimento = requests.get(url=link_procedimento, headers=self.headers, proxies=self.proxies)
+                    data_procedimento = response_procedimento.json()
+                    ultimo_motivo = len(data_procedimento["ResultData"]["Items"]) - 1
+                    codigo_procedimento = data_procedimento["ResultData"]["Items"][ultimo_motivo]["Codigo"]
+                    try:
+                        justificativa = data_procedimento["ResultData"]["Items"][ultimo_motivo]["Justificativa"]
+                        motivo_glosa.append(f'{codigo_procedimento} - {justificativa}')
 
-                except:
-                    pass
-            motivos = "/".join(motivo_glosa)    
-            df = pd.DataFrame({'Endereço': [id], 'GUIA': [n_amhp], 'PACIENTE': [nome_paciente], 'CARTEIRINHA': [carteirinha], 'MOTIVO DE GLOSA': [motivos], 'SITUAÇÃO': [""],
-                          'RESPONSAVEL': [""], 'REVISÃO TATIANE': [""], 'OBSERVAÇÃO': [""], 'PARECER TÉCNICO - DR. RICARDO': [""]})
-            global lista_df
-            lista_df = df.values.tolist()
-            ImportarGoogleSheets().main()
+                    except:
+                        pass
+                motivos = "/".join(motivo_glosa)    
+                df = pd.DataFrame({'Endereço': [id], 'GUIA': [n_amhp], 'PACIENTE': [nome_paciente], 'CARTEIRINHA': [carteirinha], 'MOTIVO DE GLOSA': [motivos], 'SITUAÇÃO': [""],
+                            'RESPONSAVEL': [""], 'REVISÃO TATIANE': [""], 'OBSERVAÇÃO': [""], 'PARECER TÉCNICO - DR. RICARDO': [""]})
+                global lista_df
+                lista_df = df.values.tolist()
+                ImportarGoogleSheets().main()
+        except:
+            tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
 
 class ImportarGoogleSheets(ExtrairDados):
     def __init__(self)-> None:

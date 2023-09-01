@@ -388,7 +388,6 @@ class injetar_dados(PageElement):
 
 #---------------------------------------------------------------------------------
 def recursar_duplicado():
-    print("Olá")
     global planilha
     planilha = filedialog.askopenfilename()
 

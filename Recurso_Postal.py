@@ -1386,27 +1386,30 @@ class inserir_dados(PageElement):
         self.driver.quit()
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def recursar_postal():
-    url = 'https://portalconectasaude.com.br/Account/Login'
-
-    global pasta
-    pasta = filedialog.askdirectory()
-
-    chrome_options = Options()
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
-
-    options = {
-    'proxy': {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
-        }
-    }
     try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        url = 'https://portalconectasaude.com.br/Account/Login'
+
+        global pasta
+        pasta = filedialog.askdirectory()
+
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+
+        options = {
+        'proxy': {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
+        }
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
     except:
-        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
 
     try:
         login_page = Login(driver, url)

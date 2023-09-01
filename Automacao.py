@@ -18,7 +18,6 @@ from Recurso_Serpro import recursar_serpro
 from Recursar_SIS import recursar_sis
 from GEAP_Conferencia import conferencia
 from VerificarSituacao_Fascal import verificacao_fascal
-from AtualizaLabel import *
 
 class Application:
     def __init__(self, master=None):
