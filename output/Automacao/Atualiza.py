@@ -42,12 +42,3 @@ def Script():
         executarAtualizacao()
         dataLocal()
         dataAtualiza()
-        
-
-# Script()
-
-
-
-
-
-

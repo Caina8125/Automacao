@@ -15,11 +15,11 @@ from selenium.webdriver.chrome.options import Options
 import tkinter
 
 class PageElement(ABC):
-    def __init__(self, webdriver, url=''):
-        self.webdriver = webdriver
+    def __init__(self, driver, url=''):
+        self.driver = driver
         self.url = url
     def open(self):
-        self.webdriver.get(self.url)
+        self.driver.get(self.url)
 
 class Login(PageElement):
     multiusuario = (By.XPATH, '/html/body/div[3]/div[3]/div/form/div[1]/label')
@@ -29,11 +29,11 @@ class Login(PageElement):
     logar = (By.XPATH, '//*[@id="btnLogin"]')
 
     def exe_login(self, prestador, cpf, senha):
-        self.webdriver.find_element(*self.multiusuario).click()
-        self.webdriver.find_element(*self.prestador).send_keys(prestador)
-        self.webdriver.find_element(*self.cpf).send_keys(cpf)
-        self.webdriver.find_element(*self.senha).send_keys(senha)
-        self.webdriver.find_element(*self.logar).click()
+        self.driver.find_element(*self.multiusuario).click()
+        self.driver.find_element(*self.prestador).send_keys(prestador)
+        self.driver.find_element(*self.cpf).send_keys(cpf)
+        self.driver.find_element(*self.senha).send_keys(senha)
+        self.driver.find_element(*self.logar).click()
         time.sleep(4)
 
 class caminho(PageElement):
@@ -45,21 +45,21 @@ class caminho(PageElement):
 
     def exe_caminho(self):
         # try:
-        #     self.webdriver.find_element(*self.Alerta).click()
+        #     self.driver.find_element(*self.Alerta).click()
         # except:
         #     print('Não tem alerta')
 
-        self.webdriver.find_element(*self.botão_portaltiss).click()
+        self.driver.find_element(*self.botão_portaltiss).click()
         time.sleep(2)
-        self.webdriver.find_element(*self.abrir_digitatiss).click()
+        self.driver.find_element(*self.abrir_digitatiss).click()
         time.sleep(2)
-        webdriver.switch_to.window(webdriver.window_handles[-1])
+        self.driver.switch_to.window(self.driver.window_handles[-1])
         time.sleep(1)
-        self.webdriver.find_element(*self.botão_recursoglosa).click()
+        self.driver.find_element(*self.botão_recursoglosa).click()
         time.sleep(1)
-        webdriver.switch_to.window(webdriver.window_handles[-1])
+        self.driver.switch_to.window(self.driver.window_handles[-1])
         time.sleep(1)
-        self.webdriver.find_element(*self.botão_novorecurso).click()
+        self.driver.find_element(*self.botão_novorecurso).click()
         time.sleep(2)
 class injetar_dados(PageElement):
     nro_guia = (By.XPATH, '//*[@id="NroGspPrincipal"]')
@@ -110,9 +110,9 @@ class injetar_dados(PageElement):
         except:
             pass
         for index, linha in faturas_df.iterrows():
-            self.webdriver.find_element(*self.nro_guia).send_keys(f"{linha['Nro. Guia']}")
+            self.driver.find_element(*self.nro_guia).send_keys(f"{linha['Nro. Guia']}")
             time.sleep(1)
-            self.webdriver.find_element(*self.baixar_guia).click()
+            self.driver.find_element(*self.baixar_guia).click()
             time.sleep(1)
             count_guia = count_guia + 1
             print('Guia', count_guia)
@@ -121,24 +121,24 @@ class injetar_dados(PageElement):
         for index, linha in faturas_df.iterrows():
             valor_guia = float(f"{linha['Valor Soma']}")
             valor_total += valor_guia
-            self.webdriver.find_element(*self.nro_guia).clear()
+            self.driver.find_element(*self.nro_guia).clear()
             time.sleep(1)
-            self.webdriver.find_element(*self.nro_guia).send_keys(f"{linha['Nro. Guia']}")
+            self.driver.find_element(*self.nro_guia).send_keys(f"{linha['Nro. Guia']}")
             time.sleep(1)
             print(f"{linha['Nro. Guia']}", f"{linha['Procedimento']}", f"{linha['Realizado']}")
-            self.webdriver.find_element(*self.baixar_guia).click()
+            self.driver.find_element(*self.baixar_guia).click()
             time.sleep(1)
             
             try:
-                verifica_data = webdriver.find_element(By.XPATH, '//*[@id="tb_gridProc18"]/tbody/tr[1]/td[1]/table/tbody/tr/td[1]/strong').text
+                verifica_data = self.driver.find_element(By.XPATH, '//*[@id="tb_gridProc18"]/tbody/tr[1]/td[1]/table/tbody/tr/td[1]/strong').text
                 if verifica_data == "Data Atendimento:":
                     print("Dentro da guia")
                     count_linha = count_linha + 1
                     print(count_linha)           
             except:
-                self.webdriver.find_element(*self.entrar_guia).click()
+                self.driver.find_element(*self.entrar_guia).click()
                 time.sleep(2)
-                guia_geap = webdriver.find_element(By.XPATH, '//*[@id="NroGsp_fixed"]').text
+                guia_geap = self.driver.find_element(By.XPATH, '//*[@id="NroGsp_fixed"]').text
                 guia_planilha = [guia_geap]
                 df = pd.DataFrame(guia_planilha)
                 book = load_workbook(planilha)
@@ -154,88 +154,88 @@ class injetar_dados(PageElement):
 
            
             time.sleep(3)
-            self.webdriver.find_element(*self.inserir_data).send_keys(f"{linha['Realizado']}")
-            self.webdriver.find_element(*self.inserir_procedimento).send_keys(f"{linha['Procedimento']}")
-            self.webdriver.find_element(*self.inserir_valor).send_keys(f"{linha['Valor Recursado']}")
-            self.webdriver.find_element(*self.inserir_justificativa).send_keys(f"{linha['Recurso Glosa']}")
+            self.driver.find_element(*self.inserir_data).send_keys(f"{linha['Realizado']}")
+            self.driver.find_element(*self.inserir_procedimento).send_keys(f"{linha['Procedimento']}")
+            self.driver.find_element(*self.inserir_valor).send_keys(f"{linha['Valor Recursado']}")
+            self.driver.find_element(*self.inserir_justificativa).send_keys(f"{linha['Recurso Glosa']}")
             time.sleep(2)
         
 
             if (f"{linha['Grau Participação']}") == "12":
-                self.webdriver.find_element(*self.grau_12).click()
+                self.driver.find_element(*self.grau_12).click()
                 time.sleep(1)
-                self.webdriver.find_element(*self.salvar_recurso).click()
+                self.driver.find_element(*self.salvar_recurso).click()
                 time.sleep(1)
 
             if (f"{linha['Grau Participação']}") == "0":
-                self.webdriver.find_element(*self.grau_00).click()
+                self.driver.find_element(*self.grau_00).click()
                 time.sleep(1)
-                self.webdriver.find_element(*self.salvar_recurso).click()
+                self.driver.find_element(*self.salvar_recurso).click()
                 time.sleep(1)
 
             if (f"{linha['Grau Participação']}") == "13":
-                self.webdriver.find_element(*self.grau_13).click()
+                self.driver.find_element(*self.grau_13).click()
                 time.sleep(1)
-                self.webdriver.find_element(*self.salvar_recurso).click()
+                self.driver.find_element(*self.salvar_recurso).click()
                 time.sleep(1)
 
             if (f"{linha['Grau Participação']}") == "1":
-                self.webdriver.find_element(*self.grau_1).click()
+                self.driver.find_element(*self.grau_1).click()
                 time.sleep(1)
-                self.webdriver.find_element(*self.salvar_recurso).click()
+                self.driver.find_element(*self.salvar_recurso).click()
                 time.sleep(1)
 
             if (f"{linha['Grau Participação']}") == "2":
-                self.webdriver.find_element(*self.grau_2).click()
+                self.driver.find_element(*self.grau_2).click()
                 time.sleep(1)
-                self.webdriver.find_element(*self.salvar_recurso).click()
+                self.driver.find_element(*self.salvar_recurso).click()
                 time.sleep(1)
 
             if (f"{linha['Grau Participação']}") == "3":
-                self.webdriver.find_element(*self.grau_3).click()
+                self.driver.find_element(*self.grau_3).click()
                 time.sleep(1)
-                self.webdriver.find_element(*self.salvar_recurso).click()
+                self.driver.find_element(*self.salvar_recurso).click()
                 time.sleep(1)
 
             
             try:
-                element = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tb_gridProc18"]/tbody/tr[5]/td/span/a')))
+                element = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tb_gridProc18"]/tbody/tr[5]/td/span/a')))
                 time.sleep(1)
-                self.webdriver.find_element(*self.voltar).click()
+                self.driver.find_element(*self.voltar).click()
                 time.sleep(1)
-                self.webdriver.find_element(*self.abrir_envio).click()
+                self.driver.find_element(*self.abrir_envio).click()
                 time.sleep(2)
-                webdriver.switch_to.window(webdriver.window_handles[-1])
+                self.driver.switch_to.window(self.driver.window_handles[-1])
                 time.sleep(1)
-                self.webdriver.find_element(*self.opcao_enviar).click()
+                self.driver.find_element(*self.opcao_enviar).click()
                 time.sleep(1)
-                self.webdriver.find_element(*self.enviar).click()
+                self.driver.find_element(*self.enviar).click()
                 time.sleep(1)
-                self.webdriver.find_element(*self.sair).click()
+                self.driver.find_element(*self.sair).click()
                 time.sleep(1)
-                webdriver.switch_to.window(webdriver.window_handles[-1])
+                self.driver.switch_to.window(self.driver.window_handles[-1])
                 time.sleep(2)
-                self.webdriver.find_element(*self.nova_guia).click()
+                self.driver.find_element(*self.nova_guia).click()
                 time.sleep(2)
                 count_guia = count_guia + 1
                 print('Guia', count_guia)
                 if count_guia == 31:
                     valor_total = valor_total - valor_guia
-                    injetar_dados(webdriver,url).Gerar_Remessa()
+                    injetar_dados(self.driver,url).Gerar_Remessa()
                     count_guia = 1
                     valor_total = valor_guia
                     
 
-                self.webdriver.find_element(*self.nro_guia).send_keys(f"{linha['Nro. Guia']}")
+                self.driver.find_element(*self.nro_guia).send_keys(f"{linha['Nro. Guia']}")
                 time.sleep(1)
                 print(f"{linha['Nro. Guia']}", f"{linha['Procedimento']}", f"{linha['Realizado']}")
-                self.webdriver.find_element(*self.baixar_guia).click()
+                self.driver.find_element(*self.baixar_guia).click()
                 time.sleep(2)
-                self.webdriver.find_element(*self.entrar_guia).click()
+                self.driver.find_element(*self.entrar_guia).click()
                 time.sleep(2)
         
 
-                guia_geap = webdriver.find_element(By.XPATH, '//*[@id="NroGsp_fixed"]').text
+                guia_geap = self.driver.find_element(By.XPATH, '//*[@id="NroGsp_fixed"]').text
                 guia_planilha = [guia_geap]
                 df = pd.DataFrame(guia_planilha)
                 book = load_workbook(planilha)
@@ -249,65 +249,65 @@ class injetar_dados(PageElement):
                 time.sleep(1)
                 print('anexado na planilha')
                 try:
-                    element = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="msgCheck"]')))
-                    invalido = webdriver.find_element(By.XPATH, '//*[@id="msgCheck"]').text
+                    element = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="msgCheck"]')))
+                    invalido = self.driver.find_element(By.XPATH, '//*[@id="msgCheck"]').text
                     if invalido == "Guia não localizada!!!":
-                        self.webdriver.find_element(*self.nro_guia).clear()
+                        self.driver.find_element(*self.nro_guia).clear()
                         time.sleep(1)
-                        self.webdriver.find_element(*self.nro_guia).send_keys(f"{linha['Controle']}")
+                        self.driver.find_element(*self.nro_guia).send_keys(f"{linha['Controle']}")
                         time.sleep(1)
-                        self.webdriver.find_element(*self.baixar_guia).click()
+                        self.driver.find_element(*self.baixar_guia).click()
                         time.sleep(1)
-                        self.webdriver.find_element(*self.botao_incluir).click()
+                        self.driver.find_element(*self.botao_incluir).click()
                         time.sleep(1)
                 except:
                     print('Guia Valida')
 
                 time.sleep(3)
-                self.webdriver.find_element(*self.inserir_data).send_keys(f"{linha['Realizado']}")
-                self.webdriver.find_element(*self.inserir_procedimento).send_keys(f"{linha['Procedimento']}")
-                self.webdriver.find_element(*self.inserir_valor).send_keys(f"{linha['Valor Recursado']}")
-                self.webdriver.find_element(*self.inserir_justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                self.driver.find_element(*self.inserir_data).send_keys(f"{linha['Realizado']}")
+                self.driver.find_element(*self.inserir_procedimento).send_keys(f"{linha['Procedimento']}")
+                self.driver.find_element(*self.inserir_valor).send_keys(f"{linha['Valor Recursado']}")
+                self.driver.find_element(*self.inserir_justificativa).send_keys(f"{linha['Recurso Glosa']}")
 
                 if (f"{linha['Grau Participação']}") == "12":
-                    self.webdriver.find_element(*self.grau_12).click()
+                    self.driver.find_element(*self.grau_12).click()
                     time.sleep(1)
-                    self.webdriver.find_element(*self.salvar_recurso).click()
+                    self.driver.find_element(*self.salvar_recurso).click()
                     time.sleep(1)
 
                 if (f"{linha['Grau Participação']}") == "0":
-                    self.webdriver.find_element(*self.grau_00).click()
+                    self.driver.find_element(*self.grau_00).click()
                     time.sleep(1)
-                    self.webdriver.find_element(*self.salvar_recurso).click()
+                    self.driver.find_element(*self.salvar_recurso).click()
                     time.sleep(1)
 
                 if (f"{linha['Grau Participação']}") == "13":
-                    self.webdriver.find_element(*self.grau_13).click()
+                    self.driver.find_element(*self.grau_13).click()
                     time.sleep(1)
-                    self.webdriver.find_element(*self.salvar_recurso).click()
+                    self.driver.find_element(*self.salvar_recurso).click()
                     time.sleep(1)
 
                 if (f"{linha['Grau Participação']}") == "1":
-                    self.webdriver.find_element(*self.grau_1).click()
+                    self.driver.find_element(*self.grau_1).click()
                     time.sleep(1)
-                    self.webdriver.find_element(*self.salvar_recurso).click()
+                    self.driver.find_element(*self.salvar_recurso).click()
                     time.sleep(1)
 
                 if (f"{linha['Grau Participação']}") == "2":
-                    self.webdriver.find_element(*self.grau_2).click()
+                    self.driver.find_element(*self.grau_2).click()
                     time.sleep(1)
-                    self.webdriver.find_element(*self.salvar_recurso).click()
+                    self.driver.find_element(*self.salvar_recurso).click()
                     time.sleep(1)
 
                 if (f"{linha['Grau Participação']}") == "3":
-                    self.webdriver.find_element(*self.grau_3).click()
+                    self.driver.find_element(*self.grau_3).click()
                     time.sleep(1)
-                    self.webdriver.find_element(*self.salvar_recurso).click()
+                    self.driver.find_element(*self.salvar_recurso).click()
                     time.sleep(1)
                 continue
 
             except:
-                guia_geap = webdriver.find_element(By.XPATH, '//*[@id="NroGsp_fixed"]').text
+                guia_geap = self.driver.find_element(By.XPATH, '//*[@id="NroGsp_fixed"]').text
                 guia_planilha = [guia_geap]
                 df = pd.DataFrame(guia_planilha)
                 book = load_workbook(planilha)
@@ -322,53 +322,54 @@ class injetar_dados(PageElement):
                 print('anexado na planilha')
                 continue
 
-        self.webdriver.find_element(*self.abrir_envio).click()
+        self.driver.find_element(*self.abrir_envio).click()
         time.sleep(2)
-        webdriver.switch_to.window(webdriver.window_handles[-1])
+        self.driver.switch_to.window(self.driver.window_handles[-1])
         time.sleep(1)
-        self.webdriver.find_element(*self.opcao_enviar).click()
+        self.driver.find_element(*self.opcao_enviar).click()
         time.sleep(1)
-        self.webdriver.find_element(*self.enviar).click()
+        self.driver.find_element(*self.enviar).click()
         time.sleep(1)
-        self.webdriver.find_element(*self.sair).click()
+        self.driver.find_element(*self.sair).click()
         time.sleep(1)
-        webdriver.switch_to.window(webdriver.window_handles[-1])
+        self.driver.switch_to.window(self.driver.window_handles[-1])
         time.sleep(2)
-        self.webdriver.find_element(*self.nova_guia).click()
+        self.driver.find_element(*self.nova_guia).click()
         count_linha = count_linha + 1        
-        injetar_dados(webdriver,url).Gerar_Remessa()
+        injetar_dados(self.driver,url).Gerar_Remessa()
+        self.driver.quit()
 
 
 
     def Gerar_Remessa(self):
-        webdriver.switch_to.window(webdriver.window_handles[-1])
+        self.driver.switch_to.window(self.driver.window_handles[-1])
         time.sleep(1)
-        webdriver.close()
+        self.driver.close()
         time.sleep(1)
-        webdriver.switch_to.window(webdriver.window_handles[-1])
+        self.driver.switch_to.window(self.driver.window_handles[-1])
         time.sleep(1)
-        self.webdriver.find_element(*self.abrir_remessa).click()
+        self.driver.find_element(*self.abrir_remessa).click()
         time.sleep(1)
-        webdriver.switch_to.window(webdriver.window_handles[-1])
+        self.driver.switch_to.window(self.driver.window_handles[-1])
         time.sleep(1)
-        self.webdriver.find_element(*self.remessa_novo).click()
+        self.driver.find_element(*self.remessa_novo).click()
         time.sleep(1)
 
         # Selecionar o tipo de Remessa "18 - Recurso de Glosa"
-        self.webdriver.find_element(*self.tipo_remessa).click()
+        self.driver.find_element(*self.tipo_remessa).click()
         time.sleep(1)
         # Na opção de arquivos anexados selecionar "Não"
-        self.webdriver.find_element(*self.arquivos_anexados).click()
+        self.driver.find_element(*self.arquivos_anexados).click()
         time.sleep(1)
         # Na opção de liberar remessa após a geração, marcar "Não"
-        self.webdriver.find_element(*self.liberar_remessa).click()
+        self.driver.find_element(*self.liberar_remessa).click()
         time.sleep(2)
-        self.webdriver.find_element(*self.botao_incluir).click()
+        self.driver.find_element(*self.botao_incluir).click()
         time.sleep(3)
-        webdriver.switch_to.window(webdriver.window_handles[-1])
+        self.driver.switch_to.window(self.driver.window_handles[-1])
         time.sleep(1)
-        n_remessa = webdriver.find_element(By.XPATH, '//*[@id="objTableHeader"]/tbody/tr[1]/td[2]').text
-        webdriver.save_screenshot(f"{n_remessa}.png")
+        n_remessa = self.driver.find_element(By.XPATH, '//*[@id="objTableHeader"]/tbody/tr[1]/td[2]').text
+        self.driver.save_screenshot(f"{n_remessa}.png")
         remessa_valor = {'Remessa': [n_remessa], 'Valor Total': [valor_total]}
         df = pd.DataFrame(remessa_valor)
         book = load_workbook(planilha)
@@ -380,9 +381,9 @@ class injetar_dados(PageElement):
         time.sleep(2)
         print(planilha)
         time.sleep(2)
-        webdriver.get('https://www2.geap.com.br/digitaTiss/DT001_GUIA_18.aspx')
+        self.driver.get('https://www2.geap.com.br/digitaTiss/DT001_GUIA_18.aspx')
         time.sleep(1)
-        webdriver.find_element(By.XPATH, '//*[@id="MenuOptionNew"]').click()
+        self.driver.find_element(By.XPATH, '//*[@id="MenuOptionNew"]').click()
 
 
 #---------------------------------------------------------------------------------
@@ -407,11 +408,13 @@ def recursar_duplicado():
             'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
         }
     }
-    global webdriver
-    webdriver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+    try:
+        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+    except:
+        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
     try:
-        login_page = Login(webdriver, url)
+        login_page = Login(driver, url)
         login_page.open()
         login_page.exe_login(
             prestador = "23003723",
@@ -421,10 +424,11 @@ def recursar_duplicado():
 
         time.sleep(4)
 
-        caminho(webdriver,url).exe_caminho()
+        caminho(driver,url).exe_caminho()
 
-        injetar_dados(webdriver,url).inserir_dados()
+        injetar_dados(driver,url).inserir_dados()
         tkinter.messagebox.showinfo( 'Automação GEAP Recurso de Glosa' , 'Recursos na GEAP Concluídos 😎✌' )
     
     except:
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
+        driver.quit()

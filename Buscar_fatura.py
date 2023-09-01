@@ -46,11 +46,11 @@ class caminho(PageElement):
             self.driver.find_element(*self.alerta).click()
         except:
             
-            textoDinamico('Não tem alerta')
+            print('Não tem alerta')
             
             # gif()
 
-        driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
+        self.driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
         time.sleep(3)
 
 class capturar_protocolo(PageElement):
@@ -73,17 +73,17 @@ class capturar_protocolo(PageElement):
             protocolo_plan =  f"{linha['Protocolo']}".replace(".0","")
             fatura_plan =  f"{linha['Faturas']}".replace(".0","")
             if ((f"{linha['Verificação']}" == "Fatura encontrada") or (protocolo_plan == "Total Geral")):
-                textoDinamico(f"{count}){protocolo_plan} : Fatura encontrada => {fatura_plan}")
+                print(f"{count}){protocolo_plan} : Fatura encontrada => {fatura_plan}")
                 continue
 
-            textoDinamico(f"{count}) Buscanco a fatura do Protocolo => {protocolo_plan}")
+            print(f"{count}) Buscanco a fatura do Protocolo => {protocolo_plan}")
             
-            driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
-            driver.find_element(*self.baixar).click()
+            self.driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
+            self.driver.find_element(*self.baixar).click()
             time.sleep(0.3)
 
             #Bloco de código que insere o número da fatura na planilha
-            fatura_site = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[3]').text
+            fatura_site = self.driver.find_element(By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[3]').text
             n_fatura = [fatura_site]
             df = pd.DataFrame(n_fatura)
             book = load_workbook(planilha)
@@ -95,7 +95,7 @@ class capturar_protocolo(PageElement):
 
             capturar_protocolo(webdriver,url).confere()
 
-            driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
+            self.driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
 
     
 
@@ -114,8 +114,8 @@ class capturar_protocolo(PageElement):
         except:
             protocolo_plan = str(dados["Protocolo"])
 
-        fatura_site = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[3]').text
-        protocolo_site  = driver.find_element(By.XPATH,'//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[1]').text
+        fatura_site = self.driver.find_element(By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[3]').text
+        protocolo_site  = self.driver.find_element(By.XPATH,'//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[1]').text
 
         if ((protocolo_plan == protocolo_site) & (fatura_site == fatura_plan)):
             confere = ["Fatura encontrada"]
@@ -144,7 +144,6 @@ class capturar_protocolo(PageElement):
 
 def iniciar():
 
-    global driver
     global planilha
     global url
 
@@ -189,11 +188,3 @@ def iniciar():
         tkinter.messagebox.showinfo( 'Automação GEAP Financeiro' , 'Busca de Faturas na GEAP Concluído 😎✌' )
     except:
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
-
-def textoDinamico(texto):
-
-    lista = ['Processando...']
-
-    lista.insert(0,texto)
-
-    

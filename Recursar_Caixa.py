@@ -16,11 +16,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
 class PageElement(ABC):
-    def __init__(self, webdriver, url=''):
-        self.webdriver = webdriver
+    def __init__(self, driver, url=''):
+        self.driver = driver
         self.url = url
     def open(self):
-        self.webdriver.get(self.url)
+        self.driver.get(self.url)
 
 class Login(PageElement):
     usuario = (By.XPATH, '//*[@id="UserName"]')
@@ -28,9 +28,9 @@ class Login(PageElement):
     acessar = (By.XPATH, '//*[@id="LoginButton"]')
 
     def exe_login(self, usuario, senha):
-        self.webdriver.find_element(*self.usuario).send_keys(usuario)
-        self.webdriver.find_element(*self.senha).send_keys(senha)
-        self.webdriver.find_element(*self.acessar).click()
+        self.driver.find_element(*self.usuario).send_keys(usuario)
+        self.driver.find_element(*self.senha).send_keys(senha)
+        self.driver.find_element(*self.acessar).click()
 
 class Recurso(PageElement):
     reapresentacao = (By.XPATH, '//*[@id="ctl00_SidebarMenu"]/li[7]')
@@ -54,9 +54,9 @@ class Recurso(PageElement):
     botao_ok_enviar = (By.XPATH, '/html/body/div[1]/div/div/div[3]/button[2]')
 
     def caminho(self):
-        self.webdriver.find_element(*self.reapresentacao).click()
+        self.driver.find_element(*self.reapresentacao).click()
         time.sleep(2)
-        self.webdriver.find_element(*self.reapresentar_peg).click()
+        self.driver.find_element(*self.reapresentar_peg).click()
         time.sleep(2)
     
     def arquivos(self):
@@ -71,20 +71,20 @@ class Recurso(PageElement):
         df_protocolo = pd.read_excel(planilha)
         for index, linha in df_protocolo.iterrows():
             protocolo = f"{linha['Protocolo Aceite']}".replace('.0', '')
-            self.webdriver.find_element(*self.pesq_recurso).send_keys(protocolo)
-            self.webdriver.find_element(*self.buscar).click()
+            self.driver.find_element(*self.pesq_recurso).send_keys(protocolo)
+            self.driver.find_element(*self.buscar).click()
             time.sleep(5)
             try:
-                self.webdriver.find_element(*self.protocolo).click()
+                self.driver.find_element(*self.protocolo).click()
             except:
                 time.sleep(3)
-                self.webdriver.find_element(*self.protocolo).click()
+                self.driver.find_element(*self.protocolo).click()
             time.sleep(5)
             break
 
     def tabela_site(self):
-        WebDriverWait(webdriver, 120).until(EC.presence_of_element_located((self.exibir_lista))).click()
-        tabela = self.webdriver.find_element(*self.tabela)
+        WebDriverWait(self.driver, 120).until(EC.presence_of_element_located((self.exibir_lista))).click()
+        tabela = self.driver.find_element(*self.tabela)
         tabela_html = tabela.get_attribute('outerHTML')
         global df_fatura
         df_fatura = pd.read_html(tabela_html)[0]
@@ -92,10 +92,10 @@ class Recurso(PageElement):
 
     def tabela_guia(self, i):
         if quantidade_fatura > 1:
-            mostrar_tabela = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/a').click()
+            mostrar_tabela = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/a').click()
         if quantidade_fatura == 1:
-            mostrar_tabela = webdriver.find_element(By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/a').click()
-        tabela_guia = webdriver.find_element(By.XPATH, '//*[@id="formularioGuia"]/div[3]/div/div/table')
+            mostrar_tabela = self.driver.find_element(By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/a').click()
+        tabela_guia = self.driver.find_element(By.XPATH, '//*[@id="formularioGuia"]/div[3]/div/div/table')
         tabela_guia_html = tabela_guia.get_attribute('outerHTML')
         df_guia = pd.read_html(tabela_guia_html)[0]
         global quant_proc
@@ -105,9 +105,9 @@ class Recurso(PageElement):
         if quantidade_fatura > 1:
             for num in range(0,1000):
                 try:
-                    slot_proc = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/ul/li[{j}]')
+                    slot_proc = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/ul/li[{j}]')
                     time.sleep(0.2)
-                    slot_proc = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/ul/li[{j}]').text
+                    slot_proc = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/ul/li[{j}]').text
                     break
                 except:
                     pass
@@ -115,9 +115,9 @@ class Recurso(PageElement):
         if quantidade_fatura == 1 and quant_proc > 1:
             for num in range(0,1000):
                 try:
-                    slot_proc = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul/li[{j}]')
+                    slot_proc = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul/li[{j}]')
                     time.sleep(0.2)
-                    slot_proc = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul/li[{j}]').text
+                    slot_proc = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul/li[{j}]').text
                     break
                 except:
                     pass
@@ -125,9 +125,9 @@ class Recurso(PageElement):
         if quantidade_fatura == 1 and quant_proc == 1:
             for num in range(0,1000):
                 try:
-                    slot_proc = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul')
+                    slot_proc = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul')
                     time.sleep(0.2)
-                    slot_proc = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul').text
+                    slot_proc = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul').text
                     break
                 except:
                    pass
@@ -148,18 +148,18 @@ class Recurso(PageElement):
 
     def conferencia_proc(self, i, j):
         if quantidade_fatura > 1:
-            visualizar_proc = WebDriverWait(webdriver, 60).until(EC.presence_of_element_located((By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/ul/li[{j}]/a'))).click()
+            visualizar_proc = WebDriverWait(self.driver, 60).until(EC.presence_of_element_located((By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/ul/li[{j}]/a'))).click()
         if quantidade_fatura == 1 and quant_proc > 1:
-            visualizar_proc = WebDriverWait(webdriver, 60).until(EC.presence_of_element_located((By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul/li[{j}]/a'))).click()
+            visualizar_proc = WebDriverWait(self.driver, 60).until(EC.presence_of_element_located((By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul/li[{j}]/a'))).click()
         if quantidade_fatura == 1 and quant_proc == 1:
-            visualizar_proc = WebDriverWait(webdriver, 60).until(EC.presence_of_element_located((By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul/li/a'))).click()
+            visualizar_proc = WebDriverWait(self.driver, 60).until(EC.presence_of_element_located((By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li/ul/li/a'))).click()
         time.sleep(1)
         global numero_guia
-        numero_guia = webdriver.find_element(By.XPATH, '//*[@id="formEventoGuia"]').text
+        numero_guia = self.driver.find_element(By.XPATH, '//*[@id="formEventoGuia"]').text
         numero_guia = str(numero_guia)
         print(numero_guia)
         global procedimento
-        procedimento = webdriver.find_element(By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[2]/div/div[1]/div/span').text
+        procedimento = self.driver.find_element(By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[2]/div/div[1]/div/span').text
         procedimento = procedimento.replace(".", "")
         procedimento = procedimento.replace("PROCEDIMENTO ", "")
         for k, v in enumerate(procedimento):
@@ -170,34 +170,34 @@ class Recurso(PageElement):
                 break
         print(procedimento)
         global valor_glosado
-        valor_glosado = webdriver.find_element(By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[2]/div/div[4]/div[2]/div[1]/p').text
+        valor_glosado = self.driver.find_element(By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[2]/div/div[4]/div[2]/div[1]/p').text
 
     def injetar_dados(self, i, j, linha2):
-        checkbox = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/ul/li[{j}]/a/i[1]').click()
-        page_up = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/a').send_keys(Keys.CONTROL + Keys.HOME)
+        checkbox = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/ul/li[{j}]/a/i[1]').click()
+        page_up = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/a').send_keys(Keys.CONTROL + Keys.HOME)
         time.sleep(0.5)
-        self.webdriver.find_element(*self.recursar).click()
+        self.driver.find_element(*self.recursar).click()
         time.sleep(0.5)
-        self.webdriver.find_element(*self.valor_a_recursar).clear()
-        self.webdriver.find_element(*self.valor_a_recursar).send_keys(f"{linha2['Valor Recursado']}")
+        self.driver.find_element(*self.valor_a_recursar).clear()
+        self.driver.find_element(*self.valor_a_recursar).send_keys(f"{linha2['Valor Recursado']}")
         time.sleep(1)
-        self.webdriver.find_element(*self.motivo_recurso).send_keys(f"{linha2['Motivo Glosa']}")
-        self.webdriver.find_element(*self.justificativa).clear()
-        self.webdriver.find_element(*self.justificativa).send_keys(f"{linha2['Recurso Glosa']}")
+        self.driver.find_element(*self.motivo_recurso).send_keys(f"{linha2['Motivo Glosa']}")
+        self.driver.find_element(*self.justificativa).clear()
+        self.driver.find_element(*self.justificativa).send_keys(f"{linha2['Recurso Glosa']}")
         time.sleep(2)
         try:
-            self.webdriver.find_element(*self.salvar).click()
+            self.driver.find_element(*self.salvar).click()
         except:
-            self.webdriver.find_element(*self.enviar).click()
+            self.driver.find_element(*self.enviar).click()
             time.sleep(1)
-            numero_remessa = self.webdriver.find_element(*self.n_protocolo).text
-            webdriver.save_screenshot(f"{numero_remessa}.png")
+            numero_remessa = self.driver.find_element(*self.n_protocolo).text
+            self.driver.save_screenshot(f"{numero_remessa}.png")
             time.sleep(1)
-            self.webdriver.find_element(*self.botao_ok_enviar).click()
+            self.driver.find_element(*self.botao_ok_enviar).click()
 
 
         time.sleep(3)
-        self.webdriver.find_element(*self.botao_ok).click()
+        self.driver.find_element(*self.botao_ok).click()
         time.sleep(1)
 
     def fazer_recurso(self):
@@ -220,20 +220,20 @@ class Recurso(PageElement):
                 self.tabela_site()
                 global quantidade_fatura
                 quantidade_fatura = len(df_fatura)
-                self.webdriver.find_element(*self.mostrar_guias).click()
+                self.driver.find_element(*self.mostrar_guias).click()
                 controle = (f"{linha['Controle Inicial']}").replace(".0", "")
                 recursado = False
                 for i in range(1, quantidade_fatura + 1):
                     for slot in range(0, 100):
                         try:
-                            slot_guia = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]')
+                            slot_guia = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]')
                             time.sleep(0.2)
-                            slot_guia = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]').text
+                            slot_guia = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]').text
                             break
                         except:
                             pass
                     if controle in slot_guia:
-                        mostrar_proc = webdriver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/i').click()
+                        mostrar_proc = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/i').click()
                         self.tabela_guia(i)
                         for j in range(1, quant_proc + 1):
                             self.comparar_proc(i, j, linha)
@@ -260,8 +260,8 @@ class Recurso(PageElement):
                     if recursado == True:
                         break
                 if recursado == False:
-                    webdriver.refresh()
-                    page_up = webdriver.find_element(By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[1]/div/div/a[1]').send_keys(Keys.CONTROL + Keys.HOME)
+                    self.driver.refresh()
+                    page_up = self.driver.find_element(By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[1]/div/div/a[1]').send_keys(Keys.CONTROL + Keys.HOME)
 
             try:
                 writer.close()
@@ -277,11 +277,9 @@ class Recurso(PageElement):
             except PermissionError as err:
                 print(err)
 
-            self.webdriver.get('https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursosglosaprestador.aspx?i=PORTAL_RECURSARGLOSA&m=MENU_RECURSODEGLOSA_AGRUPADO')
-            self.webdriver.find_element(*self.pesq_recurso).clear()
-        webdriver.quit()
-        # except:
-        #     tkinter.messagebox.showerror('Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava')
+            self.driver.get('https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursosglosaprestador.aspx?i=PORTAL_RECURSARGLOSA&m=MENU_RECURSODEGLOSA_AGRUPADO')
+            self.driver.find_element(*self.pesq_recurso).clear()
+        self.driver.quit()
 #---------------------------------------------------------------------------------------------------------------------------------
 def recursar_caixa():
     global pasta
@@ -301,25 +299,22 @@ def recursar_caixa():
             'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
         }
     }
-
-    global webdriver
-
     try:
         servico = Service(ChromeDriverManager().install())
-        webdriver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
     except:
-        webdriver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
     try:
-        login_page = Login(webdriver, url)
+        login_page = Login(driver, url)
         login_page.open()
 
         login_page.exe_login(
             usuario = "00735860000173",
             senha = "saude123"
         )
-        Recurso(webdriver, url).fazer_recurso()
+        Recurso(driver, url).fazer_recurso()
         tkinter.messagebox.showinfo( 'Automação Saúde Caixa Recurso de Glosa' , 'Recursos do Saúde Caixa Concluídos 😎✌' )
-        webdriver.quit()
     except:
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal do Saúde Caixa caiu 😢' )
+        driver.quit()

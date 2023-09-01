@@ -9,9 +9,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 from seleniumwire import webdriver
-# from Relatorio import textoDinamico
-# from Automacao import gif
 
 
 
@@ -160,8 +160,9 @@ def iniciar():
 
     chrome_options = Options()
     chrome_options.add_argument("--headless")
+    servico = Service(ChromeDriverManager().install())
 
-    driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
+    driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
 
     #ctypes.windll.kernel32.FreeConsole()
 
@@ -176,7 +177,6 @@ def iniciar():
         cpf = '66661692120',
         senha = "amhpdf0073"
     )
-
     
     caminho(driver, url).exe_caminho()
 
@@ -190,9 +190,7 @@ def iniciar():
     except:
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
 
-
 def textoDinamico(texto):
-    global listar
 
     lista = ['Processando...']
 

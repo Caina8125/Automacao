@@ -17,11 +17,11 @@ import tkinter
 
 
 class PageElement(ABC):
-    def __init__(self, webdriver, url=''):
-        self.webdriver = webdriver
+    def __init__(self, driver, url=''):
+        self.driver = driver
         self.url = url
     def open(self):
-        self.webdriver.get(self.url)
+        self.driver.get(self.url)
 
 
 class Login(PageElement):
@@ -30,9 +30,9 @@ class Login(PageElement):
     logar = (By.XPATH, '//*[@id="btnLogin"]')
 
     def exe_login(self, email, senha):
-        self.webdriver.find_element(*self.email).send_keys(email)
-        self.webdriver.find_element(*self.senha).send_keys(senha)
-        self.webdriver.find_element(*self.logar).click()
+        self.driver.find_element(*self.email).send_keys(email)
+        self.driver.find_element(*self.senha).send_keys(senha)
+        self.driver.find_element(*self.logar).click()
 
 
 class caminho(PageElement):
@@ -45,18 +45,18 @@ class caminho(PageElement):
 
     def exe_caminho(self):
         try:
-            modal = WebDriverWait(webdriver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
-            self.webdriver.find_element(*self.fechar_botao).click()
+            modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
+            self.driver.find_element(*self.fechar_botao).click()
 
             while True:
                 try:
-                    proximo_botao = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
+                    proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
                     proximo_botao.click()
                 except:
                     break
 
             try:
-                fechar_botao = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
+                fechar_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
                 fechar_botao.click()
             except:
                 print("Não foi possível encontrar o botão de fechar.")
@@ -65,23 +65,23 @@ class caminho(PageElement):
         except:
             print("Não teve Modal")
             pass
-        self.webdriver.find_element(*self.recurso).click()
+        self.driver.find_element(*self.recurso).click()
         time.sleep(2)
-        self.webdriver.find_element(*self.novo).click()
+        self.driver.find_element(*self.novo).click()
         time.sleep(3)
         try:
-            modal = WebDriverWait(webdriver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
-            self.webdriver.find_element(*self.fechar_botao).click()
+            modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
+            self.driver.find_element(*self.fechar_botao).click()
 
             while True:
                 try:
-                    proximo_botao = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
+                    proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
                     proximo_botao.click()
                 except:
                     break
 
             try:
-                fechar_botao = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
+                fechar_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
                 fechar_botao.click()
             except:
                 print("Não foi possível encontrar o botão de fechar.")
@@ -91,13 +91,13 @@ class caminho(PageElement):
             pass
 
     def novo_rec(self):
-        self.webdriver.find_element(*self.novo).click()
+        self.driver.find_element(*self.novo).click()
         print('Dentro de novo recurso')
 
     def Alert(self):
-        self.webdriver.find_element(*self.proximo).click()
+        self.driver.find_element(*self.proximo).click()
         time.sleep(1)
-        self.webdriver.find_element(*self.fechar).click()                    
+        self.driver.find_element(*self.fechar).click()                    
 
 class inserir_dados(PageElement):
     protocolo = (By.XPATH, '//*[@id="Protocolo"]')
@@ -142,27 +142,27 @@ class inserir_dados(PageElement):
             faturas_df1 = pd.read_excel(planilha)
             for index, linha in faturas_df1.iterrows():
                 try:
-                    elemen2 = WebDriverWait(webdriver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="sidebar-menu"]/li[26]/ul/li[1]/a/span[1]')))
-                    webdriver.find_element(By.XPATH,'//*[@id="sidebar-menu"]/li[26]/ul/li[1]/a/span[1]').click()
+                    elemen2 = WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="sidebar-menu"]/li[26]/ul/li[1]/a/span[1]')))
+                    self.driver.find_element(By.XPATH,'//*[@id="sidebar-menu"]/li[26]/ul/li[1]/a/span[1]').click()
                 except:
-                    webdriver.find_element(By.XPATH,'//*[@id="sidebar-menu"]/li[26]/a/span[1]').click()
+                    self.driver.find_element(By.XPATH,'//*[@id="sidebar-menu"]/li[26]/a/span[1]').click()
                     time.sleep(1)
-                    webdriver.find_element(By.XPATH,'//*[@id="sidebar-menu"]/li[26]/ul/li[1]/a/span[1]').click()
+                    self.driver.find_element(By.XPATH,'//*[@id="sidebar-menu"]/li[26]/ul/li[1]/a/span[1]').click()
                     
                 time.sleep(2)
                 try:
-                    modal = WebDriverWait(webdriver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
-                    self.webdriver.find_element(*self.fechar_botao).click()
+                    modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
+                    self.driver.find_element(*self.fechar_botao).click()
 
                     while True:
                         try:
-                            proximo_botao = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
+                            proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
                             proximo_botao.click()
                         except:
                             break
 
                     try:
-                        fechar_botao = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
+                        fechar_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
                         fechar_botao.click()
                     except:
                         print("Não foi possível encontrar o botão de fechar.")
@@ -170,31 +170,31 @@ class inserir_dados(PageElement):
                 except:
                     print("Não teve Modal")
                     pass
-                self.webdriver.find_element(*self.protocolo).send_keys(f"{linha['Protocolo Glosa']}")
+                self.driver.find_element(*self.protocolo).send_keys(f"{linha['Protocolo Glosa']}")
                 print('Protocolo: ' + f"{linha['Protocolo Glosa']}")
         
                 time.sleep(1)
-                self.webdriver.find_element(*self.pesquisar).click()
+                self.driver.find_element(*self.pesquisar).click()
                 time.sleep(2)
                 try:
                     for contador in range(3):
-                        webdriver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+                        self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
                 except:
                     None
 
                 try:
-                    modal = WebDriverWait(webdriver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
-                    self.webdriver.find_element(*self.fechar_botao).click()
+                    modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
+                    self.driver.find_element(*self.fechar_botao).click()
 
                     while True:
                         try:
-                            proximo_botao = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
+                            proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
                             proximo_botao.click()
                         except:
                             break
 
                     try:
-                        fechar_botao = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
+                        fechar_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
                         fechar_botao.click()
                     except:
                         print("Não foi possível encontrar o botão de fechar.")
@@ -203,59 +203,58 @@ class inserir_dados(PageElement):
                     print("Não teve Modal")
                     pass
 
-                self.webdriver.find_element(*self.selecionar).click()
+                self.driver.find_element(*self.selecionar).click()
                 
                 time.sleep(2)
-                situacao = WebDriverWait(webdriver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="DataGrid"]/tbody[1]/tr[1]/td[7]')))
+                situacao = WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="DataGrid"]/tbody[1]/tr[1]/td[7]')))
                 if situacao == "Faturado":
-                    self.webdriver.find_element(*self.recursoclick).click()
+                    self.driver.find_element(*self.recursoclick).click()
                     time.sleep(6)
                 else:
-                    self.webdriver.find_element(*self.atualizar).click()
+                    self.driver.find_element(*self.atualizar).click()
                     time.sleep(6)
-                    self.webdriver.find_element(*self.pesquisar).click()
+                    self.driver.find_element(*self.pesquisar).click()
                     time.sleep(2)
                     try:
                         for contador in range(3):
-                            webdriver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-                            print("Desceu")
+                            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
                     except:
                         None
-                    self.webdriver.find_element(*self.selecionar).click()
+                    self.driver.find_element(*self.selecionar).click()
                     time.sleep(2)
-                    self.webdriver.find_element(*self.recursoclick).click()
+                    self.driver.find_element(*self.recursoclick).click()
                     time.sleep(6)
 
                 try:
-                    element = WebDriverWait(webdriver, 50).until(EC.presence_of_element_located((self.novo_recurso)))
-                    self.webdriver.find_element(*self.novo_recurso).click()
+                    element = WebDriverWait(self.driver, 50).until(EC.presence_of_element_located((self.novo_recurso)))
+                    self.driver.find_element(*self.novo_recurso).click()
                 except:
                     print('Recurso Normal')
                 time.sleep(2)
                 try:
-                    element = WebDriverWait(webdriver, 50).until(EC.presence_of_element_located((self.controle)))
-                    self.webdriver.find_element(*self.controle).clear()
+                    element = WebDriverWait(self.driver, 50).until(EC.presence_of_element_located((self.controle)))
+                    self.driver.find_element(*self.controle).clear()
                 except:
                     print('Limpar Nº Guia')
                 try:
-                    self.webdriver.find_element(*self.alerta2).click()
+                    self.driver.find_element(*self.alerta2).click()
                 except:
                     print('Alerta2 não apareceu')
                 break
 
             try:
-                modal = WebDriverWait(webdriver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
-                self.webdriver.find_element(*self.fechar_botao).click()
+                modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
+                self.driver.find_element(*self.fechar_botao).click()
 
                 while True:
                     try:
-                        proximo_botao = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
+                        proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
                         proximo_botao.click()
                     except:
                         break
 
                 try:
-                    fechar_botao = WebDriverWait(webdriver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
+                    fechar_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
                     fechar_botao.click()
                 except:
                     print("Não foi possível encontrar o botão de fechar.")
@@ -269,31 +268,31 @@ class inserir_dados(PageElement):
                 # break
 
             for index, linha in faturas_df1.iterrows():
-                self.webdriver.find_element(*self.controle).clear()
+                self.driver.find_element(*self.controle).clear()
                 time.sleep(1)
-                self.webdriver.find_element(*self.controle).send_keys(f"{linha['Controle Inicial']}")
+                self.driver.find_element(*self.controle).send_keys(f"{linha['Controle Inicial']}")
                 time.sleep(1)
-                self.webdriver.find_element(*self.marcar).click()
+                self.driver.find_element(*self.marcar).click()
                 time.sleep(1)
-                self.webdriver.find_element(*self.procedimento).click()
+                self.driver.find_element(*self.procedimento).click()
                 time.sleep(2)
-                self.webdriver.find_element(*self.pesquisar_proc).clear()
+                self.driver.find_element(*self.pesquisar_proc).clear()
                 time.sleep(2) 
-                self.webdriver.find_element(*self.pesquisar_proc).send_keys(f"{linha['Procedimento']}")
+                self.driver.find_element(*self.pesquisar_proc).send_keys(f"{linha['Procedimento']}")
                 time.sleep(2)
-                webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/thead/tr[2]/th[8]').click()
+                self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/thead/tr[2]/th[8]').click()
                 time.sleep(2)
-                self.webdriver.find_element(*self.pesquisar_proc).clear()
+                self.driver.find_element(*self.pesquisar_proc).clear()
                 time.sleep(2)
                 
-                desmarcar = WebDriverWait(webdriver, 50).until(EC.presence_of_element_located((self.marcar)))
+                desmarcar = WebDriverWait(self.driver, 50).until(EC.presence_of_element_located((self.marcar)))
                 time.sleep(1)
-                self.webdriver.find_element(*self.controle).clear()
+                self.driver.find_element(*self.controle).clear()
                 time.sleep(1)
-                self.webdriver.find_element(*self.controle).send_keys(f"{linha['Controle Inicial']}")
-                webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]/input').click()
+                self.driver.find_element(*self.controle).send_keys(f"{linha['Controle Inicial']}")
+                self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]/input').click()
                 time.sleep(2)
-                self.webdriver.find_element(*self.controle).clear()
+                self.driver.find_element(*self.controle).clear()
                 print( 'Procedimentos ordenados')
                 break
 
@@ -311,39 +310,39 @@ class inserir_dados(PageElement):
 
                 print('Data: ' + f"{linha['Realizado']}")
                 time.sleep(2)
-                self.webdriver.find_element(*self.controle).clear()
-                self.webdriver.find_element(*self.controle).send_keys(f"{linha['Controle Inicial']}")
+                self.driver.find_element(*self.controle).clear()
+                self.driver.find_element(*self.controle).send_keys(f"{linha['Controle Inicial']}")
                 
                 time.sleep(2)
-                self.webdriver.find_element(*self.marcar).click()
+                self.driver.find_element(*self.marcar).click()
 
                 time.sleep(1)
-                self.webdriver.find_element(*self.procedimento).click()
+                self.driver.find_element(*self.procedimento).click()
                 time.sleep(2)
-                self.webdriver.find_element(*self.pesquisar_proc).clear()
+                self.driver.find_element(*self.pesquisar_proc).clear()
                 time.sleep(2) 
-                self.webdriver.find_element(*self.pesquisar_proc).send_keys(f"{linha['Procedimento']}")
+                self.driver.find_element(*self.pesquisar_proc).send_keys(f"{linha['Procedimento']}")
                 print('Código: ' + f"{linha['Procedimento']}")
                 
                 time.sleep(3)
                 
                 try:
                     for contador in range(3):
-                        webdriver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+                        self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
                 except:
                     None
                 try:
                     for i in range(0,10):
                         try:
-                            valor1 =  webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[8]').text
-                            codigo1 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[2]').text
+                            valor1 =  self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[8]').text
+                            codigo1 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[2]').text
                             for k, v in enumerate(codigo1):
                                 if codigo1[0] != "0":
                                     break
                                 if codigo1[k] != "0":
                                     codigo1 = str(codigo1[k:])
                                     break
-                            vlr_glosado1 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[7]').text
+                            vlr_glosado1 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[7]').text
                             elementos_encontrados = True
                             print("Elementos Encontrados")
                             break
@@ -359,28 +358,28 @@ class inserir_dados(PageElement):
 
                         time.sleep(1)
 
-                        self.webdriver.find_element(*self.checkbox).click()
+                        self.driver.find_element(*self.checkbox).click()
                         time.sleep(1)
-                        self.webdriver.find_element(*self.recursar).click()
+                        self.driver.find_element(*self.recursar).click()
                         time.sleep(1)
                         try:
-                            button = WebDriverWait(webdriver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
+                            button = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
                             try:
-                                self.webdriver.find_element(*self.justificativa).click()
-                                self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                                self.driver.find_element(*self.justificativa).click()
+                                self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             except:
                                 print('Não justificou')
                                 break
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
                             dados = ['Sim']
@@ -402,16 +401,16 @@ class inserir_dados(PageElement):
                         except:
                             time.sleep(2)
                             print('Erro Valor')
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
 
@@ -434,55 +433,55 @@ class inserir_dados(PageElement):
                             writer.save()
                         try:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox).click()
+                            self.driver.find_element(*self.checkbox).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(2)
                             continue
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox).click()
+                            self.driver.find_element(*self.checkbox).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(2)
                             print('Exceção')
                             continue
 
-                    valor2 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[8]').text
-                    codigo2 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[2]').text
+                    valor2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[8]').text
+                    codigo2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo2):
                         if codigo2[0] != "0":
                             break
                         if codigo2[k] != "0":
                             codigo2 = str(codigo2[k:])
                             break
-                    vlr_glosado2 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[7]').text
+                    vlr_glosado2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[7]').text
 
                     if ((valor2 == "R$0,00") and (codigo2 == f"{linha['Procedimento']}",".0") and (vlr_glosado2 >= "R$0,22")) and vlr_glosado2 == valor_planilha:
                         print('Valor do 2° Procedimento Encontrado = R$0,00')
                         print('Valor do 2° Procedimento injetado = ' + f"{linha['Valor Recursado']}")
 
                         time.sleep(1)
-                        self.webdriver.find_element(*self.checkbox2).click()
+                        self.driver.find_element(*self.checkbox2).click()
                         time.sleep(1)
-                        self.webdriver.find_element(*self.recursar).click()
+                        self.driver.find_element(*self.recursar).click()
                         time.sleep(2)
                         try:
-                            button= WebDriverWait(webdriver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
-                            self.webdriver.find_element(*self.valor).click()
+                            button= WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
 
@@ -505,16 +504,16 @@ class inserir_dados(PageElement):
                             writer.save()
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
 
@@ -537,55 +536,55 @@ class inserir_dados(PageElement):
                             writer.save()
                         try:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox2).click()
+                            self.driver.find_element(*self.checkbox2).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             continue
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox2).click()
+                            self.driver.find_element(*self.checkbox2).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             print('Exceção')
                             continue
 
-                    valor3 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[8]').text
-                    codigo3 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[2]').text
+                    valor3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[8]').text
+                    codigo3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo3):
                         if codigo3[0] != "0":
                             break
                         if codigo3[k] != "0":
                             codigo3 = str(codigo3[k:])
                             break
-                    vlr_glosado3 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[7]').text
+                    vlr_glosado3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[7]').text
 
                     if ((valor3 == "R$0,00") and (codigo3 == f"{linha['Procedimento']}",".0") and (vlr_glosado3 >= "R$0,22")) and vlr_glosado3 == valor_planilha:
                         print('Valor do 3° Procedimento Encontrado = R$0,00')
                         print('Valor do 3° Procedimento injetado = ' + f"{linha['Valor Recursado']}")
 
                         time.sleep(1)
-                        self.webdriver.find_element(*self.checkbox3).click()
+                        self.driver.find_element(*self.checkbox3).click()
                         time.sleep(2)
-                        self.webdriver.find_element(*self.recursar).click()
+                        self.driver.find_element(*self.recursar).click()
                         time.sleep(2)
                         try:
-                            button= WebDriverWait(webdriver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
-                            self.webdriver.find_element(*self.valor).click()
+                            button= WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
 
@@ -609,16 +608,16 @@ class inserir_dados(PageElement):
                         except:
                             time.sleep(2)
                             print('Erro Valor')
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
 
@@ -641,55 +640,55 @@ class inserir_dados(PageElement):
                             writer.save()
                         try:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox3).click()
+                            self.driver.find_element(*self.checkbox3).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             continue
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox3).click()
+                            self.driver.find_element(*self.checkbox3).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             print('Exceção')
                             continue
 
-                    valor4 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[8]').text
-                    codigo4 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[2]').text
+                    valor4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[8]').text
+                    codigo4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo4):
                         if codigo4[0] != "0":
                             break
                         if codigo4[k] != "0":
                             codigo4 = str(codigo4[k:])
                             break
-                    vlr_glosado4 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[7]').text
+                    vlr_glosado4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[7]').text
 
                     if ((valor4 == "R$0,00") and (codigo4 == f"{linha['Procedimento']}",".0") and (vlr_glosado4 >= "R$0,22")) and vlr_glosado4 == valor_planilha:
                         print('Valor do 4° Procedimento Encontrado = R$0,00')
                         print('Valor do 4° Procedimento injetado = ' + f"{linha['Valor Recursado']}")
 
                         time.sleep(1)
-                        self.webdriver.find_element(*self.checkbox4).click()
+                        self.driver.find_element(*self.checkbox4).click()
                         time.sleep(2)
-                        self.webdriver.find_element(*self.recursar).click()
+                        self.driver.find_element(*self.recursar).click()
                         time.sleep(2)
                         try:
-                            button= WebDriverWait(webdriver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
-                            self.webdriver.find_element(*self.valor).click()
+                            button= WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
 
@@ -712,16 +711,16 @@ class inserir_dados(PageElement):
                             writer.save()
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
                             dados = ['Sim']
@@ -743,55 +742,55 @@ class inserir_dados(PageElement):
                             writer.save()
                         try:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox4).click()
+                            self.driver.find_element(*self.checkbox4).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             continue
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox4).click()
+                            self.driver.find_element(*self.checkbox4).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             print('Exceção')
                             continue
 
-                    valor5 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[8]').text
-                    codigo5 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[2]').text
+                    valor5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[8]').text
+                    codigo5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo5):
                         if codigo5[0] != "0":
                             break
                         if codigo5[k] != "0":
                             codigo5 = str(codigo5[k:])
                             break
-                    vlr_glosado5 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[7]').text
+                    vlr_glosado5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[7]').text
 
                     if ((valor5 == "R$0,00") and (codigo5 == f"{linha['Procedimento']}",".0") and (vlr_glosado5 >= "R$0,22")) and vlr_glosado5 == valor_planilha:
                         print('Valor do 5° Procedimento Encontrado = R$0,00')
                         print('Valor do 5° Procedimento injetado = ' + f"{linha['Valor Recursado']}")
 
                         time.sleep(1)
-                        self.webdriver.find_element(*self.checkbox5).click()
+                        self.driver.find_element(*self.checkbox5).click()
                         time.sleep(2)
-                        self.webdriver.find_element(*self.recursar).click()
+                        self.driver.find_element(*self.recursar).click()
                         time.sleep(2)
                         try:
-                            button= WebDriverWait(webdriver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
-                            self.webdriver.find_element(*self.valor).click()
+                            button= WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
 
@@ -816,16 +815,16 @@ class inserir_dados(PageElement):
                         except:
                             time.sleep(2)
                             print('Erro Valor')
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
                             dados = ['Sim']
@@ -846,55 +845,55 @@ class inserir_dados(PageElement):
                             writer.save()
                         try:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox5).click()
+                            self.driver.find_element(*self.checkbox5).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             continue
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox5).click()
+                            self.driver.find_element(*self.checkbox5).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             print('Exceção')
                             continue
 
-                    valor6 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[8]').text
-                    codigo6 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[2]').text
+                    valor6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[8]').text
+                    codigo6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo6):
                         if codigo6[0] != "0":
                             break
                         if codigo6[k] != "0":
                             codigo6 = str(codigo6[k:])
                             break
-                    vlr_glosado6 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[7]').text
+                    vlr_glosado6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[7]').text
 
                     if ((valor6 == "R$0,00") and (codigo6 == f"{linha['Procedimento']}",".0") and (vlr_glosado6 >= "R$0,22")) and vlr_glosado6 == valor_planilha:
                         print('Valor do 6° Procedimento Encontrado = R$0,00')
                         print('Valor do 6° Procedimento injetado = ' + f"{linha['Valor Recursado']}")
 
                         time.sleep(1)
-                        self.webdriver.find_element(*self.checkbox6).click()
+                        self.driver.find_element(*self.checkbox6).click()
                         time.sleep(2)
-                        self.webdriver.find_element(*self.recursar).click()
+                        self.driver.find_element(*self.recursar).click()
                         time.sleep(2)
                         try:
-                            button= WebDriverWait(webdriver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
-                            self.webdriver.find_element(*self.valor).click()
+                            button= WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
                             dados = ['Sim']
@@ -916,16 +915,16 @@ class inserir_dados(PageElement):
                         except:
                             time.sleep(2)
                             print('Erro Valor')
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
                             dados = ['Sim']
@@ -946,57 +945,57 @@ class inserir_dados(PageElement):
                             writer.save()
                         try:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox6).click()
+                            self.driver.find_element(*self.checkbox6).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             continue
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox6).click()
+                            self.driver.find_element(*self.checkbox6).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             print('Exceção')
                             continue
 
                         
 
-                    valor7 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[8]').text
-                    codigo7 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[2]').text
+                    valor7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[8]').text
+                    codigo7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo7):
                         if codigo7[0] != "0":
                             break
                         if codigo7[k] != "0":
                             codigo7 = str(codigo7[k:])
                             break
-                    vlr_glosado7 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[7]').text
+                    vlr_glosado7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[7]').text
 
                     if ((valor7 == "R$0,00") and (codigo7 == f"{linha['Procedimento']}",".0") and (vlr_glosado7 >= "R$0,22")) and vlr_glosado7 == valor_planilha:
                         print('Valor do 7° Procedimento Encontrado = R$0,00')
                         print('Valor do 7° Procedimento injetado = ' + f"{linha['Valor Recursado']}")
 
                         time.sleep(1)
-                        self.webdriver.find_element(*self.checkbox7).click()
+                        self.driver.find_element(*self.checkbox7).click()
                         time.sleep(2)
-                        self.webdriver.find_element(*self.recursar).click()
+                        self.driver.find_element(*self.recursar).click()
                         time.sleep(2)
                         try:
-                            button= WebDriverWait(webdriver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
-                            self.webdriver.find_element(*self.valor).click()
+                            button= WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
 
@@ -1020,16 +1019,16 @@ class inserir_dados(PageElement):
                             writer.save()
                         except:
                             print('Erro Valor')
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
 
@@ -1052,55 +1051,55 @@ class inserir_dados(PageElement):
                             writer.save()
                         try:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox7).click()
+                            self.driver.find_element(*self.checkbox7).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             continue
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox7).click()
+                            self.driver.find_element(*self.checkbox7).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             print('Exceção')
                             continue
 
-                    valor8 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[8]').text
-                    codigo8 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[2]').text
+                    valor8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[8]').text
+                    codigo8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo8):
                         if codigo8[0] != "0":
                             break
                         if codigo8[k] != "0":
                             codigo8 = str(codigo8[k:])
                             break
-                    vlr_glosado8 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[7]').text
+                    vlr_glosado8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[7]').text
 
                     if ((valor8 == "R$0,00") and (codigo8 == f"{linha['Procedimento']}",".0") and (vlr_glosado8 >= "R$0,22")) and vlr_glosado8 == valor_planilha:
                         print('Valor do 8° Procedimento Encontrado = R$0,00')
                         print('Valor do 8° Procedimento injetado = ' + f"{linha['Valor Recursado']}")
 
                         time.sleep(1)
-                        self.webdriver.find_element(*self.checkbox8).click()
+                        self.driver.find_element(*self.checkbox8).click()
                         time.sleep(2)
-                        self.webdriver.find_element(*self.recursar).click()
+                        self.driver.find_element(*self.recursar).click()
                         time.sleep(2)
                         try:
-                            button= WebDriverWait(webdriver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
-                            self.webdriver.find_element(*self.valor).click()
+                            button= WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
                             dados = ['Sim']
@@ -1122,16 +1121,16 @@ class inserir_dados(PageElement):
                             writer.save()
                         except:
                             print('Erro Valor')
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
                             dados = ['Sim']
@@ -1152,54 +1151,54 @@ class inserir_dados(PageElement):
                             writer.save()
                         try:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox8).click()
+                            self.driver.find_element(*self.checkbox8).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             continue
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox8).click()
+                            self.driver.find_element(*self.checkbox8).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             print('Exceção')
                             continue
 
-                    valor9 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[8]').text
-                    codigo9 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[2]').text
+                    valor9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[8]').text
+                    codigo9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo9):
                         if codigo9[0] != "0":
                             break
                         if codigo9[k] != "0":
                             codigo9 = str(codigo9[k:])
                             break
-                    vlr_glosado9 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[7]').text
+                    vlr_glosado9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[7]').text
 
                     if ((valor9 == "R$0,00") and (codigo9 == f"{linha['Procedimento']}",".0") and (vlr_glosado9 >= "R$0,22")) and vlr_glosado9 == valor_planilha:
                         print('Valor do 9° Procedimento Encontrado = R$0,00')
                         print('Valor do 9° Procedimento injetado = ' + f"{linha['Valor Recursado']}")
                         time.sleep(1)
-                        self.webdriver.find_element(*self.checkbox9).click()
+                        self.driver.find_element(*self.checkbox9).click()
                         time.sleep(2)
-                        self.webdriver.find_element(*self.recursar).click()
+                        self.driver.find_element(*self.recursar).click()
                         time.sleep(2)
                         try:
-                            button= WebDriverWait(webdriver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
-                            self.webdriver.find_element(*self.valor).click()
+                            button= WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
                             dados = ['Sim']
@@ -1220,16 +1219,16 @@ class inserir_dados(PageElement):
                             writer.save()
                         except:
                             print('Erro Valor')
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
                             dados = ['Sim']
@@ -1250,55 +1249,55 @@ class inserir_dados(PageElement):
                             writer.save()
                         try:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox9).click()
+                            self.driver.find_element(*self.checkbox9).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             continue
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox9).click()
+                            self.driver.find_element(*self.checkbox9).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             print('Exceção')
                             continue
 
-                    valor10 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[8]').text
-                    codigo10 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[2]').text
+                    valor10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[8]').text
+                    codigo10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo10):
                         if codigo10[0] != "0":
                             break
                         if codigo10[k] != "0":
                             codigo10 = str(codigo10[k:])
                             break
-                    vlr_glosado10 = webdriver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[7]').text
+                    vlr_glosado10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[7]').text
 
                     if ((valor10 == "R$0,00") and (codigo10 == f"{linha['Procedimento']}",".0") and (vlr_glosado10 >= "R$0,22")) and vlr_glosado10 == valor_planilha:
                         print('Valor do 10° Procedimento Encontrado = R$0,00')
                         print('Valor do 10° Procedimento injetado = ' + f"{linha['Valor Recursado']}")
 
                         time.sleep(1)
-                        self.webdriver.find_element(*self.checkbox10).click()
+                        self.driver.find_element(*self.checkbox10).click()
                         time.sleep(2)
-                        self.webdriver.find_element(*self.recursar).click()
+                        self.driver.find_element(*self.recursar).click()
                         time.sleep(2)
                         try:
-                            button= WebDriverWait(webdriver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
-                            self.webdriver.find_element(*self.valor).click()
+                            button= WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ValorRecursado"]')))
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
                             dados = ['Sim']
@@ -1319,16 +1318,16 @@ class inserir_dados(PageElement):
                             writer.save()
                         except:
                             print('Erro Valor')
-                            self.webdriver.find_element(*self.valor).click()
+                            self.driver.find_element(*self.valor).click()
                             print('clicou no valor')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
+                            self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.webdriver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
-                            self.webdriver.find_element(*self.salvar).click()
+                            self.driver.find_element(*self.salvar).click()
                             print('salvo')
                             time.sleep(1)
 
@@ -1352,35 +1351,39 @@ class inserir_dados(PageElement):
                             writer.save()
                         try:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox10).click()
+                            self.driver.find_element(*self.checkbox10).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             continue
                         except:
                             time.sleep(2)
-                            self.webdriver.find_element(*self.checkbox10).click()
+                            self.driver.find_element(*self.checkbox10).click()
                             time.sleep(1)
-                            self.webdriver.find_element(*self.controle).clear()
+                            self.driver.find_element(*self.controle).clear()
                             time.sleep(1)
-                            webdriver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="GuiasGlosadasTable"]/tbody[1]/tr[1]/td[1]').click()
                             time.sleep(3)
                             print('Exceção')
                             continue
                 except:
                     print('Procedimento já recursados ou não existe esse código nesse protocolo.')
-                    desmarcar = WebDriverWait(webdriver, 50).until(EC.presence_of_element_located((self.marcar))).click()
+                    desmarcar = WebDriverWait(self.driver, 50).until(EC.presence_of_element_located((self.marcar))).click()
                     continue
             novo_nome = pasta + '/' + sem_extensao + '_Enviado.xlsx'
-            writer.close()
-            book.close()
+            try:
+                writer.close()
+                book.close()
+            except:
+                pass
             try:
                 os.rename(planilha, novo_nome)
             except:
                 print("Erro ao renomear arquivo")
-            self.webdriver.get('https://portalconectasaude.com.br/Pagamentos/PesquisaLote/PesquisaComValorGlosado')
+            self.driver.get('https://portalconectasaude.com.br/Pagamentos/PesquisaLote/PesquisaComValorGlosado')
+        self.driver.quit()
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def recursar_postal():
     url = 'https://portalconectasaude.com.br/Account/Login'
@@ -1401,12 +1404,12 @@ def recursar_postal():
     }
     try:
         servico = Service(ChromeDriverManager().install())
-        webdriver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
     except:
-        webdriver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
     try:
-        login_page = Login(webdriver, url)
+        login_page = Login(driver, url)
         login_page.open()
 
         login_page.exe_login(
@@ -1416,11 +1419,11 @@ def recursar_postal():
 
 
         print('Pegar Alerta Acionado!')
-        caminho(webdriver, url).exe_caminho()
+        caminho(driver, url).exe_caminho()
 
 
 
-        inserir = inserir_dados(webdriver, url)
+        inserir = inserir_dados(driver, url)
         print('Protocolo Acionado')
         inserir.Protocolo()
         print('Todos os procedimentos foram recursados com sucesso.')
@@ -1428,3 +1431,4 @@ def recursar_postal():
     
     except:
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da Benner caiu 😢' )
+        driver.quit()

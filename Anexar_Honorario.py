@@ -14,11 +14,11 @@ from seleniumwire import webdriver
 import tkinter
 
 class PageElement(ABC):
-    def __init__(self,webdriver,url=''):
-        self.webdriver = webdriver
+    def __init__(self,driver,url=''):
+        self.driver = driver
         self.url = url
     def open(self):
-        self.webdriver.get(self.url)
+        self.driver.get(self.url)
 
 
 class Login(PageElement):
@@ -29,11 +29,11 @@ class Login(PageElement):
     logar = (By.XPATH,"/html/body/div[3]/div[3]/div/form/div[4]")
 
     def exe_login(self, login, senha, cpf):
-        self.webdriver.find_element(*self.multiusuario).click()
-        self.webdriver.find_element(*self.login).send_keys(login)
-        self.webdriver.find_element(*self.senha).send_keys(senha)
-        self.webdriver.find_element(*self.cpf).send_keys(cpf)
-        self.webdriver.find_element(*self.logar).click()
+        self.driver.find_element(*self.multiusuario).click()
+        self.driver.find_element(*self.login).send_keys(login)
+        self.driver.find_element(*self.senha).send_keys(senha)
+        self.driver.find_element(*self.cpf).send_keys(cpf)
+        self.driver.find_element(*self.logar).click()
 
         
 class caminho(PageElement):
@@ -46,19 +46,19 @@ class caminho(PageElement):
     def exe_caminho(self):
         time.sleep(4)
         try:
-            self.webdriver.find_element(*self.alerta).click()
+            self.driver.find_element(*self.alerta).click()
         except:
             print('Alerta não apareceu')
 
-        webdriver.get("https://www2.geap.com.br/PRESTADOR/portal-tiss.asp#")
+        self.driver.get("https://www2.geap.com.br/PRESTADOR/portal-tiss.asp#")
         time.sleep(2)
-        self.webdriver.find_element(*self.envio_xml).click()
+        self.driver.find_element(*self.envio_xml).click()
         time.sleep(1)
-        webdriver.switch_to.window(webdriver.window_handles[1])
+        self.driver.switch_to.window(self.driver.window_handles[1])
         time.sleep(1)
-        self.webdriver.find_element(*self.sem_erros).click()
+        self.driver.find_element(*self.sem_erros).click()
         time.sleep(1)
-        self.webdriver.find_element(*self.listar).click()
+        self.driver.find_element(*self.listar).click()
 
 
 
@@ -79,15 +79,15 @@ class Anexar_Guia(PageElement):
             count = count + 1
             
             print(f"{linha['Nro Guia GEAP']}")
-            webdriver.get("https://www2.geap.com.br/PRESTADOR/auditoriadigital/rpt/DetalhamentoGuia.aspx?IdGsp=" + f"{linha['Nro Guia GEAP']}")
+            self.driver.get("https://www2.geap.com.br/PRESTADOR/auditoriadigital/rpt/DetalhamentoGuia.aspx?IdGsp=" + f"{linha['Nro Guia GEAP']}")
             print('Entrando na guia')
             time.sleep(2)
-            self.webdriver.find_element(*self.anexar).send_keys(linha["Caminho"])
+            self.driver.find_element(*self.anexar).send_keys(linha["Caminho"])
             time.sleep(1)
-            self.webdriver.find_element(*self.adicionar).click()
+            self.driver.find_element(*self.adicionar).click()
             time.sleep(2)
             try:
-                id = webdriver.find_element(By.XPATH,'//*[@id="grvLista"]/tbody/tr[1]/th[1]').text
+                id = self.driver.find_element(By.XPATH,'//*[@id="grvLista"]/tbody/tr[1]/th[1]').text
             except:
                 dados = ['Não Anexado']
                 df = pd.DataFrame(dados)
@@ -119,6 +119,7 @@ class Anexar_Guia(PageElement):
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                 df.to_excel(writer, 'Planilha1', startrow= count, startcol=3, header=False, index=False)
                 writer.save()
+        self.driver.quit()
 
 #------------------------------------------------------------------------------------------------------------------------------------------------
 def anexar_guias():
@@ -141,16 +142,14 @@ def anexar_guias():
         }
     }
 
-    global webdriver
-
     try:
         servico = Service(ChromeDriverManager().install())
-        webdriver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
     except:
-        webdriver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
     try:
-        login_page = Login(webdriver, url)
+        login_page = Login(driver, url)
         login_page.open()
 
         login_page.exe_login(
@@ -161,11 +160,12 @@ def anexar_guias():
 
         time.sleep(4)
 
-        caminho(webdriver, url).exe_caminho()
+        caminho(driver, url).exe_caminho()
 
         time.sleep(2)
 
-        Anexar_Guia(webdriver, url).injetar_guia()
+        Anexar_Guia(driver, url).injetar_guia()
         tkinter.messagebox.showinfo( 'Automação GEAP Faturamento' , 'Envio de guias na GEAP Concluído 😎✌' )
     except:
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
+        driver.quit()
