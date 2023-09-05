@@ -4,8 +4,8 @@ import shutil
 import tkinter.messagebox
 from pathlib import PurePath
 
-pathDev = r"D:\Automacao\output\Automacao"
-pathAtualiza = r"\\10.0.0.239\atualiza\Automacao\output\Automacao"
+pathDev = r"C:\Users\lucas.paz\Desktop\Projetos\Automacao\Automacao"
+pathAtualiza = r"\\10.0.0.239\atualiza\Automacao"
 
 
 

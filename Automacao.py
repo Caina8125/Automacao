@@ -18,6 +18,7 @@ from Recurso_Serpro import recursar_serpro
 from Recursar_SIS import recursar_sis
 from GEAP_Conferencia import conferencia
 from VerificarSituacao_Fascal import verificacao_fascal
+from VerificarSituacao_Gama import verificar_gama
 
 class Application:
     def __init__(self, master=None):
@@ -102,18 +103,18 @@ class Application:
     def botao_iniciar(self):
         self.buttonIniciar.pack(side=LEFT)
 
-    def botaoHistorico(self):
-        self.info.pack_forget()
+    # def botaoHistorico(self):
+    #     self.info.pack_forget()
 
-        self.buttonHistorico = Button(self.sextoContainer, bg="#274360",foreground="white",width=10)
-        self.buttonHistorico["text"] = "Histórico"
-        self.buttonHistorico.pack(side=LEFT)
+    #     self.buttonHistorico = Button(self.sextoContainer, bg="#274360",foreground="white",width=10)
+    #     self.buttonHistorico["text"] = "Histórico"
+    #     self.buttonHistorico.pack(side=LEFT)
 
     def chamarAutomacao(self):
         self.ocultar()
         try:
             self.info.pack_forget()
-            self.buttonHistorico.pack_forget()
+            # self.buttonHistorico.pack_forget()
         except:
             pass
 
@@ -138,8 +139,10 @@ class Application:
             verificacao_fascal()
             self.reiniciar()
 
-        # elif automacao == "Faturamento - Verificar Situação Gama":
-        #     ...       
+        elif automacao == "Faturamento - Verificar Situação Gama":
+            self.gif()
+            verificar_gama()
+            self.reiniciar()
 
         elif automacao == "Financeiro - Buscar Faturas":
             self.gif()
@@ -190,9 +193,11 @@ class Application:
 
         ImageLabel().unload()
 
-        self.botao_iniciar()  
+        self.botao_iniciar()
+        
+        self.info.pack_forget()  
 
-        self.botaoHistorico()
+        # self.botaoHistorico()
      
 #---------------------------------------------------------------------------------------------------------
 #Classe do Gif

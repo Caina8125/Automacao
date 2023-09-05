@@ -5,6 +5,7 @@ import tkinter
 
 def processar_planilha():
     try:
+        tkinter.messagebox.showinfo( 'Filtro de Planilha' , 'Selecione a planilha exportada do AMHPTISS')
         global planilha
         planilha = filedialog.askopenfilename()
         arquivo = pd.ExcelFile(planilha)
@@ -32,11 +33,12 @@ def processar_planilha():
 
         xlsx = planilha.replace('.xls', '.xlsx')
         df.to_excel(xlsx, index=False)
+        tkinter.messagebox.showinfo( 'Filtro de Planilha' , 'Planilha filtrada com sucesso!')
     except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
+        tkinter.messagebox.showerror( 'Aviso!' , 'Primeira planilha não foi filtrada')
     
 def remove():
     try:
         os.remove(planilha)
     except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
+        pass
