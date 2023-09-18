@@ -4,11 +4,11 @@ import shutil
 import tkinter.messagebox
 from pathlib import Path
 
-exeLocal = r"C:\Automacao\Automacao.exe"
-exeAtualiza = r"\\10.0.0.239\Atualiza\Automacao\Automacao.exe"
+exeLocal = r"C:\Automacao\output\Automacao\Automacao.exe"
+exeAtualiza = r"\\10.0.0.239\Atualiza\Automacao\output\Automacao\Automacao.exe"
 
-pathAtualiza = r"\\10.0.0.239\atualiza\Automacao"
-pathLocal = r"C:\Automacao"
+pathAtualiza = r"\\10.0.0.239\atualiza\Automacao\output\Automacao"
+pathLocal = r"C:\Automacao\output\Automacao"
 
 
 
@@ -38,11 +38,12 @@ def executarAtualizacao():
 
 def apagarAtualiza():
     try:
+        time.sleep(3)
         shutil.rmtree(pathLocal)
         print('Automação antiga apagada do seu disco')
         time.sleep(2)
     except:
-        pass
+        print('Except')
 
 def Script():
 

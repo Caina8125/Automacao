@@ -4,7 +4,6 @@ from tkinter import ttk
 import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
-import ctypes
 from Recursar_Duplicado import recursar_duplicado
 from Buscar_fatura import iniciar
 from Atualiza_Local import *
@@ -19,6 +18,8 @@ from Recursar_SIS import recursar_sis
 from GEAP_Conferencia import conferencia
 from VerificarSituacao_Fascal import verificacao_fascal
 from VerificarSituacao_Gama import verificar_gama
+import sys
+import os
 
 class Application:
     def __init__(self, master=None):
@@ -238,15 +239,22 @@ class ImageLabel(tk.Label):
 
 
 #-------------------------------------------------------------------------------------------
-    
+local = dataLocal()
+atualiza = dataAtualiza()
 
-Script()
+if(local == atualiza):
+    print("Mesma Hora")
+    root = tk.Tk()
+    Application(root)
+    root.title('AMHP - Automações')
+    root.geometry("500x300")
+    root.configure(background="white")
+    root.resizable(width=False, height=False)
+    # ctypes.windll.kernel32.FreeConsole()
+    root.mainloop()
 
-root = tk.Tk()
-Application(root)
-root.title('AMHP - Automações')
-root.geometry("500x300")
-root.configure(background="white")
-root.resizable(width=False, height=False)
-# ctypes.windll.kernel32.FreeConsole()
-root.mainloop()
+else:
+    try:
+        os.startfile(r"C:\Automacao\Atualiza_Local\script.bat")
+    except Exception as e:
+        print(f"{e.__class__.__name__}: {e}")
