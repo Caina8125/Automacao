@@ -16,6 +16,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 import json
 import shutil
+import pyautogui
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -110,14 +111,18 @@ class BaixarDemonstrativos(PageElement):
                             try:
                                 self.driver.implicitly_wait(5)
                                 mensagem = self.driver.find_element(By.XPATH, '//*[@id="ctl00_Main_DEMONSTRATIVODEANLISEDECONTA_MsgUser_message"]').text
+
                                 if mensagem == 'Código do protocolo não encontrado' or 'Identifica¿¿¿¿o do benefici¿¿rio n¿¿o consistente':
                                     print(mensagem)
                                     lista_faturas_com_erro.append(numero_fatura)
                                     break
+
+                                else:
+                                    continue
                         
                             except:
 
-                                if i == 9:
+                                if tentativa == 9:
                                     erro_portal = True
                                     self.driver.quit()
 
@@ -167,7 +172,6 @@ def demonstrativo_caixa():
 
     global url
     url = 'https://saude.caixa.gov.br/PORTALPRD/'
-
     settings = {
        "recentDestinations": [{
             "id": "Save as PDF",

@@ -60,12 +60,12 @@ class Application:
 
         self.quintoContainer = Frame(master, background="white")
         self.quintoContainer["padx"] = 20
-        self.quintoContainer["padx"] = 10
+        self.quintoContainer["pady"] = 5
         self.quintoContainer.pack()
 
         self.sextoContainer = Frame(master, background="white")
         self.sextoContainer["padx"] = 100
-        self.sextoContainer["pady"] = 28
+        self.sextoContainer["pady"] = 10
         self.sextoContainer.pack()
 
         self.cabecalho = Label(self.primeiroContainer, bg="#274360")
@@ -129,7 +129,7 @@ class Application:
         self.inserir_data_final.insert(0, "Digite a data final")
         
 
-        self.botao = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", width=10, command=lambda: threading.Thread(target=self.obter_datas).start())
+        self.botao = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", command=lambda: threading.Thread(target=self.obter_datas).start())
 
     def gif(self):
         
@@ -155,6 +155,8 @@ class Application:
         self.lbl.pack_forget()
 
     def botao_iniciar(self):
+        self.buttonIniciar = Button(self.sextoContainer, bg="#274360",foreground="white",width=10, command=lambda: threading.Thread(target=self.chamarAutomacao).start())
+        self.buttonIniciar["text"] = "Iniciar"
         self.buttonIniciar.pack(side=LEFT)
 
     def obter_datas(self):           
@@ -361,16 +363,22 @@ class Application:
         else:
             self.botao_iniciar()
 
-    def reiniciar(self):
+    def reiniciar(self, master=None):
         self.desocultar()
 
         ImageLabel().unload()
 
-        self.botao_iniciar()
-        
         self.info.pack_forget()
 
-    
+        self.quintoContainer.pack_forget()
+
+        self.sextoContainer.pack_forget()
+
+        self.quintoContainer.pack()
+
+        self.sextoContainer.pack()
+
+        self.botao_iniciar()
 
         # self.botaoHistorico()
      

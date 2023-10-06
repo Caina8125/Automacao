@@ -45,3 +45,19 @@ DevTools listening on ws://127.0.0.1:51957/devtools/browser/80e8c5b3-1b4b-4e85-b
 console.warn: LoginRecipes: "Falling back to a synchronous message for: https://portal.saudebrb.com.br."
 1696339413290	Marionette	INFO	Stopped listening on port 51965
 Dynamically enable window occlusion 1
+1696603448007	geckodriver	INFO	Listening on 127.0.0.1:58892
+1696603451078	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--start-maximized" "--ignore-certificate-e ... --remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\lucas.paz\\AppData\\Local\\Temp\\rust_mozprofileVOiiV2"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1696603451345	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+console.error: "Warning: unrecognized command line flag" "-start-maximized"
+console.error: "Warning: unrecognized command line flag" "-ignore-ssl-errors"
+1696603451440	Marionette	INFO	Listening on port 58902
+WebDriver BiDi listening on ws://127.0.0.1:58893
+Read port: 58902
+1696603451630	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1696603451631	RemoteAgent	INFO	Proxy settings initialised: {"proxyType":"manual","httpProxy":"127.0.0.1:58891","sslProxy":"127.0.0.1:58891"}
+console.error: Region.sys.mjs: "Error fetching region" (new TypeError("NetworkError when attempting to fetch resource.", ""))
+console.error: Region.sys.mjs: "Failed to fetch region" (new Error("NO_RESULT", "resource://gre/modules/Region.sys.mjs", 411))
+DevTools listening on ws://127.0.0.1:58893/devtools/browser/218db016-74e4-4412-8659-183f469d3520
