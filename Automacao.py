@@ -18,7 +18,24 @@ from Recursar_SIS import recursar_sis
 from GEAP_Conferencia import conferencia
 from VerificarSituacao_Fascal import verificacao_fascal
 from VerificarSituacao_Gama import verificar_gama
-import sys
+from Demonstrativo_Brb import demonstrativo_brb
+from Demonstrativo_Caixa import demonstrativo_caixa
+from Demonstrativo_Camara import demonstrativo_camara
+from Demonstrativo_Casembrapa import demonstrativo_casembrapa
+from Demonstrativo_Cassi import demonstrativo_cassi
+from Demonstrativo_Codevasf import demonstrativo_codevasf
+from Demonstrativo_Evida import demonstrativo_evida
+from Demonstrativo_Fascal import demonstrativo_fascal
+from Demonstrativo_Gama import demonstrativo_gama
+from Demonstrativo_Mpu import demonstrativo_mpu
+from Demonstrativo_Pmdf import demonstrativo_pmdf
+from Demonstrativo_Postal import demonstrativo_postal
+from Demonstrativo_Serpro import demonstrativo_serpro
+from Demonstrativo_Sis import demonstrativo_sis
+from Demonstrativo_Stf import demonstrativo_stf
+from Demonstrativo_Tjdft import demonstrativo_tjdft
+from Demonstrativo_Unafisco import demonstrativo_unafisco
+from datetime import datetime
 import os
 
 class Application:
@@ -38,6 +55,7 @@ class Application:
 
         self.quartoContainer = Frame(master, background="white")
         self.quartoContainer["padx"] = 20
+        self.quartoContainer["pady"] = 10
         self.quartoContainer.pack()
 
         self.quintoContainer = Frame(master, background="white")
@@ -70,7 +88,24 @@ class Application:
                                                                    "Faturamento - Verificar Situação BRB",
                                                                    "Faturamento - Verificar Situação Fascal",
                                                                    "Faturamento - Verificar Situação Gama",
-                                                                   "Financeiro - Buscar Faturas", 
+                                                                   "Financeiro - Buscar Faturas GEAP", 
+                                                                   "Financeiro - Demonstrativos BRB", 
+                                                                   "Financeiro - Demonstrativos Câmara dos Deputados", 
+                                                                   "Financeiro - Demonstrativos Casembrapa", 
+                                                                   "Financeiro - Demonstrativos Cassi", 
+                                                                   "Financeiro - Demonstrativos Codevasf", 
+                                                                   "Financeiro - Demonstrativos E-Vida", 
+                                                                   "Financeiro - Demonstrativos Fascal", 
+                                                                   "Financeiro - Demonstrativos Gama", 
+                                                                   "Financeiro - Demonstrativos MPU", 
+                                                                   "Financeiro - Demonstrativos PMDF", 
+                                                                   "Financeiro - Demonstrativos Postal", 
+                                                                   "Financeiro - Demonstrativos Saúde Caixa", 
+                                                                   "Financeiro - Demonstrativos Serpro", 
+                                                                   "Financeiro - Demonstrativos SIS", 
+                                                                   "Financeiro - Demonstrativos STF", 
+                                                                   "Financeiro - Demonstrativos TJDFT", 
+                                                                   "Financeiro - Demonstrativos Unafisco", 
                                                                    "Glosa - Auditoria GEAP",
                                                                    "Glosa - Recursar GEAP Duplicado",
                                                                    "Glosa - Recursar GEAP Sem Duplicado",
@@ -86,6 +121,16 @@ class Application:
         self.buttonIniciar["text"] = "Iniciar"
         self.buttonIniciar.pack(side=LEFT)
 
+        self.inserir_data_inicial = tk.Entry(self.quintoContainer)
+        self.inserir_data_inicial.insert(0, "Digite a data inicial")
+        
+
+        self.inserir_data_final = tk.Entry(self.quintoContainer)
+        self.inserir_data_final.insert(0, "Digite a data final")
+        
+
+        self.botao = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", width=10, command=lambda: threading.Thread(target=self.obter_datas).start())
+
     def gif(self):
         
         self.info = Label(self.quintoContainer, text= "Trabalhando...",font=('Arial,10,bold'), background="white")
@@ -98,11 +143,55 @@ class Application:
     def ocultar(self):
         self.buttonIniciar.pack_forget()
 
+    def ocultar_data(self):
+        try:
+            self.inserir_data_inicial.pack_forget()
+            self.inserir_data_final.pack_forget()
+            self.botao.pack_forget()
+        except:
+            pass
+
     def desocultar(self):
         self.lbl.pack_forget()
 
     def botao_iniciar(self):
         self.buttonIniciar.pack(side=LEFT)
+
+    def obter_datas(self):           
+        global data_inicial, data_final, validacao
+        data_inicial = self.inserir_data_inicial.get()
+        data_final = self.inserir_data_final.get()
+        validacao = data_valida(data_inicial, data_final)
+        self.ocultar_data()
+
+        if validacao:
+            self.gif()
+            demonstrativo_cassi(data_inicial, data_final)
+            self.reiniciar()
+
+        else:
+            tkinter.messagebox.showerror( 'Data inválida!' , 'Digíte uma data válida')
+            self.inserir_data()
+
+    def inserir_data(self):
+        self.inserir_data_inicial.pack(side=LEFT)
+        self.inserir_data_inicial.bind("<FocusIn>", self.limpar_placeholder1)
+        self.inserir_data_final.pack(side=LEFT)
+        self.inserir_data_final.bind("<FocusIn>", self.limpar_placeholder2)
+        self.botao.pack(side=LEFT)
+
+    def limpar_placeholder1(self, event):
+        if self.inserir_data_inicial.get() == "Digite a data inicial":
+            self.inserir_data_inicial.delete(0, "end")
+            self.inserir_data_inicial.config(fg="black")
+
+    
+
+    # Remove o texto de dica quando o usuário começa a digitar no campo 2
+    def limpar_placeholder2(self, event):
+        if self.inserir_data_final.get() == "Digite a data final":
+            self.inserir_data_final.delete(0, "end")
+            self.inserir_data_final.config(fg="black")
 
     # def botaoHistorico(self):
     #     self.info.pack_forget()
@@ -145,11 +234,94 @@ class Application:
             verificar_gama()
             self.reiniciar()
 
-        elif automacao == "Financeiro - Buscar Faturas":
+        elif automacao == "Financeiro - Buscar Faturas GEAP":
             self.gif()
             iniciar()
             self.reiniciar()
 
+        elif automacao == "Financeiro - Demonstrativos BRB":
+            self.gif()
+            demonstrativo_brb()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Câmara dos Deputados":
+            self.gif()
+            demonstrativo_camara()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Casembrapa":
+            self.gif()
+            demonstrativo_casembrapa()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Cassi":
+            self.inserir_data()
+
+        elif automacao == "Financeiro - Demonstrativos Codevasf":
+            self.gif()
+            demonstrativo_codevasf()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos E-Vida":
+            self.gif()
+            demonstrativo_evida()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Fascal":
+            self.gif()
+            demonstrativo_fascal()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Gama":
+            self.gif()
+            demonstrativo_gama()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos MPU":
+            self.gif()
+            demonstrativo_mpu()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos PMDF":
+            self.gif()
+            demonstrativo_pmdf()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Postal":
+            self.gif()
+            demonstrativo_postal()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Saúde Caixa":
+            self.gif()
+            demonstrativo_caixa()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Serpro":
+            self.gif()
+            demonstrativo_serpro()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos SIS":
+            self.gif()
+            demonstrativo_sis()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos STF":
+            self.gif()
+            demonstrativo_stf()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos TJDFT":
+            self.gif()
+            demonstrativo_tjdft()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Unafisco":
+            self.gif()
+            demonstrativo_unafisco()
+            self.reiniciar()
+    
         elif automacao == "Glosa - Auditoria GEAP":
             self.gif()
             auditoria = ExtrairDados()
@@ -196,7 +368,9 @@ class Application:
 
         self.botao_iniciar()
         
-        self.info.pack_forget()  
+        self.info.pack_forget()
+
+    
 
         # self.botaoHistorico()
      
@@ -239,6 +413,14 @@ class ImageLabel(tk.Label):
 
 
 #-------------------------------------------------------------------------------------------
+def data_valida(date_string1, date_string2, date_format="%d/%m/%Y"):
+    try:
+        datetime.strptime(date_string1, date_format)
+        datetime.strptime(date_string2, date_format)
+        return True
+    except ValueError:
+        return False
+
 local = dataLocal()
 atualiza = dataAtualiza()
 
@@ -247,7 +429,7 @@ if(local == atualiza):
     root = tk.Tk()
     Application(root)
     root.title('AMHP - Automações')
-    root.geometry("500x300")
+    root.geometry("500x320")
     root.configure(background="white")
     root.resizable(width=False, height=False)
     # ctypes.windll.kernel32.FreeConsole()

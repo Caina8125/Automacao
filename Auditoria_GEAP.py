@@ -53,13 +53,17 @@ class ExtrairDados(LogarGeap):
         for i in range(0, self.quant_guia):
             id = str(self.data_revisao["ResultData"]["Items"][i]["Id"])
             id_encontrado = False
+
             for lista in values:
                 link_plan = lista[0]
+
                 if id in link_plan:
                     id_encontrado = True
                     break
+
                 else:
                     continue
+
             if id_encontrado == False:
                 self.lista_id.append(f"https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/{id}")
         
@@ -84,6 +88,7 @@ class ExtrairDados(LogarGeap):
                 quant_procedimento = len(data_aba["ResultData"][6]["ResultData"]["Items"])
                 id = "https://www2.geap.com.br/AuditoriaDigital/guia/" + link_guia.replace("https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/", "")
                 motivo_glosa = []
+
                 for i in range(0, quant_procedimento):
                     id_procedimento = data_aba["ResultData"][6]["ResultData"]["Items"][i]["Id"]
                     link_procedimento = f'https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/itens/{id_procedimento}/historico-revisoes?tipoItem=Procedimentos'
@@ -91,12 +96,14 @@ class ExtrairDados(LogarGeap):
                     data_procedimento = response_procedimento.json()
                     ultimo_motivo = len(data_procedimento["ResultData"]["Items"]) - 1
                     codigo_procedimento = data_procedimento["ResultData"]["Items"][ultimo_motivo]["Codigo"]
+                    
                     try:
                         justificativa = data_procedimento["ResultData"]["Items"][ultimo_motivo]["Justificativa"]
                         motivo_glosa.append(f'{codigo_procedimento} - {justificativa}')
 
                     except:
                         pass
+
                 motivos = "/".join(motivo_glosa)    
                 df = pd.DataFrame({'Endereço': [id], 'GUIA': [n_amhp], 'PACIENTE': [nome_paciente], 'CARTEIRINHA': [carteirinha], 'MOTIVO DE GLOSA': [motivos], 'SITUAÇÃO': [""],
                             'RESPONSAVEL': [""], 'REVISÃO TATIANE': [""], 'OBSERVAÇÃO': [""], 'PARECER TÉCNICO - DR. RICARDO': [""]})

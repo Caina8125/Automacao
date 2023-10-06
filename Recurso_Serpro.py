@@ -240,7 +240,6 @@ class inserir_dados(PageElement):
                     self.driver.find_element(*self.alerta2).click()
                 except:
                     print('Alerta2 não apareceu')
-                break
 
             try:
                 modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
@@ -265,7 +264,6 @@ class inserir_dados(PageElement):
                 pass
             count = 0
             faturas_df1 = pd.read_excel(planilha)
-                # break
 
             for index, linha in faturas_df1.iterrows():
                 self.driver.find_element(*self.controle).clear()
@@ -310,6 +308,7 @@ class inserir_dados(PageElement):
 
                 print('Data: ' + f"{linha['Realizado']}")
                 time.sleep(2)
+                self.driver.implicitly_wait(30)
                 self.driver.find_element(*self.controle).clear()
                 self.driver.find_element(*self.controle).send_keys(f"{linha['Controle Inicial']}")
                 
@@ -326,11 +325,6 @@ class inserir_dados(PageElement):
                 
                 time.sleep(3)
                 
-                try:
-                    for contador in range(3):
-                        self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-                except:
-                    None
                 try:
                     for i in range(0,10):
                         try:
@@ -371,12 +365,18 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            try:
-                                self.driver.find_element(*self.justificativa).click()
-                                self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
-                            except:
-                                print('Não justificou')
-                                break
+                            for i in range(10):
+                                try:
+                                    self.driver.find_element(*self.justificativa).click()
+                                    time.sleep(1)
+                                    self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                                    break
+                                except:
+                                    print('Não justificou')
+                                    self.driver.find_element(*self.justificativa).clear()
+                                    if i == 9:
+                                        self.driver.quit()
+
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()

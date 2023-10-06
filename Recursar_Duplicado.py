@@ -283,8 +283,8 @@ class injetar_dados(PageElement):
 
                 if (f"{linha['Grau Participação']}") == "13":
                     self.driver.find_element(*self.grau_13).click()
-                    time.sleep(1)
-                    self.driver.find_element(*self.salvar_recurso).click()
+                    time.sleep(1)   
+                    self.driver.find_element(*self.salvar_recurso).click()  
                     time.sleep(1)
 
                 if (f"{linha['Grau Participação']}") == "1":

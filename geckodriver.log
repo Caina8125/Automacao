@@ -1,0 +1,47 @@
+1696338845183	geckodriver	INFO	Listening on 127.0.0.1:51514
+1696338848277	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51515" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\lucas.paz\\AppData\\Local\\Temp\\rust_mozprofilenHgFLb"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1696338848554	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1696338848654	Marionette	INFO	Listening on port 51530
+WebDriver BiDi listening on ws://127.0.0.1:51515
+Read port: 51530
+1696338848833	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1696338848834	RemoteAgent	INFO	Proxy settings initialised: {"proxyType":"manual","httpProxy":"127.0.0.1:51513","sslProxy":"127.0.0.1:51513"}
+console.error: Region.sys.mjs: "Error fetching region" (new TypeError("NetworkError when attempting to fetch resource.", ""))
+console.error: Region.sys.mjs: "Failed to fetch region" (new Error("NO_RESULT", "resource://gre/modules/Region.sys.mjs", 411))
+DevTools listening on ws://127.0.0.1:51515/devtools/browser/44d84a8f-6e9f-49e0-ad53-d8f74a76e2dd
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://portal.saudebrb.com.br."
+console.error: Region.sys.mjs: "Error fetching region" (new Error("TIMEOUT", "resource://gre/modules/Region.sys.mjs", 759))
+console.error: Region.sys.mjs: "Failed to fetch region" (new Error("TIMEOUT", "resource://gre/modules/Region.sys.mjs", 411))
+1696339189232	geckodriver	INFO	Listening on 127.0.0.1:51832
+1696339192325	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51833" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\lucas.paz\\AppData\\Local\\Temp\\rust_mozprofilec9hclO"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1696339192564	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1696339192669	Marionette	INFO	Listening on port 51841
+WebDriver BiDi listening on ws://127.0.0.1:51833
+Read port: 51841
+1696339192835	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1696339192836	RemoteAgent	INFO	Proxy settings initialised: {"proxyType":"manual","httpProxy":"127.0.0.1:51831","sslProxy":"127.0.0.1:51831"}
+console.error: Region.sys.mjs: "Error fetching region" (new TypeError("NetworkError when attempting to fetch resource.", ""))
+console.error: Region.sys.mjs: "Failed to fetch region" (new Error("NO_RESULT", "resource://gre/modules/Region.sys.mjs", 411))
+DevTools listening on ws://127.0.0.1:51833/devtools/browser/1d160510-bcb6-4410-b8af-2201d36c8362
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://portal.saudebrb.com.br."
+1696339234018	geckodriver	INFO	Listening on 127.0.0.1:51956
+1696339237069	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51957" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\lucas.paz\\AppData\\Local\\Temp\\rust_mozprofileLwPbh8"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1696339237301	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1696339237490	Marionette	INFO	Listening on port 51965
+WebDriver BiDi listening on ws://127.0.0.1:51957
+Read port: 51965
+1696339237621	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1696339237638	RemoteAgent	INFO	Proxy settings initialised: {"proxyType":"manual","httpProxy":"127.0.0.1:51955","sslProxy":"127.0.0.1:51955"}
+DevTools listening on ws://127.0.0.1:51957/devtools/browser/80e8c5b3-1b4b-4e85-bb49-00d397b2db22
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://portal.saudebrb.com.br."
+1696339413290	Marionette	INFO	Stopped listening on port 51965
+Dynamically enable window occlusion 1

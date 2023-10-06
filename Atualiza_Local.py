@@ -44,8 +44,8 @@ def apagarAtualiza():
         shutil.rmtree(pathLocal)
         print('Automação antiga apagada do seu disco')
         time.sleep(2)
-    except:
-        print('Except')
+    except Exception as e:
+        print(f"{e.__class__.__name__}: {e}")
 
 def Script():
 
