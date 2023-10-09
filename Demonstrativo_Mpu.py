@@ -11,6 +11,7 @@ import time
 import datetime
 import os
 import tkinter
+import Pidgin
 
 class PageElement(ABC):
     def __init__(self, driver, url='') -> None:
@@ -162,33 +163,42 @@ class BaixarDemonstrativo(PageElement):
 #_________________________________________________________________________________________
 
 def demonstrativo_mpu():
-    url = 'https://sistema.planassiste.mpu.mp.br/portaltiss/login.aspx'
-    planilha = filedialog.askopenfilename()
+    try:
+        url = 'https://sistema.planassiste.mpu.mp.br/portaltiss/login.aspx'
+        planilha = filedialog.askopenfilename()
 
-    options = {
-        'proxy' : {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+        options = {
+            'proxy' : {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
         }
-    }
 
-    chrome_options = Options()
-    chrome_options.add_experimental_option('prefs', {
-        "download.default_directory": r"\\10.0.0.239\automacao_financeiro\MPU",
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "plugins.always_open_pdf_externally": True
-})
-    chrome_options.add_argument("--start-maximized")
-    servico = Service(ChromeDriverManager().install())
+        chrome_options = Options()
+        chrome_options.add_experimental_option('prefs', {
+            "download.default_directory": r"\\10.0.0.239\automacao_financeiro\MPU",
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "plugins.always_open_pdf_externally": True
+    })
+        chrome_options.add_argument("--start-maximized")
+        servico = Service(ChromeDriverManager().install())
 
-    driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
 
-    usuario = "00735860000173"
-    senha = "a0r85qbt"
+        usuario = "00735860000173"
+        senha = "a0r85qbt"
 
-    login_page = Login(driver, url)
-    login_page.open()
-    login_page.exe_login(usuario, senha)
-    Caminho(driver, url).exe_caminho()
-    BaixarDemonstrativo(driver, url).baixar_demonstrativo(planilha)
+        login_page = Login(driver, url)
+        login_page.open()
+        login_page.exe_login(usuario, senha)
+        Caminho(driver, url).exe_caminho()
+        BaixarDemonstrativo(driver, url).baixar_demonstrativo(planilha)
+
+    except FileNotFoundError as err:
+        tkinter.messagebox.showerror('Automação', f'Nenhuma planilha foi selecionada!')
+    
+    except Exception as err:
+        tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        Pidgin.main(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+    driver.quit()

@@ -8,11 +8,11 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from abc import ABC
 import time
-import datetime
 import os
 import tkinter
 import json
 import shutil
+import Pidgin
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -214,53 +214,61 @@ class BaixarDemonstrativo(PageElement):
 
 #--------------------------------------------------------------------------------
 def demonstrativo_casembrapa():
-    global url
-    planilha = filedialog.askopenfilename()
-    url = 'http://170.84.17.131:22101/sistema'
+    try:
+        global url
+        planilha = filedialog.askopenfilename()
+        url = 'http://170.84.17.131:22101/sistema'
 
-    settings = {
-       "recentDestinations": [{
-            "id": "Save as PDF",
-            "origin": "local",
-            "account": "",
-        }],
-        "selectedDestinationId": "Save as PDF",
-        "version": 2
-    }
-
-    options = {
-        'proxy' : {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+        settings = {
+        "recentDestinations": [{
+                "id": "Save as PDF",
+                "origin": "local",
+                "account": "",
+            }],
+            "selectedDestinationId": "Save as PDF",
+            "version": 2
         }
-    }
 
-    chrome_options = Options()
-    chrome_options.add_experimental_option('prefs', {
-        "printing.print_to_pdf": True,
-        "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CASEMBRAPA",
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "plugins.always_open_pdf_externally": True,
-        "printing.print_preview_sticky_settings.appState": json.dumps(settings),
-        "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\CASEMBRAPA\Renomear"
-})
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
-    chrome_options.add_argument('--kiosk-printing')
-    servico = Service(ChromeDriverManager().install())
+        options = {
+            'proxy' : {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
+        }
 
-    global driver
-    driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        chrome_options = Options()
+        chrome_options.add_experimental_option('prefs', {
+            "printing.print_to_pdf": True,
+            "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CASEMBRAPA",
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "plugins.always_open_pdf_externally": True,
+            "printing.print_preview_sticky_settings.appState": json.dumps(settings),
+            "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\CASEMBRAPA\Renomear"
+    })
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+        chrome_options.add_argument('--kiosk-printing')
+        servico = Service(ChromeDriverManager().install())
 
-    global usuario, senha
-    usuario = "00735860000173"
-    senha = "0073586@"
+        global driver
+        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
 
-    global login_page
-    login_page = Login(driver, url)
-    login_page.open()
-    login_page.exe_login(usuario, senha)
-    Caminho(driver, url).exe_caminho()
-    BaixarDemonstrativo(driver, url).baixar_demonstrativo(planilha)
+        global usuario, senha
+        usuario = "00735860000173"
+        senha = "0073586@"
+
+        global login_page
+        login_page = Login(driver, url)
+        login_page.open()
+        login_page.exe_login(usuario, senha)
+        Caminho(driver, url).exe_caminho()
+        BaixarDemonstrativo(driver, url).baixar_demonstrativo(planilha)
+    
+    except FileNotFoundError as err:
+        tkinter.messagebox.showerror('Automação', f'Nenhuma planilha foi selecionada!')
+    
+    except Exception as err:
+        tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        Pidgin.main(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")

@@ -1,5 +1,3 @@
-import tkinter as tk
-from tkinter import filedialog
 import tkinter.messagebox
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -17,6 +15,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 import json
 from sys import exit
+import Pidgin
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -93,50 +92,59 @@ class BaixarDemonstrativo(PageElement):
 
 #---------------------------------------------------------------------------------------------------------------
 def demonstrativo_cassi(data_inicial, data_final):
-    global url
-    url = 'https://servicosonline.cassi.com.br/GASC/v2/Usuario/Login/Prestador'
-
-    settings = {
-       "recentDestinations": [{
-            "id": "Save as PDF",
-            "origin": "local",
-            "account": "",
-        }],
-        "selectedDestinationId": "Save as PDF",
-        "version": 2
-    }
-
-    chrome_options = Options()
-    chrome_options.add_experimental_option('prefs', {
-        "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CASSI",
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "plugins.always_open_pdf_externally": True,
-        'safebrowsing.enabled': 'false'
-})
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
-    chrome_options.add_argument('--kiosk-printing')
-
-    options = {
-    'proxy': {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
-        }
-    }
     try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
-    except:
-        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
-    login_page = Login(driver, url)
-    login_page.open()
+        global url
+        url = 'https://servicosonline.cassi.com.br/GASC/v2/Usuario/Login/Prestador'
 
-    login_page.exe_login(
-        usuario = "00735860000173",
-        senha = "amhpdf123"
-    )
-    caminho(driver, url).exe_caminho()
-    BaixarDemonstrativo(driver, url).baixar_demontrativo(data_inicial, data_final)
+        settings = {
+        "recentDestinations": [{
+                "id": "Save as PDF",
+                "origin": "local",
+                "account": "",
+            }],
+            "selectedDestinationId": "Save as PDF",
+            "version": 2
+        }
+
+        chrome_options = Options()
+        chrome_options.add_experimental_option('prefs', {
+            "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CASSI",
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "plugins.always_open_pdf_externally": True,
+            'safebrowsing.enabled': 'false'
+    })
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+        chrome_options.add_argument('--kiosk-printing')
+
+        options = {
+        'proxy': {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
+        }
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+
+        login_page = Login(driver, url)
+        login_page.open()
+
+        login_page.exe_login(
+            usuario = "00735860000173",
+            senha = "amhpdf123"
+        )
+        caminho(driver, url).exe_caminho()
+        BaixarDemonstrativo(driver, url).baixar_demontrativo(data_inicial, data_final)
+    
+    except FileNotFoundError as err:
+        tkinter.messagebox.showerror('Automação', f'Nenhuma planilha foi selecionada!')
+    
+    except Exception as err:
+        tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        Pidgin.main(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")

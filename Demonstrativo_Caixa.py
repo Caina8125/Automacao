@@ -5,7 +5,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium import webdriver
-from openpyxl import load_workbook
 from abc import ABC
 import pandas as pd
 import time
@@ -16,7 +15,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 import json
 import shutil
-import pyautogui
+import tkinter.messagebox
+import Pidgin
+
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -168,53 +169,62 @@ class BaixarDemonstrativos(PageElement):
 #-------------------------------------------------------------------------------------------------------------------------
 
 def demonstrativo_caixa():
-    planilha = filedialog.askopenfilename()
-
-    global url
-    url = 'https://saude.caixa.gov.br/PORTALPRD/'
-    settings = {
-       "recentDestinations": [{
-            "id": "Save as PDF",
-            "origin": "local",
-            "account": "",
-        }],
-        "selectedDestinationId": "Save as PDF",
-        "version": 2
-    }
-
-    chrome_options = Options()
-    chrome_options.add_experimental_option('prefs', {
-        "printing.print_to_pdf": True,
-        "download.default_directory": r"\\10.0.0.239\automacao_financeiro\SAUDE CAIXA\Renomear",
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "plugins.always_open_pdf_externally": True,
-        "printing.print_preview_sticky_settings.appState": json.dumps(settings),
-        "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\SAUDE CAIXA"
-})
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
-    chrome_options.add_argument('--kiosk-printing')
-
-    options = {
-    'proxy': {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
-        }
-    }
     try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
-    except:
-        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+        planilha = filedialog.askopenfilename()
 
-    login_page = Login(driver, url)
-    login_page.open()
+        global url
+        url = 'https://saude.caixa.gov.br/PORTALPRD/'
+        settings = {
+        "recentDestinations": [{
+                "id": "Save as PDF",
+                "origin": "local",
+                "account": "",
+            }],
+            "selectedDestinationId": "Save as PDF",
+            "version": 2
+        }
 
-    login_page.exe_login(
-        usuario = "00735860000173",
-        senha = "Saude@2023"
-    )
-    Caminho(driver, url).exe_caminho()
-    BaixarDemonstrativos(driver, url).baixar_demonstrativos(planilha)
+        chrome_options = Options()
+        chrome_options.add_experimental_option('prefs', {
+            "printing.print_to_pdf": True,
+            "download.default_directory": r"\\10.0.0.239\automacao_financeiro\SAUDE CAIXA\Renomear",
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "plugins.always_open_pdf_externally": True,
+            "printing.print_preview_sticky_settings.appState": json.dumps(settings),
+            "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\SAUDE CAIXA"
+    })
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+        chrome_options.add_argument('--kiosk-printing')
+
+        options = {
+        'proxy': {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
+        }
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+
+        login_page = Login(driver, url)
+        login_page.open()
+
+        login_page.exe_login(
+            usuario = "00735860000173",
+            senha = "Saude@2023"
+        )
+        Caminho(driver, url).exe_caminho()
+        BaixarDemonstrativos(driver, url).baixar_demonstrativos(planilha)
+
+    except FileNotFoundError as err:
+        tkinter.messagebox.showerror('Automação', f'Nenhuma planilha foi selecionada!')
+    
+    except Exception as err:
+        tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        Pidgin.main(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+    driver.quit()

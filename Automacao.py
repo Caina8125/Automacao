@@ -209,7 +209,7 @@ class Application:
             # self.buttonHistorico.pack_forget()
         except:
             pass
-
+        
         automacao = self.comboBox.get()
         if automacao == "Faturamento - Anexar Honorario Geap":
             self.gif()
@@ -366,20 +366,25 @@ class Application:
     def reiniciar(self, master=None):
         self.desocultar()
 
-        ImageLabel().unload()
-
         self.info.pack_forget()
+
+        ImageLabel().unload()
 
         self.quintoContainer.pack_forget()
 
         self.sextoContainer.pack_forget()
 
+        self.quintoContainer = Frame(master, background="white")
+        self.quintoContainer["padx"] = 20
+        self.quintoContainer["pady"] = 5
         self.quintoContainer.pack()
 
+        self.sextoContainer = Frame(master, background="white")
+        self.sextoContainer["padx"] = 100
+        self.sextoContainer["pady"] = 10
         self.sextoContainer.pack()
 
         self.botao_iniciar()
-
         # self.botaoHistorico()
      
 #---------------------------------------------------------------------------------------------------------
@@ -437,7 +442,7 @@ if(local == atualiza):
     root = tk.Tk()
     Application(root)
     root.title('AMHP - Automações')
-    root.geometry("500x320")
+    root.geometry("530x330")
     root.configure(background="white")
     root.resizable(width=False, height=False)
     root.eval('tk::PlaceWindow . center')

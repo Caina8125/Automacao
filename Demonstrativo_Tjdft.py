@@ -4,17 +4,14 @@ import shutil
 import tkinter
 import pandas as pd
 from abc import ABC
-from datetime import datetime
 from selenium import webdriver
 from tkinter import filedialog
 from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.edge.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import Pidgin
 
 
 class PageElement(ABC):
@@ -133,10 +130,8 @@ class caminho(PageElement):
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def demonstrativo_tjdft():
-    global planilha
-
     try:
-        global pasta
+        global planilha
         global driver
         global url
 
@@ -161,10 +156,6 @@ def demonstrativo_tjdft():
 
         driver = webdriver.Edge(seleniumwire_options=proxy, options=edge_options)
 
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
-
-    try:
         login_page = Login(driver, url)
         login_page.open()
         login_page.exe_login(
@@ -180,6 +171,10 @@ def demonstrativo_tjdft():
 
         caminho(driver, url).buscar_demonstrativo()
 
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da Benner caiu 😢' )
+    except FileNotFoundError as err:
+        tkinter.messagebox.showerror('Automação', f'Nenhuma planilha foi selecionada!')
+    
+    except Exception as err:
+        tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        Pidgin.main(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
     driver.quit()

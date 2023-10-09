@@ -8,11 +8,10 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from abc import ABC
 import time
-import datetime
 import os
 import tkinter
 import json
-import shutil
+import Pidgin
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -174,56 +173,64 @@ class BaixarDemonstrativo(PageElement):
 #_________________________________________________________________________________________________________
 
 def demonstrativo_codevasf():
-    planilha = filedialog.askopenfilename()
-    url = 'https://portal.salutis.com.br/index.asp?operadora=codevasf'
-
-    settings = {
-       "recentDestinations": [{
-            "id": "Save as PDF",
-            "origin": "local",
-            "account": "",
-        }],
-        "selectedDestinationId": "Save as PDF",
-        "version": 2
-    }
-
-    options = {
-        'proxy' : {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
-        }
-    }
-
-    chrome_options = Options()
-    chrome_options.add_experimental_option('prefs', {
-        "printing.print_to_pdf": True,
-        "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CODEVASF",
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "plugins.always_open_pdf_externally": True,
-        "printing.print_preview_sticky_settings.appState": json.dumps(settings),
-        "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\CODEVASF"
-})
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
-    chrome_options.add_argument('--kiosk-printing')
-    
     try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        planilha = filedialog.askopenfilename()
+        url = 'https://portal.salutis.com.br/index.asp?operadora=codevasf'
 
-    except:
-        print('except')
-        driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
+        settings = {
+        "recentDestinations": [{
+                "id": "Save as PDF",
+                "origin": "local",
+                "account": "",
+            }],
+            "selectedDestinationId": "Save as PDF",
+            "version": 2
+        }
 
-    global usuario, senha
-    usuario = "00735860000173"
-    senha = '127624560' #int(input('Digite a senha: '))
+        options = {
+            'proxy' : {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
+        }
 
-    global login_page
-    login_page = Login(driver, url)
-    login_page.open()
-    login_page.exe_login(usuario, senha)
-    Caminho(driver, url).exe_caminho()
-    BaixarDemonstrativo(driver, url).baixar_demonstrativo(planilha)
+        chrome_options = Options()
+        chrome_options.add_experimental_option('prefs', {
+            "printing.print_to_pdf": True,
+            "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CODEVASF",
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "plugins.always_open_pdf_externally": True,
+            "printing.print_preview_sticky_settings.appState": json.dumps(settings),
+            "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\CODEVASF"
+    })
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+        chrome_options.add_argument('--kiosk-printing')
+        
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+
+        except:
+            print('except')
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
+
+        global usuario, senha
+        usuario = "00735860000173"
+        senha = '127624560' #int(input('Digite a senha: '))
+
+        global login_page
+        login_page = Login(driver, url)
+        login_page.open()
+        login_page.exe_login(usuario, senha)
+        Caminho(driver, url).exe_caminho()
+        BaixarDemonstrativo(driver, url).baixar_demonstrativo(planilha)
+    
+    except FileNotFoundError as err:
+        tkinter.messagebox.showerror('Automação', f'Nenhuma planilha foi selecionada!')
+    
+    except Exception as err:
+        tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        Pidgin.main(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")

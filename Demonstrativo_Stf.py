@@ -1,11 +1,7 @@
 from tkinter import filedialog
 import tkinter.messagebox
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium import webdriver
-from openpyxl import load_workbook
 from abc import ABC
 import pandas as pd
 import time
@@ -16,6 +12,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 import json
 import shutil
+import Pidgin
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -88,7 +85,7 @@ class BaixarDemonstrativos(PageElement):
                     for i in range(10):
                         novo_nome = f"{endereco}\\{numero_fatura}.pdf"
                         arquivo_na_pasta = os.listdir(f"{endereco}")
-                        pasta_nova = f"\\10.0.0.239\\automacao_financeiro\\STF\\{numero_fatura}.pdf"
+                        pasta_nova = f"\\\\10.0.0.239\\automacao_financeiro\\STF\\{numero_fatura}.pdf"
 
                         for arquivo in arquivo_na_pasta:
                             nome_antigo = f"{endereco}\\{arquivo}"
@@ -110,7 +107,7 @@ class BaixarDemonstrativos(PageElement):
                                 self.driver.implicitly_wait(5)
                                 mensagem = self.driver.find_element(By.XPATH, '//*[@id="ctl00_Main_DEMONSTRATIVODEANLISEDECONTA_MsgUser_message"]').text
 
-                                if mensagem == 'Código do protocolo não encontrado':
+                                if mensagem == 'Código do protocolo não encontrado' or 'Identifica¿¿¿¿o do benefici¿¿rio n¿¿o consistente':
                                     print(mensagem)
                                     lista_faturas_com_erro.append(numero_fatura)
                                     break
@@ -169,54 +166,63 @@ class BaixarDemonstrativos(PageElement):
 #-------------------------------------------------------------------------------------------------------------------------
 
 def demonstrativo_stf():
-    planilha = filedialog.askopenfilename()
-
-    global url
-    url = 'http://stfmed.stf.jus.br/portal_stfmed'
-
-    settings = {
-       "recentDestinations": [{
-            "id": "Save as PDF",
-            "origin": "local",
-            "account": "",
-        }],
-        "selectedDestinationId": "Save as PDF",
-        "version": 2
-    }
-
-    chrome_options = Options()
-    chrome_options.add_experimental_option('prefs', {
-        "printing.print_to_pdf": True,
-        "download.default_directory": r"\\10.0.0.239\automacao_financeiro\STF\Renomear",
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "plugins.always_open_pdf_externally": True,
-        "printing.print_preview_sticky_settings.appState": json.dumps(settings),
-        "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\STF"
-})
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
-    chrome_options.add_argument('--kiosk-printing')
-
-    options = {
-    'proxy': {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
-        }
-    }
     try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
-    except:
-        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+        planilha = filedialog.askopenfilename()
 
-    login_page = Login(driver, url)
-    login_page.open()
+        global url
+        url = 'http://stfmed.stf.jus.br/portal_stfmed'
 
-    login_page.exe_login(
-        usuario = "00735860000173",
-        senha = "amhp#DF0073"
-    )
-    Caminho(driver, url).exe_caminho()
-    BaixarDemonstrativos(driver, url).baixar_demonstrativos(planilha)
+        settings = {
+        "recentDestinations": [{
+                "id": "Save as PDF",
+                "origin": "local",
+                "account": "",
+            }],
+            "selectedDestinationId": "Save as PDF",
+            "version": 2
+        }
+
+        chrome_options = Options()
+        chrome_options.add_experimental_option('prefs', {
+            "printing.print_to_pdf": True,
+            "download.default_directory": r"\\10.0.0.239\automacao_financeiro\STF\Renomear",
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "plugins.always_open_pdf_externally": True,
+            "printing.print_preview_sticky_settings.appState": json.dumps(settings),
+            "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\STF"
+    })
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+        chrome_options.add_argument('--kiosk-printing')
+
+        options = {
+        'proxy': {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
+        }
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+
+        login_page = Login(driver, url)
+        login_page.open()
+
+        login_page.exe_login(
+            usuario = "00735860000173",
+            senha = "amhp#DF0073"
+        )
+        Caminho(driver, url).exe_caminho()
+        BaixarDemonstrativos(driver, url).baixar_demonstrativos(planilha)
+
+    except FileNotFoundError as err:
+        tkinter.messagebox.showerror('Automação', f'Nenhuma planilha foi selecionada!')
+    
+    except Exception as err:
+        tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        Pidgin.main(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+    driver.quit()
