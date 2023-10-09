@@ -451,6 +451,6 @@ if(local == atualiza):
 
 else:
     try:
-        os.startfile(r"C:\Instaladores\setup.exe")
+        os.startfile(r"C:\Instaladores\INSTALA-AUTOMACAO.bat")
     except Exception as e:
         print(f"{e.__class__.__name__}: {e}")
