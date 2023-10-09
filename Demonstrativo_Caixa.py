@@ -90,7 +90,7 @@ class BaixarDemonstrativos(PageElement):
                     for i in range(10):
                         novo_nome = f"{endereco}\\{numero_fatura}.pdf"
                         arquivo_na_pasta = os.listdir(f"{endereco}")
-                        pasta_nova = f"C:\\Users\\lucas.paz\\Documents\Financeiro\\{numero_fatura}.pdf"
+                        pasta_nova = f"\\\\10.0.0.239\\automacao_financeiro\\SAUDE CAIXA\\{numero_fatura}.pdf"
 
                         for arquivo in arquivo_na_pasta:
                             nome_antigo = f"{endereco}\\{arquivo}"
@@ -122,7 +122,7 @@ class BaixarDemonstrativos(PageElement):
                         
                             except:
 
-                                if tentativa == 9:
+                                if i == 9:
                                     erro_portal = True
                                     self.driver.quit()
 
@@ -159,7 +159,7 @@ class BaixarDemonstrativos(PageElement):
                 print(f"{error.__class__.__name__}: {error}")
 
                 if erro_portal == True:
-                    print("Portal sem resposta, tente novamente mais tarde")
+                    tkinter.messagebox.showerror('Demonstrativo Saúde Caixa', 'O portal não responde!')
                     break
                 
                 self.driver.refresh()

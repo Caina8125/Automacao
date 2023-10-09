@@ -440,6 +440,7 @@ if(local == atualiza):
     root.geometry("500x320")
     root.configure(background="white")
     root.resizable(width=False, height=False)
+    root.eval('tk::PlaceWindow . center')
     # ctypes.windll.kernel32.FreeConsole()
     root.mainloop()
 

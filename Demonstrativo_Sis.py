@@ -118,10 +118,14 @@ class BaixarDemonstrativos(PageElement):
                             try:
                                 self.driver.implicitly_wait(5)
                                 mensagem = self.driver.find_element(By.XPATH, '//*[@id="ctl00_Main_DEMONSTRATIVODEANLISEDECONTA_MsgUser_message"]').text
+
                                 if mensagem == 'Código do protocolo não encontrado':
                                     print(mensagem)
                                     lista_faturas_com_erro.append(numero_fatura)
                                     break
+
+                                else:
+                                    continue
                         
                             except:
 
