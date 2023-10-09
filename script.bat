@@ -1,3 +1,3 @@
-cd C:\Automacao\Atualiza_Local
-taskkill /IM Automacao.exe /F
-Atualiza_Local.exe
+del setup.exe
+copy \\10.0.0.239\atualiza\Automacao\setup.exe
+start setup.exe

@@ -4,11 +4,11 @@ import shutil
 import tkinter.messagebox
 from pathlib import Path
 
-exeLocal = r"C:\Automacao\output\Automacao\Automacao.exe"
-exeAtualiza = r"\\10.0.0.239\atualiza\Automacao\output\Automacao\Automacao.exe"
+exeLocal = r"C:\Instaladores\setup.exe"
+exeAtualiza = r"\\10.0.0.239\atualiza\Automacao\setup.exe"
 
-pathAtualiza = r"\\10.0.0.239\atualiza\Automacao\output\Automacao"
-pathLocal = r"C:\Automacao\output\Automacao"
+pathAtualiza = r"\\10.0.0.239\atualiza\Automacao"
+pathLocal = r"C:\Automação"
 
 
 
