@@ -121,16 +121,6 @@ class Application:
         self.buttonIniciar["text"] = "Iniciar"
         self.buttonIniciar.pack(side=LEFT)
 
-        self.inserir_data_inicial = tk.Entry(self.quintoContainer)
-        self.inserir_data_inicial.insert(0, "Digite a data inicial")
-        
-
-        self.inserir_data_final = tk.Entry(self.quintoContainer)
-        self.inserir_data_final.insert(0, "Digite a data final")
-        
-
-        self.botao = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", command=lambda: threading.Thread(target=self.obter_datas).start())
-
     def gif(self):
         
         self.info = Label(self.quintoContainer, text= "Trabalhando...",font=('Arial,10,bold'), background="white")
@@ -147,7 +137,7 @@ class Application:
         try:
             self.inserir_data_inicial.pack_forget()
             self.inserir_data_final.pack_forget()
-            self.botao.pack_forget()
+            self.botao_ok.pack_forget()
         except:
             pass
 
@@ -176,11 +166,23 @@ class Application:
             self.inserir_data()
 
     def inserir_data(self):
+        self.inserir_data_inicial = tk.Entry(self.quintoContainer)
+        self.inserir_data_inicial.insert(0, "Digite a data inicial")
+        
+
+        self.inserir_data_final = tk.Entry(self.quintoContainer)
+        self.inserir_data_final.insert(0, "Digite a data final")
+
+        self.botao_ok = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", command=lambda: threading.Thread(target=self.obter_datas).start())
+
+        self.voltar = Button(self.sextoContainer, bg="#274360", foreground="white", text="Voltar", command=lambda: threading.Thread(target=self.voltar_inicio).start())
+
         self.inserir_data_inicial.pack(side=LEFT)
         self.inserir_data_inicial.bind("<FocusIn>", self.limpar_placeholder1)
         self.inserir_data_final.pack(side=LEFT)
         self.inserir_data_final.bind("<FocusIn>", self.limpar_placeholder2)
-        self.botao.pack(side=LEFT)
+        self.botao_ok.pack(side=LEFT)
+        self.voltar.pack(side=LEFT)
 
     def limpar_placeholder1(self, event):
         if self.inserir_data_inicial.get() == "Digite a data inicial":
@@ -362,6 +364,26 @@ class Application:
 
         else:
             self.botao_iniciar()
+
+    def voltar_inicio(self, master=None):
+        self.ocultar_data()
+
+        self.voltar.pack_forget()
+        
+        self.quintoContainer.pack_forget()
+
+        self.sextoContainer.pack_forget()
+
+        self.quintoContainer = Frame(master, background="white")
+        self.quintoContainer["padx"] = 20
+        self.quintoContainer["pady"] = 5
+        self.quintoContainer.pack()
+
+        self.sextoContainer = Frame(master, background="white")
+        self.sextoContainer["padx"] = 100
+        self.sextoContainer["pady"] = 10
+        self.sextoContainer.pack()
+        self.botao_iniciar()
 
     def reiniciar(self, master=None):
         self.desocultar()
