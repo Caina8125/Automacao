@@ -1408,10 +1408,7 @@ def recursar_serpro():
             driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
         except:
             driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
 
-    try:
         login_page = Login(driver, url)
         login_page.open()
 
@@ -1432,6 +1429,6 @@ def recursar_serpro():
         print('Todos os procedimentos foram recursados com sucesso.')
         tkinter.messagebox.showinfo( 'Automação Postal Recurso de Glosa' , 'Recursos do Postal Concluídos 😎✌' )
     
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da Benner caiu 😢' )
+    except Exception as e:
+        tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma exceção não tratada \n {e.__class__.__name__} - {e}'  )
         driver.quit()
