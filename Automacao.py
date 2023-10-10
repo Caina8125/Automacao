@@ -460,7 +460,7 @@ local = dataLocal()
 atualiza = dataAtualiza()
 
 if(local == atualiza):
-    print("Mesma Hora")
+    print("Software atualizado")
     root = tk.Tk()
     Application(root)
     root.title('AMHP - Automações')
@@ -473,6 +473,7 @@ if(local == atualiza):
 
 else:
     try:
+        tkinter.messagebox.showwarning('AMHP - Automações', 'Uma atualização será feita!')
         os.startfile(r"C:\Instaladores\INSTALA-AUTOMACAO.bat")
     except Exception as e:
         print(f"{e.__class__.__name__}: {e}")

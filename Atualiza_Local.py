@@ -19,7 +19,7 @@ def dataLocal():
     dataFormat = time.ctime(data)
     objLocal = time.strptime(dataFormat)
     trasnfLocal = time.strftime("%d-%m-%y %H:%M:%S", objLocal) 
-    print("PathLocal:",trasnfLocal)
+    # print("PathLocal:",trasnfLocal)
     return trasnfLocal
 
 def dataAtualiza():
@@ -29,7 +29,7 @@ def dataAtualiza():
     dataFormat = time.ctime(data)
     objAtualiza = time.strptime(dataFormat)
     trasnfAtualiza = time.strftime("%d-%m-%y %H:%M:%S", objAtualiza)
-    print("PathAtualiza:",trasnfAtualiza)
+    # print("PathAtualiza:",trasnfAtualiza)
     return trasnfAtualiza
 
 def executarAtualizacao():
