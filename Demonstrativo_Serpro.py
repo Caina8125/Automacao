@@ -49,7 +49,7 @@ class caminho(PageElement):
         time.sleep(1)
         self.driver.find_element(*self.analise_conta).click()
         time.sleep(2)
-        caminho(driver, url).Alert()
+        self.Alert()
         self.driver.find_element(*self.selecionar_convenio).click()
         time.sleep(1)
         self.driver.find_element(*self.opcao_serpro).click()
@@ -76,7 +76,7 @@ class caminho(PageElement):
             time.sleep(1)
             self.driver.find_element(*self.baixar_demonstrativo).click()
             time.sleep(15)
-            caminho(driver, url).movePath()
+            self.movePath()
             time.sleep(2)
             self.driver.find_element(*self.inserir_protocolo).clear()
             time.sleep(1)
@@ -131,8 +131,6 @@ class caminho(PageElement):
 def demonstrativo_serpro():
 
     try:
-        global driver
-        global url
         global planilha
 
         edge_options = Options()
@@ -157,10 +155,6 @@ def demonstrativo_serpro():
 
         driver = webdriver.Edge(seleniumwire_options=proxy, options=edge_options)
 
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
-
-    try:
         login_page = Login(driver, url)
         login_page.open()
         login_page.exe_login(
@@ -168,7 +162,6 @@ def demonstrativo_serpro():
             senha="Amhp@0073"
         )
 
-        print('Pegar Alerta Acionado!')
         caminho(driver, url).Alert()
 
         

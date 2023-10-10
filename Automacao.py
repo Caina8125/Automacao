@@ -138,6 +138,7 @@ class Application:
             self.inserir_data_inicial.pack_forget()
             self.inserir_data_final.pack_forget()
             self.botao_ok.pack_forget()
+            self.voltar.pack_forget()
         except:
             pass
 
@@ -181,8 +182,8 @@ class Application:
         self.inserir_data_inicial.bind("<FocusIn>", self.limpar_placeholder1)
         self.inserir_data_final.pack(side=LEFT)
         self.inserir_data_final.bind("<FocusIn>", self.limpar_placeholder2)
-        self.botao_ok.pack(side=LEFT)
-        self.voltar.pack(side=LEFT)
+        self.botao_ok.pack(side=LEFT, padx=10)
+        self.voltar.pack(side=RIGHT)
 
     def limpar_placeholder1(self, event):
         if self.inserir_data_inicial.get() == "Digite a data inicial":
