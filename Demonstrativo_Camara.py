@@ -8,7 +8,7 @@ from selenium import webdriver
 from tkinter import filedialog
 from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.edge.options import Options
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import tkinter.messagebox
@@ -142,18 +142,18 @@ def demonstrativo_camara():
         global driver
         global url
 
-        edge_options = Options()
+        chrome_options = Options()
 
-        edge_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear",
+        chrome_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear",
                                                 "download.prompt_for_download": False,
                                                 "download.directory_upgrade": True,
                                                 "plugins.always_open_pdf_externally": True
                                                 })
         
-        edge_options.add_argument("--start-maximized")
-        edge_options.add_argument('--ignore-certificate-errors')
-        edge_options.add_argument('--ignore-ssl-errors')
-        edge_options.add_argument('--kiosk-printing')
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+        chrome_options.add_argument('--kiosk-printing')
 
         url = 'https://portalconectasaude.com.br/Account/Login'
         
@@ -166,7 +166,7 @@ def demonstrativo_camara():
             }
         }
 
-        driver = webdriver.Edge(seleniumwire_options=proxy, options=edge_options)
+        driver = webdriver.Chrome(seleniumwire_options=proxy, options=chrome_options)
 
         login_page = Login(driver, url)
         login_page.open()

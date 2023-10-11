@@ -85,7 +85,7 @@ class BaixarDemonstrativos(PageElement):
             valor_glosa = self.driver.find_element(By.XPATH, f'/html/body/div[2]/div[1]/div/div[2]/div[1]/div[7]/table/tbody/tr[{i}]/td[7]').text
             time.sleep(2)
 
-            if valor_glosa == 'R$ 0,00':
+            if not valor_glosa == 'R$ 0,00':
                 numero_do_lote_clicado = False
 
                 while numero_do_lote_clicado == False:

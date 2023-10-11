@@ -133,14 +133,14 @@ def demonstrativo_serpro():
     try:
         global planilha
 
-        edge_options = Options()
+        chrome_options = Options()
 
-        edge_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\SERPRO\Renomear",
+        chrome_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\SERPRO\Renomear",
                                                 "download.prompt_for_download": False,
                                                 "download.directory_upgrade": True,
                                                 "plugins.always_open_pdf_externally": True
                                                 })
-        edge_options.add_argument("--start-maximized")
+        chrome_options.add_argument("--start-maximized")
 
         url = 'https://portalconectasaude.com.br/Account/Login'
         
@@ -153,7 +153,7 @@ def demonstrativo_serpro():
             }
         }
 
-        driver = webdriver.Edge(seleniumwire_options=proxy, options=edge_options)
+        driver = webdriver.Chrome(seleniumwire_options=proxy, options=chrome_options)
 
         login_page = Login(driver, url)
         login_page.open()
