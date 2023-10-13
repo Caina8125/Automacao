@@ -151,9 +151,15 @@ class BaixarDemonstrativo(PageElement):
                         continue
         
                     time.sleep(2)
+                    endereco = r"\\10.0.0.239\automacao_financeiro\CASEMBRAPA\Renomear"
+                    arquivo_na_pasta = os.listdir(f"{endereco}")
+
+                    for arquivo in arquivo_na_pasta:
+                        endereco_arquivo = f'{endereco}\\{arquivo}'
+                        shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\CASEMBRAPA\Não Renomeados")
+
                     self.driver.find_element(*self.imprimir).click()
                     time.sleep(2)
-                    endereco = r"\\10.0.0.239\automacao_financeiro\CASEMBRAPA\Renomear"
 
                     arquivo_renomeado = False
                     

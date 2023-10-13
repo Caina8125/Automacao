@@ -81,6 +81,13 @@ class caminho(PageElement):
 
             self.driver.find_element(*self.inserir_protocolo).send_keys(protocolo)
             time.sleep(1)
+            endereco = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear"
+            arquivo_na_pasta = os.listdir(f"{endereco}")
+
+            for arquivo in arquivo_na_pasta:
+                endereco_arquivo = f'{endereco}\\{arquivo}'
+                shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\CAMARA\Não Renomeados")
+
             self.driver.find_element(*self.baixar_demonstrativo).click()
             time.sleep(4)
 
@@ -88,6 +95,7 @@ class caminho(PageElement):
                 pasta = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear"
                 nomes_arquivos = os.listdir(pasta)
                 time.sleep(2)
+                
                 for nome in nomes_arquivos:
                     nomepdf = os.path.join(pasta, nome)
 

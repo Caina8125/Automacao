@@ -77,6 +77,13 @@ class BaixarDemonstrativos(PageElement):
                     self.driver.implicitly_wait(30)
                     self.driver.find_element(*self.numero_do_protocolo).send_keys(numero_protocolo_planilha)
                     time.sleep(2)
+                    endereco = r"\\10.0.0.239\automacao_financeiro\STF\Renomear"
+                    arquivo_na_pasta = os.listdir(f"{endereco}")
+
+                    for arquivo in arquivo_na_pasta:
+                        endereco_arquivo = f'{endereco}\\{arquivo}'
+                        shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\STF\Não Renomeados")
+
                     self.driver.find_element(*self.emitir_relatorio).click()
                     time.sleep(4)
                     arquivo_renomeado = False

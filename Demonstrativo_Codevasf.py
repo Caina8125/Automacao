@@ -117,7 +117,7 @@ class BaixarDemonstrativo(PageElement):
                     self.driver.find_element(*self.imprimir).click()
                     time.sleep(2)
                     novo_nome = r"\\10.0.0.239\automacao_financeiro\CODEVASF" + f"\\{numero_fatura}.pdf"
-                    lista_faturas_com_erro = ['']
+                    lista_faturas_com_erro = []
                     download_feito = False
                     endereco = r"\\10.0.0.239\automacao_financeiro\CODEVASF"
 
