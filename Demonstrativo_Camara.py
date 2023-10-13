@@ -42,6 +42,7 @@ class caminho(PageElement):
     baixar_demonstrativo = (By.XPATH, '//*[@id="btn-Baixar_Demonstrativo"]')
     fechar_botao = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
     fechar_alerta = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
+    erro = False
 
     def exe_caminho(self):
         time.sleep(1)
@@ -59,8 +60,14 @@ class caminho(PageElement):
         df = pd.read_excel(planilha, header=5)
         df = df.iloc[:-1]
         df = df.dropna()
+        global count, quantidade_de_faturas, faturas_com_erro
+        count = 0
+        quantidade_de_faturas = len(df)
+        faturas_com_erro = []        
 
         for index, linha in df.iterrows():
+
+            erro = False
 
             global fatura
             try:
@@ -76,41 +83,46 @@ class caminho(PageElement):
             time.sleep(1)
             self.driver.find_element(*self.baixar_demonstrativo).click()
             time.sleep(4)
-            caminho(driver, url).movePath()
+
+            for i in range(10):
+                pasta = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear"
+                nomes_arquivos = os.listdir(pasta)
+                time.sleep(2)
+                for nome in nomes_arquivos:
+                    nomepdf = os.path.join(pasta, nome)
+
+                renomear = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear" +f"\\{fatura}"  +  ".pdf"
+                arqDest = r"\\10.0.0.239\automacao_financeiro\CAMARA" + f"\\{fatura}"  +  ".pdf"
+
+                try:
+                    os.rename(nomepdf,renomear)
+                    shutil.move(renomear,arqDest)
+                    time.sleep(2)
+                    print("Arquivo renomeado e guardado com sucesso")
+                    break
+
+                except Exception as e:
+                    print(e)
+                    print("Download ainda não foi feito/Arquivo não renomeado")
+                    time.sleep(2)
+
+                if i == 9:
+                    faturas_com_erro.append(fatura)
+                    erro = True
+
             time.sleep(2)
             self.driver.find_element(*self.inserir_protocolo).clear()
             time.sleep(1)
 
+            if erro == False:
+                count += 1
 
+        if count == quantidade_de_faturas:
+            tkinter.messagebox.showinfo( 'Demonstrativos Câmara' , f"Downloads concluídos: {count} de {quantidade_de_faturas}." )
 
-
-
-    def movePath(self):
-        for i in range(10):
-            pasta = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear"
-            nomes_arquivos = os.listdir(pasta)
-            time.sleep(2)
-            for nome in nomes_arquivos:
-                nomepdf = os.path.join(pasta, nome)
-
-            renomear = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear" +f"\\{fatura}"  +  ".pdf"
-            arqDest = r"\\10.0.0.239\automacao_financeiro\CAMARA" + f"\\{fatura}"  +  ".pdf"
-
-            try:
-                os.rename(nomepdf,renomear)
-                shutil.move(renomear,arqDest)
-                time.sleep(2)
-                print("Arquivo renomeado e guardado com sucesso")
-                break
-
-
-            except Exception as e:
-                print(e)
-                print("Download ainda não foi feito/Arquivo não renomeado")
-                time.sleep(2)
-
-
-
+        else:
+            tkinter.messagebox.showinfo( 'Demonstrativos Câmara' , f"Downloads concluídos: {count} de {quantidade_de_faturas}. Conferir fatura(s): {', '.join(faturas_com_erro) }." )            
+        
     def Alert(self):
         try:
             modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))

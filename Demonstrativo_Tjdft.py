@@ -8,7 +8,7 @@ from selenium import webdriver
 from tkinter import filedialog
 from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.edge.options import Options
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import Pidgin
@@ -60,8 +60,14 @@ class caminho(PageElement):
         df = pd.read_excel(planilha, header=5)
         df = df.iloc[:-1]
         df = df.dropna()
+        global count, quantidade_de_faturas, faturas_com_erro
+        count = 0
+        quantidade_de_faturas = len(df)
+        faturas_com_erro = []     
 
         for index, linha in df.iterrows():
+
+            erro = False
 
             global fatura
             try:
@@ -77,29 +83,45 @@ class caminho(PageElement):
             time.sleep(1)
             self.driver.find_element(*self.baixar_demonstrativo).click()
             time.sleep(15)
-            caminho(driver, url).movePath()
+            for i in range(10):
+                pasta = r"\\10.0.0.239\automacao_financeiro\TJDFT\Renomear"
+                nomes_arquivos = os.listdir(pasta)
+                time.sleep(2)
+                for nome in nomes_arquivos:
+                    nomepdf = os.path.join(pasta, nome)
+
+                renomear = r"\\10.0.0.239\automacao_financeiro\TJDFT\Renomear" +f"\\{fatura}"  +  ".pdf"
+                arqDest = r"\\10.0.0.239\automacao_financeiro\TJDFT" + f"\\{fatura}"  +  ".pdf"
+
+                try:
+                    os.rename(nomepdf,renomear)
+                    shutil.move(renomear,arqDest)
+                    time.sleep(2)
+                    print("Arquivo renomeado e guardado com sucesso")
+                    break
+
+                except Exception as e:
+                    print(e)
+                    print("Download ainda não foi feito/Arquivo não renomeado")
+                    time.sleep(2)
+
+                if i == 9:
+                    faturas_com_erro.append(fatura)
+                    erro = True
+
             time.sleep(2)
             self.driver.find_element(*self.inserir_protocolo).clear()
             time.sleep(1)
 
+            if erro == False:
+                count += 1
 
+        if count == quantidade_de_faturas:
+            tkinter.messagebox.showinfo( 'Demonstrativos TJDFT' , f"Downloads concluídos: {count} de {quantidade_de_faturas}." )
 
+        else:
+            tkinter.messagebox.showinfo( 'Demonstrativos TJDFT' , f"Downloads concluídos: {count} de {quantidade_de_faturas}. Conferir fatura(s): {', '.join(faturas_com_erro) }." )
 
-
-    def movePath(self):
-        pasta = r"\\10.0.0.239\automacao_financeiro\TJDFT\Renomear"
-        nomes_arquivos = os.listdir(pasta)
-        time.sleep(2)
-        for nome in nomes_arquivos:
-            
-            nomepdf = os.path.join(pasta, nome)
-            renomear = r"\\10.0.0.239\automacao_financeiro\TJDFT\Renomear" +f"\\{fatura}"  +  ".pdf"
-            arqDest = r"\\10.0.0.239\automacao_financeiro\TJDFT" + f"\\{fatura}"  +  ".pdf"
-
-            os.replace(nomepdf,renomear)
-            shutil.move(renomear,arqDest)
-            time.sleep(2)
-            print("Arquivo renomeado e guardado com sucesso")
 
 
 
@@ -135,14 +157,14 @@ def demonstrativo_tjdft():
         global driver
         global url
 
-        edge_options = Options()
+        chrome_options = Options()
 
-        edge_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\TJDFT\Renomear",
+        chrome_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\TJDFT\Renomear",
                                                 "download.prompt_for_download": False,
                                                 "download.directory_upgrade": True,
                                                 "plugins.always_open_pdf_externally": True
                                                 })
-        edge_options.add_argument("--start-maximized")
+        chrome_options.add_argument("--start-maximized")
         url = 'https://prosaudeconecta.tjdft.jus.br'
         
         planilha = filedialog.askopenfilename()
@@ -154,7 +176,7 @@ def demonstrativo_tjdft():
             }
         }
 
-        driver = webdriver.Edge(seleniumwire_options=proxy, options=edge_options)
+        driver = webdriver.Edge(seleniumwire_options=proxy, options=chrome_options)
 
         login_page = Login(driver, url)
         login_page.open()

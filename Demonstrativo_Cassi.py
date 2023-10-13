@@ -1,8 +1,6 @@
 import tkinter.messagebox
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium import webdriver
 from openpyxl import load_workbook
 from abc import ABC
@@ -42,18 +40,18 @@ class Login(PageElement):
 class caminho(PageElement):
     finalizar = (By.XPATH, '//*[@id="step-0"]/nav/button')
     demonstrativo_tiss = (By.XPATH, '/html/body/div[1]/aside/section/div/div/div[1]/div[1]/ul/li[11]/a')
-    demonstrativo_de_pagamentos = (By.XPATH, '/html/body/div[1]/aside/section/div/div/div[1]/div[1]/ul/li[11]/ul/li[2]/a')
+    demonstrativo_de_analises = (By.XPATH, '/html/body/div[1]/aside/section/div/div/div[1]/div[1]/ul/li[11]/ul/li[1]/a')
 
     def exe_caminho(self):
         self.driver.implicitly_wait(30)
         self.driver.find_element(*self.finalizar).click()
         time.sleep(4)
-        self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoPagamento/Index')
+        self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoAnaliseContas/Index')
 
 class BaixarDemonstrativo(PageElement):
     data_inicial = (By.XPATH, '//*[@id="DataInicial"]')
     data_final = (By.XPATH, '//*[@id="DataFinal"]')
-    consultar = (By.XPATH, '//*[@id="btnConsultar"]')
+    consultar = (By.XPATH, '/html/body/div[1]/div[5]/section/div/form/fieldset/div[4]/div/button')
     xpath_tabela = (By.XPATH, '/html/body/div[1]/div[5]/section/div/fieldset/div/table')
     download_xml = (By.XPATH, '//*[@id="formExportar"]/button[2]')
     voltar = (By.XPATH, '//*[@id="btnVoltar"]')
@@ -64,6 +62,7 @@ class BaixarDemonstrativo(PageElement):
         self.driver.find_element(*self.data_inicial).send_keys(data_inicial)
         time.sleep(2)
         self.driver.find_element(*self.data_final).send_keys(data_final)
+        self.driver.find_element(*self.data_inicial).send_keys(Keys.ESCAPE)
         time.sleep(2)
         self.driver.find_element(*self.consultar).click()
         time.sleep(2)
@@ -79,7 +78,7 @@ class BaixarDemonstrativo(PageElement):
 
             for i in range(1, quantidade_demonstrativos):
                 time.sleep(2)
-                self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/fieldset/div/table/tbody/tr[{i}]/td[2]/form/input[2]').click()
+                self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/fieldset/div/table/tbody/tr[{i}]/td[3]/form/input[3]').click()
                 time.sleep(2)
                 self.driver.find_element(*self.download_xml).click()
                 time.sleep(2)

@@ -190,9 +190,6 @@ class Application:
             self.inserir_data_inicial.delete(0, "end")
             self.inserir_data_inicial.config(fg="black")
 
-    
-
-    # Remove o texto de dica quando o usuário começa a digitar no campo 2
     def limpar_placeholder2(self, event):
         if self.inserir_data_final.get() == "Digite a data final":
             self.inserir_data_final.delete(0, "end")
