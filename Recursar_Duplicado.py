@@ -61,6 +61,7 @@ class caminho(PageElement):
         time.sleep(1)
         self.driver.find_element(*self.botão_novorecurso).click()
         time.sleep(2)
+        
 class injetar_dados(PageElement):
     nro_guia = (By.XPATH, '//*[@id="NroGspPrincipal"]')
     baixar_guia = (By.XPATH, '//*[@id="btnQuickGuia"]')

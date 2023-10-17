@@ -35,6 +35,7 @@ from Demonstrativo_Sis import demonstrativo_sis
 from Demonstrativo_Stf import demonstrativo_stf
 from Demonstrativo_Tjdft import demonstrativo_tjdft
 from Demonstrativo_Unafisco import demonstrativo_unafisco
+from Nota_Fiscal import subirNF
 from datetime import datetime
 import os
 
@@ -112,8 +113,9 @@ class Application:
                                                                    "Glosa - Recursar Postal",
                                                                    "Glosa - Recursar Saúde Caixa",
                                                                    "Glosa - Recursar Serpro",
-                                                                   "Glosa - Recursar SIS"
-                                                                     ], width=50)
+                                                                   "Glosa - Recursar SIS",
+                                                                   "Tesouraria - Nota Fiscal"
+                                                                    ], width=50)
         self.comboBox["background"] = 'white'
         self.comboBox.pack(side=LEFT)
 
@@ -358,6 +360,10 @@ class Application:
         elif automacao == "Glosa - Recursar SIS":
             self.gif()
             recursar_sis()
+            self.reiniciar()
+        elif automacao == "Tesouraria - Nota Fiscal":
+            self.gif()
+            subirNF()
             self.reiniciar()  
 
         else:
