@@ -70,7 +70,7 @@ class Nf(PageElement):
             try:
                 self.driver.switch_to.frame('iframeModal')
                 erro = self.driver.find_element(By.ID, "TxtErro").text
-                Pidgin.notaFiscal(f"Teste Robô => Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
+                Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
                 self.driver.switch_to.default_content()
                 self.driver.switch_to.frame('iframe')
                 self.driver.find_element(*self.fecharModalErro).click()
