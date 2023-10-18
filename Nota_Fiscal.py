@@ -221,7 +221,7 @@ def subirNF():
     planilha = filedialog.askopenfilename()
 
 
-    url = 'https://www.amhp.com.br/'
+    url = 'https://www2.geap.com.br/AuditoriaDigital/login'
     refresh = "https://df.issnetonline.com.br/online/Login/Login.aspx#"
     driver = webdriver.Chrome()
 
@@ -229,6 +229,7 @@ def subirNF():
 
     driver.maximize_window()
     driver.get(url)
+
 
     pyautogui.write('lucas.timoteo')
     pyautogui.press("TAB")
