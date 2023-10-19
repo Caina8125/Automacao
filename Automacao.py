@@ -8,7 +8,7 @@ from Recursar_Duplicado import *
 from Buscar_fatura import iniciar
 from Atualiza_Local import *
 from Anexar_Honorario import anexar_guias
-from VerificarSituacao_BRB import verificar_brb
+from VerificarSituacao_BRB import verificacao_brb
 from Auditoria_GEAP import ExtrairDados
 from Recursar_SemDuplicado import recursar_sem_duplicado
 from Recurso_Postal import recursar_postal
@@ -226,7 +226,7 @@ class Application:
 
         elif automacao == "Faturamento - Verificar Situação BRB":
             self.gif()
-            verificar_brb()
+            verificacao_brb()
             self.reiniciar()
 
         elif automacao == "Faturamento - Verificar Situação Fascal":

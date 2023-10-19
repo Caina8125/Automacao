@@ -1,28 +1,26 @@
 import pandas as pd
 import pyautogui
 import time
-import os
-import sys
 from abc import ABC
 from tkinter import filedialog
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
+from seleniumwire import webdriver
 from openpyxl import Workbook, load_workbook
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 from Filtro_Faturamento import *
-from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.options import Options
+import tkinter
 
 class PageElement(ABC):
-    def __init__(self, webdriver, url=''):
-        self.webdriver = webdriver
+    def __init__(self, driver, url=''):
+        self.driver = driver
         self.url = url
     def open(self):
-        self.webdriver.get(self.url)
+        self.driver.get(self.url)
 
 class Login(PageElement):
     prestador_pj = (By.XPATH, '//*[@id="tipoAcesso"]/option[9]')
@@ -31,10 +29,10 @@ class Login(PageElement):
     entrar = (By.XPATH, '//*[@id="BtnEntrar"]')
 
     def logar(self, usuario, senha):
-        self.webdriver.find_element(*self.prestador_pj).click()
-        self.webdriver.find_element(*self.usuario).send_keys(usuario)
-        self.webdriver.find_element(*self.senha).send_keys(senha)
-        self.webdriver.find_element(*self.entrar).click()
+        self.driver.find_element(*self.prestador_pj).click()
+        self.driver.find_element(*self.usuario).send_keys(usuario)
+        self.driver.find_element(*self.senha).send_keys(senha)
+        self.driver.find_element(*self.entrar).click()
         time.sleep(5)
 
 class Caminho(PageElement):
@@ -43,18 +41,18 @@ class Caminho(PageElement):
 
     def exe_caminho(self):
         try:
-            element = WebDriverWait(webdriver, 60.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="menuPrincipal"]/div/div[4]/a/span')))
-            self.webdriver.find_element(*self.localizar_procedimentos).click()
+            element = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="menuPrincipal"]/div/div[4]/a/span')))
+            self.driver.find_element(*self.localizar_procedimentos).click()
             time.sleep(2)
-            self.webdriver.find_element(*self.Alerta).click()
+            self.driver.find_element(*self.Alerta).click()
             time.sleep(2)
         except:
-            webdriver.refresh()
-            login_page.logar(usuario = '00735860000173', senha = 'amhpdf0073')
-            webdriver.implicitly_wait(30)
-            self.webdriver.find_element(*self.localizar_procedimentos).click()
+            self.driver.refresh()
+            login_page.logar(usuario = '00735860000173_2', senha = '00735860000173')
+            self.driver.implicitly_wait(30)
+            self.driver.find_element(*self.localizar_procedimentos).click()
             time.sleep(2)
-            self.webdriver.find_element(*self.Alerta).click()
+            self.driver.find_element(*self.Alerta).click()
             time.sleep(2)
     
 class injetar_dados(PageElement):
@@ -86,9 +84,9 @@ class injetar_dados(PageElement):
             while pesquisa == False:
 
                 try:
-                    self.webdriver.find_element(*self.guia_op).clear() 
-                    self.webdriver.find_element(*self.guia_op).send_keys(guia)
-                    self.webdriver.find_element(*self.buscar).click()
+                    self.driver.find_element(*self.guia_op).clear() 
+                    self.driver.find_element(*self.guia_op).send_keys(guia)
+                    self.driver.find_element(*self.buscar).click()
                     pesquisa = True
 
                 except:
@@ -99,14 +97,14 @@ class injetar_dados(PageElement):
             while user == False:
 
                 try:
-                    usuario = webdriver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
+                    usuario = self.driver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
                     user = True
 
                 except:
                     pass
             
-            webdriver.execute_script('scrollBy(0,1000)')
-            webdriver.execute_script('scrollBy(0,1000)')
+            self.driver.execute_script('scrollBy(0,1000)')
+            self.driver.execute_script('scrollBy(0,1000)')
             time.sleep(1)
 
             count = count + 1
@@ -129,16 +127,16 @@ class injetar_dados(PageElement):
                     while user == False:
 
                         try:
-                            usuario = webdriver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
+                            usuario = self.driver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
                             user = True
 
                         except:
                             pass
-
-                    situacao = WebDriverWait(webdriver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[2]/div[3]/span'))).text
+                    self.driver.implicitly_wait(3)
+                    situacao = WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[2]/div[3]/span'))).text
                     print(f"{guia} está {situacao}")
 
-                    carteira = webdriver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[1]/div[1]/strong[2]').text.replace("-", "")
+                    carteira = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[1]/div[1]/strong[2]').text.replace("-", "")
                     carteira_planilha = (linha2['Matríc. Convênio']).replace('Nº - ', '')
 
                     procedimentos_planilha = f"{linha2['Procedimento']}".replace('.', '').replace('-', '')
@@ -147,7 +145,7 @@ class injetar_dados(PageElement):
                         validacao_senha = "Senha não obrigatória"
 
                     else:
-                        senha_portal = webdriver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[1]/div[3]/span').text
+                        senha_portal = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[1]/div[3]/span').text
                         senha_planilha = f'{linha2["Senha Aut."]}'.replace(".0", "")
 
                         if senha_portal == senha_planilha:
@@ -163,14 +161,14 @@ class injetar_dados(PageElement):
                         matricula = f'Inválida. Correta: {carteira}'
 
                     try:
-                        webdriver.implicitly_wait(0.5)
-                        procedimentos = webdriver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[1]/div/div[2]/div/div/div[5]/a')
+                        self.driver.implicitly_wait(0.5)
+                        procedimentos = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[1]/div/div[2]/div/div/div[5]/a')
                         procedimentos = procedimentos.get_attribute('outerHTML')
                         procedimentos = procedimentos.replace('<a href="#" data-toggle="tooltip" data-placement="top" data-bind="attr: { title: $parent.CodigoAMB }" title="" data-original-title="', '')
                         procedimentos = procedimentos.replace('-', '').replace('.', '')
 
                     except:
-                        procedimentos = webdriver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[1]/div/div[2]/div/div').text.replace('-', '').replace('.', '')
+                        procedimentos = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[1]/div/div[2]/div/div').text.replace('-', '').replace('.', '')
                     
                     if procedimentos_planilha[0] == '1' and len(procedimentos_planilha) == 9:
                         data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': ['Mat/Med, Taxas'], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
@@ -233,7 +231,7 @@ class injetar_dados(PageElement):
                     count2 = count2 + 1
                     print('___________________________________________________________________________')
                 except:
-                    situacao = webdriver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[1]').text
+                    situacao = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[1]').text
                     data = {'Situação': [situacao], 'Validação Carteira': [''], 'Validação Proc.': [''], 'Validação Senha': [''], 'Pesquisado no Portal': ['Sim']}
                     print(f"{guia}: {situacao}")
                     df = pd.DataFrame(data)
@@ -243,49 +241,62 @@ class injetar_dados(PageElement):
                     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                     df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                     writer.save()
-                    self.webdriver.find_element(*self.guia_op).clear()
+                    self.driver.find_element(*self.guia_op).clear()
                     ('___________________________________________________________________________')
             
 
 
 
 #-------------------------------------------------------------------------
-login_usuario = 'lucas.paz'
-senha_usuario = 'Gsw2022&'
 
-try:
-    processar_planilha()
-    remove()
-except:
-    pass
+def verificacao_brb():
+    try:
+        try:
+            processar_planilha()
+            remove()
+        except:
+            pass
+        global planilha
+        planilha = filedialog.askopenfilename()
 
-planilha = filedialog.askopenfilename()
+        url = 'https://portal.saudebrb.com.br/GuiasTISS/Logon'
 
-url = 'https://portal.saudebrb.com.br/GuiasTISS/Logon'
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
 
-webdriver = webdriver.Chrome()
+        options = {
+        'proxy': {
+                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
+                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            }
+        }
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
-login_page = Login(webdriver, url)
-login_page.open()
-webdriver.maximize_window()
-pyautogui.write(login_usuario)
-pyautogui.press("TAB")
-pyautogui.write(senha_usuario)
-pyautogui.press("enter")
-time.sleep(4)
+        global login_page
+        login_page = Login(driver, url)
+        login_page.open()
+        login_page.logar(
+            usuario = '00735860000173_2',
+            senha = '00735860000173'
+            )
 
-login_page.logar(
-    usuario = '00735860000173_2',
-    senha = '00735860000173'
-    )
+        time.sleep(4)
 
-time.sleep(4)
+        Caminho(driver,url).exe_caminho()
 
-Caminho(webdriver,url).exe_caminho()
+        injetar_dados(driver,url).inserir_dados()
 
-injetar_dados(webdriver,url).inserir_dados()
+        tkinter.messagebox.showinfo( 'Automação Faturamento - Fascal' , 'Buscas no portal da Fascal concluídos 😎✌' )
 
-print("Todas as guias foram pesquisadas com sucesso.")
+    except Exception as err:
+        tkinter.messagebox.showerror( 'Erro na busca' , f'Ocorreu uma exceção não tratada \n {err.__class__.__name__} - {err}' )
+        driver.quit()
 
 
 
