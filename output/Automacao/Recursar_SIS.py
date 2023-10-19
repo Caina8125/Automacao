@@ -51,6 +51,7 @@ class Recurso(PageElement):
     botao_ok = (By.XPATH, '//*[@id="ctl00_Body"]/div[1]/div/div/div[3]/button')
     n_protocolo = (By.XPATH, '/html/body/div[1]/div/div/div[2]/div/div')
     botao_ok_enviar = (By.XPATH, '/html/body/div[1]/div/div/div[3]/button[2]')
+    mostrar_guias = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/i')
 
 
     def caminho(self):
@@ -252,7 +253,7 @@ class Recurso(PageElement):
                                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                                 writer.book = book
                                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                                df.to_excel(writer, 'Recurso', startrow= count, startcol=21, header=False, index=False)
+                                df.to_excel(writer, 'Recurso', startrow= count, startcol=20, header=False, index=False)
                                 writer.save()
                                 recursado = True
                                 break
@@ -305,10 +306,7 @@ def recursar_sis():
             driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
         except:
             driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
 
-    try:
         login_page = Login(driver, url)
         login_page.open()
 
@@ -319,6 +317,6 @@ def recursar_sis():
 
         Recurso(driver, url).fazer_recurso()
         tkinter.messagebox.showinfo( 'Automação SIS Recurso de Glosa' , 'Recursos no portal do SIS Concluídos 😎✌' )
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal do SIS caiu 😢' )
+    except Exception as e:
+        tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma exceção não tratada \n {e.__class__.__name__} - {e}' )
         driver.quit()
