@@ -16,7 +16,7 @@ from selenium.webdriver.support import expected_conditions as EC
 class PageElement(ABC):
     def __init__(self, driver, url='') -> None:
         self.driver = driver
-        self.url = url
+        self.url    = url
     def open(self):
         self.driver.get(self.url)
 
@@ -28,9 +28,9 @@ class Login(PageElement):
 
 class Caminho(PageElement):
     declararServico = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[3]/div/span[3]')
-    incluir = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[3]/ul/li[1]/div')
-    fecharModal = (By.XPATH, '//*[@id="base-modal"]/div/div/div[1]/button')
-    botaoMenu = (By.XPATH, '//*[@id="menu-toggle"]')
+    incluir         = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[3]/ul/li[1]/div')
+    fecharModal     = (By.XPATH, '//*[@id="base-modal"]/div/div/div[1]/button')
+    botaoMenu       = (By.XPATH, '//*[@id="menu-toggle"]')
     
 
     def exe_caminho(self):
@@ -62,7 +62,7 @@ class Caminho(PageElement):
 
 
 class Nf(PageElement):
-    inserirCNPJ     = (By.XPATH, '//*[@id="dgContratados__ctl2_txtCPF_CNPJ"]')
+    inserirCNPJ1    = (By.XPATH, '//*[@id="dgContratados__ctl2_txtCPF_CNPJ"]')
     inserirNumDoc   = (By.XPATH, '//*[@id="dgContratados__ctl2_txtNum_Doc"]')
     botaoGravar     = (By.XPATH, '//*[@id="btnGravar"]')
     campoVlDoc      = (By.XPATH, '//*[@id="dgContratados__ctl2_txtValor_Doc"]')
@@ -82,8 +82,11 @@ class Nf(PageElement):
     novembro        = (By.XPATH, '//*[@id="ddlMes"]/option[12]')
     dezembro        = (By.XPATH, '//*[@id="ddlMes"]/option[13]')
     confirmarMes    = (By.XPATH, '//*[@id="btnAlterarCompetencia"]')
+    botaoNfGravado  = (By.XPATH, '/html/body/div[1]/div/div/div[3]/div/button')
+    botaoOKErro     = (By.XPATH, '/html/body/div[3]/div/div/div[3]/div/button')
+    
 
-    def alterarCopetencia(self):
+    def alterarCompetencia(self):
         driver.get("https://df.issnetonline.com.br/online/Default/alterar_competencia.aspx")
         time.sleep(1)
         self.driver.find_element(*self.selectMes).click()
@@ -94,8 +97,9 @@ class Nf(PageElement):
         time.sleep(1)
         Caminho(driver,url).exe_caminho()
 
-
-    def verificarMesCompetente(self,mesPlanilha):
+    # Função para verificar se a DataCompetencia da NF é a mesma Data do Portal, 
+    # Se não for essa função vai alterar a data do Portal
+    def verificarMesCompetente(self,mesPlanilha): 
         match mesPlanilha:
             case "Janeiro":
                 self.driver.find_element(*self.janeiro).click()
@@ -122,38 +126,69 @@ class Nf(PageElement):
             case "Dezembro":
                 self.driver.find_element(*self.dezembro).click()
 
+    def inserirDezEmDez(self,count,cnpj,nf):
+
+        self.driver.switch_to.frame('iframe')
+        self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{count}_txtCPF_CNPJ"]').send_keys(cnpj)
+        self.driver.find_element(*self.inserirNumDoc).click()
+        time.sleep(2)
+        try:
+            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{count}_txtNum_Doc"]').send_keys(nf)
+        except:
+            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{count}_txtNum_Doc"]').send_keys(nf)
+        self.driver.find_element(*self.campoVlDoc).click()
+        time.sleep(2)
+
 
 
     def inserirDadosNf(self):
         global mesPorExtenso
-        faturas_df = pd.read_excel(planilha)
+        global count_linha
+        global i
+
+        faturas_df  = pd.read_excel(planilha)
+        count_linha = 1
+        i           = 2
         for index, linha in faturas_df.iterrows():
+            # Se a NF ja estiver sido enviada, pular para próxima linha
+            if 'Enviado no Portal' in f"{linha['VERIFICA']}":
+                count_linha+=1
+                print(count_linha)
+                continue
+
             #Tratando Data Copetencia
             dataCompetencia = f"{linha['NFECOMPETENCIA']}"
             dataCompetencia = dataCompetencia.replace(" 00:00:00","")
 
             # Verificando se Data copetencia está vazio, se estiver pular para próxima
             if not '-' in dataCompetencia:
+                count_linha+=1
+                print(count_linha)
                 continue
 
+
             # Converter dataCompetencia para DateTime
-            convertData = datetime.strptime(dataCompetencia, '%Y-%m-%d').date()
-            convertMes = convertData.month
-            mesPorExtenso = self.mesCopetencia(convertMes)
+            convertData     = datetime.strptime(dataCompetencia, '%Y-%m-%d').date()
+            convertMes      = convertData.month
+            mesPorExtenso   = self.mesCompetencia(convertMes)
 
             # Pegar o mês vigente do portal
             try:
                 self.driver.switch_to.default_content()
                 campoMesPortal = driver.find_element(By.XPATH, '/html/body/form/nav/div/div[2]/ul[2]/li[1]/a/span[1]').text
             except:
-                campoMesPortal = driver.find_element(By.XPATH, '/html/body/form/nav/div/div[2]/ul[2]/li[1]/a/span[1]').text
+                try:
+                    self.driver.switch_to.default_content()
+                    campoMesPortal = driver.find_element(By.XPATH, '/html/body/form/nav/div/div[2]/ul[2]/li[1]/a/span[1]').text
+                except:
+                    campoMesPortal = driver.find_element(By.XPATH, '/html/body/form/nav/div/div[2]/ul[2]/li[1]/a/span[1]').text
 
             # Verificar se o mês vigente do portal é o mesmo da NF,
-            # Se não for, altera no portal com a função alterarCopetencia()
+            # Se não for, altera no portal com a função alterarCompetencia()
             if mesPorExtenso in campoMesPortal:
                 print("Mês vigente da NF")
             else:
-                self.alterarCopetencia()
+                self.alterarCompetencia()
 
             # Alterar cnpj e nf para string
             cnpj = str(f"{linha['CNPJCPF']}")
@@ -162,18 +197,36 @@ class Nf(PageElement):
             # Inserir zero a esquerda quando o CNPJ não vir com 14 caracteres
             while not len(cnpj) == 14:
                 cnpj = "0" + cnpj
+
+            # Inserir dados da NF no portal
+            self.inserirDezEmDez(i,cnpj,nf)
+            self.salvarResultadoExcel("Enviado no Portal",count_linha)
             
-            time.sleep(1)
-            self.driver.switch_to.frame('iframe')
-            self.driver.find_element(*self.inserirCNPJ).send_keys(cnpj)
-            self.driver.find_element(*self.inserirNumDoc).click()
-            time.sleep(2)
-            self.driver.find_element(*self.inserirNumDoc).send_keys(nf)
-            self.driver.find_element(*self.campoVlDoc).click()
-            time.sleep(2)
+
+            # Condição para inserir 10 NFs no de uma vez no portal
+            if i < 11:
+                i+=1
+                count_linha+=1
+                continue
+
+            i=2
+
             self.driver.find_element(*self.botaoGravar).click()
-            time.sleep(2)
+            time.sleep(3)
+
+            # Se a NF tiver sido gravada com suscesso entrar no Try,
+            # Se não é pq a NF tem algum erro, entrar no Except
             try:
+                time.sleep(3)
+                try:
+                    self.driver.find_element(*self.botaoOKErro).click()
+                    time.sleep(1)
+                    self.driver.find_element(*self.botaoNfGravado).click()
+                except:
+                    time.sleep(2)
+                    self.driver.find_element(*self.botaoNfGravado).click()
+                # self.salvarResultadoExcel("Sucesso")
+            except:
                 self.driver.switch_to.frame('iframeModal')
                 erro = self.driver.find_element(By.ID, "TxtErro").text
                 Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
@@ -181,10 +234,26 @@ class Nf(PageElement):
                 self.driver.switch_to.frame('iframe')
                 self.driver.find_element(*self.fecharModalErro).click()
                 self.driver.find_element(*self.botaoCancelar).click()
-            except:
-                pass
+                # self.salvarResultadoExcel("Erro NF")
+            count_linha += 1
+            print(count_linha)
+            
 
-    def mesCopetencia(self,mes):
+    # Função para salvar o resultado da NF no Excel
+    def salvarResultadoExcel(self,resultado,count_linha): 
+        result        = [resultado]
+        df            = pd.DataFrame(result)
+        book          = load_workbook(planilha)
+        writer        = pd.ExcelWriter(planilha, engine='openpyxl')
+        writer.book   = book
+        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+        print(count_linha)
+        df.to_excel(writer, "Compromisso ISS", startrow=count_linha, startcol=25, header=False, index=False)
+        writer.save()
+        print('anexado na planilha')
+        
+
+    def mesCompetencia(self,mes): # Função para escrever o mês por extenso da DataCompetencia
         match mes:
             case 1:
                 return "Janeiro"
@@ -214,39 +283,41 @@ class Nf(PageElement):
 #---------------------------------------------------------------------------------------------------------------------------------------------
 
 def subirNF():
-    # try:
-    global planilha
-    global driver
-    global url
-    planilha = filedialog.askopenfilename()
+    try:
+        global planilha
+        global driver
+        global url
+        planilha = filedialog.askopenfilename()
 
 
-    url = 'https://www2.geap.com.br/AuditoriaDigital/login'
-    refresh = "https://df.issnetonline.com.br/online/Login/Login.aspx#"
-    driver = webdriver.Chrome()
+        url = 'https://www.amhp.com.br/'
+        refresh = "https://df.issnetonline.com.br/online/Login/Login.aspx#"
+        driver = webdriver.Chrome()
 
-    login_page = Login(driver, url)
+        login_page = Login(driver, url)
 
-    driver.maximize_window()
-    driver.get(url)
+        driver.maximize_window()
+        driver.get(url)
 
+        pyautogui.write('lucas.timoteo')
+        pyautogui.press("TAB")
+        pyautogui.write('Caina8125')
+        pyautogui.press("enter")
 
-    pyautogui.write('lucas.timoteo')
-    pyautogui.press("TAB")
-    pyautogui.write('Caina8125')
-    pyautogui.press("enter")
+        driver.get(refresh)
+        time.sleep(1)
+        login_page.exe_login()
+        time.sleep(2)
+        pyautogui.press("enter")
+        time.sleep(2)
 
-    driver.get(refresh)
-    time.sleep(1)
-    login_page.exe_login()
-    time.sleep(2)
-    pyautogui.press("enter")
-    time.sleep(2)
-
-    Caminho(driver,url).exe_caminho()
-    time.sleep(1)
-    Nf(driver,url).inserirDadosNf()
-# except:
-    #     pass
-
-    # driver.quit()
+        Caminho(driver,url).exe_caminho()
+        time.sleep(1)
+        Nf(driver,url).inserirDadosNf()
+        Pidgin.notaFiscal("Todas as Notas Concluídas")
+    except:
+        Pidgin.notaFiscal("Deu erro na automação provavelmente o portal caiu")
+        driver.quit()
+        pass
+    
+    driver.quit()
