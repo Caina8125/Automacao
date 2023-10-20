@@ -36,6 +36,7 @@ from Demonstrativo_Stf import demonstrativo_stf
 from Demonstrativo_Tjdft import demonstrativo_tjdft
 from Demonstrativo_Unafisco import demonstrativo_unafisco
 from Nota_Fiscal import subirNF
+from gerador_de_planilha import gerar_planilha
 from datetime import datetime
 import os
 
@@ -109,6 +110,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos TJDFT", 
                                                                    "Financeiro - Demonstrativos Unafisco", 
                                                                    "Glosa - Auditoria GEAP",
+                                                                   "Glosa - Gerador de Planilha GDF",
                                                                    "Glosa - Recursar GEAP Duplicado",
                                                                    "Glosa - Recursar GEAP Sem Duplicado",
                                                                    "Glosa - Recursar Postal",
@@ -332,6 +334,11 @@ class Application:
             auditoria = ExtrairDados()
             auditoria.extrair_dados()
             self.reiniciar()
+
+        elif automacao == "Glosa - Gerador de Planilha GDF":
+            self.gif()
+            gerar_planilha()
+            self.reiniciar
 
         elif automacao == "Glosa - Recursar GEAP Duplicado":
             self.gif()
