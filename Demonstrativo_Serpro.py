@@ -34,14 +34,15 @@ class Login(PageElement):
         self.driver.find_element(*self.logar).click()
 
 class caminho(PageElement):
-    demonstrativo = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/a/span[1]')
-    analise_conta = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/ul/li[3]/a/span')
-    selecionar_convenio = (By.XPATH, '//*[@id="s2id_OperadorasCredenciadas_HandleOperadoraSelected"]/a/span[2]/b')
-    opcao_serpro = (By.XPATH, '/html/body/div[14]/ul/li[7]/div')
-    inserir_protocolo = (By.XPATH, '//*[@id="Protocolo"]')
+    demonstrativo        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/a/span[1]')
+    analise_conta        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/ul/li[3]/a/span')
+    selecionar_convenio  = (By.XPATH, '//*[@id="s2id_OperadorasCredenciadas_HandleOperadoraSelected"]/a/span[2]/b')
+    opcao_serpro         = (By.XPATH, '/html/body/div[14]/ul/li[7]/div')
+    inserir_protocolo    = (By.XPATH, '//*[@id="Protocolo"]')
     baixar_demonstrativo = (By.XPATH, '//*[@id="btn-Baixar_Demonstrativo"]')
-    fechar_botao = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
-    fechar_alerta = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
+    baixar_xml           = (By.XPATH, '//*[@id="btn-Baixar_XML"]')
+    fechar_botao         = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
+    fechar_alerta        = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
 
     def exe_caminho(self):
         time.sleep(1)
@@ -51,14 +52,16 @@ class caminho(PageElement):
         time.sleep(2)
         self.Alert()
         self.driver.find_element(*self.selecionar_convenio).click()
-        time.sleep(1)
+        time.sleep(2)
         self.driver.find_element(*self.opcao_serpro).click()
         time.sleep(1)
 
     def buscar_demonstrativo(self):
         df = pd.read_excel(planilha, header=5)
+        print(df)
         df = df.iloc[:-1]
         df = df.dropna()
+        print(df)
         global count, quantidade_de_faturas, faturas_com_erro
         count = 0
         quantidade_de_faturas = len(df)
@@ -84,37 +87,56 @@ class caminho(PageElement):
             arquivo_na_pasta = os.listdir(f"{endereco}")
 
             for arquivo in arquivo_na_pasta:
-                endereco_arquivo = f'{endereco}\\{arquivo}'
-                shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\\Não Renomeados")
+                if '.pdf' in arquivo:
+                    endereco_arquivo = f'{endereco}\\{arquivo}'
+                    shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\SERPRO\Não Renomeados")
 
             self.driver.find_element(*self.baixar_demonstrativo).click()
-            time.sleep(15)
+            time.sleep(6)
+            self.driver.find_element(*self.baixar_xml).click()
+            time.sleep(4)
 
             for i in range(10):
                 pasta = r"\\10.0.0.239\automacao_financeiro\SERPRO\Renomear"
                 nomes_arquivos = os.listdir(pasta)
-                time.sleep(2)
-                for nome in nomes_arquivos:
-                    nomepdf = os.path.join(pasta, nome)
-
-                renomear = r"\\10.0.0.239\automacao_financeiro\SERPRO\Renomear" +f"\\{fatura}"  +  ".pdf"
-                arqDest = r"\\10.0.0.239\automacao_financeiro\SERPRO" + f"\\{fatura}"  +  ".pdf"
-
-                try:
-                    os.rename(nomepdf,renomear)
-                    shutil.move(renomear,arqDest)
-                    time.sleep(2)
-                    print("Arquivo renomeado e guardado com sucesso")
+                if len(nomes_arquivos) == 0:
                     break
+                # time.sleep()
 
-                except Exception as e:
-                    print(e)
-                    print("Download ainda não foi feito/Arquivo não renomeado")
-                    time.sleep(2)
+                for nome in nomes_arquivos:
+                    if '.pdf' in nome:
+                        nomepdf  = os.path.join(pasta, nome)
+                        renomear = r"\\10.0.0.239\automacao_financeiro\SERPRO\Renomear" +f"\\{fatura}"  +  ".pdf"
+                        arqDest  = r"\\10.0.0.239\automacao_financeiro\SERPRO" + f"\\{fatura}"  +  ".pdf"
 
-                if i == 9:
-                    faturas_com_erro.append(fatura)
-                    erro = True
+                        try:
+                            os.rename(nomepdf,renomear)
+                            shutil.move(renomear,arqDest)
+                            time.sleep(2)
+                            print("Arquivo renomeado e guardado com sucesso")
+                            break
+
+                        except Exception as e:
+                            print(e)
+                            print("Download ainda não foi feito/Arquivo não renomeado")
+                            time.sleep(2)
+                    else:
+                        arqDest_xml = r"\\10.0.0.239\automacao_financeiro\SERPRO" + f"\\{nome}"
+                        nomexml     = os.path.join(pasta, nome)
+                        try:
+                            shutil.move(nomexml,arqDest_xml)
+                            time.sleep(2)
+                            print("Arquivo renomeado e guardado com sucesso")
+                            break
+
+                        except Exception as e:
+                            print(e)
+                            print("Download ainda não foi feito/Arquivo não renomeado")
+                            time.sleep(2)
+
+            if i == 9:
+                faturas_com_erro.append(fatura)
+                erro = True
 
             time.sleep(2)
             self.driver.find_element(*self.inserir_protocolo).clear()
@@ -168,7 +190,8 @@ def demonstrativo_serpro():
         chrome_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\SERPRO\Renomear",
                                                 "download.prompt_for_download": False,
                                                 "download.directory_upgrade": True,
-                                                "plugins.always_open_pdf_externally": True
+                                                "plugins.always_open_pdf_externally": True,
+                                                'safebrowsing.enabled': 'false'
                                                 })
         chrome_options.add_argument("--start-maximized")
 
@@ -204,5 +227,5 @@ def demonstrativo_serpro():
     
     except Exception as err:
         tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
-        Pidgin.main(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        Pidgin.financeiroDemo(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
     driver.quit()

@@ -1,9 +1,11 @@
 import os
 import time
 import shutil
+import Pidgin
 import tkinter
 import pandas as pd
 from abc import ABC
+import tkinter.messagebox
 from selenium import webdriver
 from tkinter import filedialog
 from seleniumwire import webdriver
@@ -11,8 +13,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import tkinter.messagebox
-import Pidgin
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -34,15 +34,16 @@ class Login(PageElement):
         self.driver.find_element(*self.logar).click()
 
 class caminho(PageElement):
-    demonstrativo = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/a/span[1]')
-    analise_conta = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/ul/li[3]/a/span')
-    selecionar_convenio = (By.XPATH, '//*[@id="s2id_OperadorasCredenciadas_HandleOperadoraSelected"]/a/span[2]/b')
-    opcao_camara = (By.XPATH, '/html/body/div[14]/ul/li[2]/div')
-    inserir_protocolo = (By.XPATH, '//*[@id="Protocolo"]')
+    demonstrativo        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/a/span[1]')
+    analise_conta        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/ul/li[3]/a/span')
+    selecionar_convenio  = (By.XPATH, '//*[@id="s2id_OperadorasCredenciadas_HandleOperadoraSelected"]/a/span[2]/b')
+    opcao_camara         = (By.XPATH, '/html/body/div[14]/ul/li[2]/div')
+    inserir_protocolo    = (By.XPATH, '//*[@id="Protocolo"]')
     baixar_demonstrativo = (By.XPATH, '//*[@id="btn-Baixar_Demonstrativo"]')
-    fechar_botao = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
-    fechar_alerta = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
-    erro = False
+    baixar_xml           = (By.XPATH, '//*[@id="btn-Baixar_XML"]')
+    fechar_botao         = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
+    fechar_alerta        = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
+    erro                 = False
 
     def exe_caminho(self):
         time.sleep(1)
@@ -63,7 +64,7 @@ class caminho(PageElement):
         global count, quantidade_de_faturas, faturas_com_erro
         count = 0
         quantidade_de_faturas = len(df)
-        faturas_com_erro = []        
+        faturas_com_erro = []
 
         for index, linha in df.iterrows():
 
@@ -85,34 +86,52 @@ class caminho(PageElement):
             arquivo_na_pasta = os.listdir(f"{endereco}")
 
             for arquivo in arquivo_na_pasta:
-                endereco_arquivo = f'{endereco}\\{arquivo}'
-                shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\CAMARA\Não Renomeados")
+                if '.pdf' in arquivo:
+                    endereco_arquivo = f'{endereco}\\{arquivo}'
+                    shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\CAMARA\Não Renomeados")
 
             self.driver.find_element(*self.baixar_demonstrativo).click()
+            time.sleep(6)
+            self.driver.find_element(*self.baixar_xml).click()
             time.sleep(4)
 
             for i in range(10):
                 pasta = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear"
                 nomes_arquivos = os.listdir(pasta)
-                time.sleep(2)
+                if len(nomes_arquivos) == 0:
+                    break
+                # time.sleep(2)
                 
                 for nome in nomes_arquivos:
-                    nomepdf = os.path.join(pasta, nome)
+                    if '.pdf' in nome:
+                        nomepdf  = os.path.join(pasta, nome)
+                        renomear = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear" +f"\\{fatura}"  +  ".pdf"
+                        arqDest  = r"\\10.0.0.239\automacao_financeiro\CAMARA" + f"\\{fatura}"  +  ".pdf"
+                        
+                        try:
+                            os.rename(nomepdf,renomear)
+                            shutil.move(renomear,arqDest)
+                            time.sleep(2)
+                            print("Arquivo renomeado e guardado com sucesso")
+                            break
 
-                renomear = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear" +f"\\{fatura}"  +  ".pdf"
-                arqDest = r"\\10.0.0.239\automacao_financeiro\CAMARA" + f"\\{fatura}"  +  ".pdf"
+                        except Exception as e:
+                            print(e)
+                            print("Download ainda não foi feito/Arquivo não renomeado")
+                            time.sleep(2)
+                    else:
+                        arqDest_xml = r"\\10.0.0.239\automacao_financeiro\CAMARA" + f"\\{nome}"
+                        nomexml     = os.path.join(pasta, nome)
+                        try:
+                            shutil.move(nomexml,arqDest_xml)
+                            time.sleep(2)
+                            print("Arquivo renomeado e guardado com sucesso")
+                            break
 
-                try:
-                    os.rename(nomepdf,renomear)
-                    shutil.move(renomear,arqDest)
-                    time.sleep(2)
-                    print("Arquivo renomeado e guardado com sucesso")
-                    break
-
-                except Exception as e:
-                    print(e)
-                    print("Download ainda não foi feito/Arquivo não renomeado")
-                    time.sleep(2)
+                        except Exception as e:
+                            print(e)
+                            print("Download ainda não foi feito/Arquivo não renomeado")
+                            time.sleep(2)
 
                 if i == 9:
                     faturas_com_erro.append(fatura)
@@ -167,7 +186,8 @@ def demonstrativo_camara():
         chrome_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear",
                                                 "download.prompt_for_download": False,
                                                 "download.directory_upgrade": True,
-                                                "plugins.always_open_pdf_externally": True
+                                                "plugins.always_open_pdf_externally": True,
+                                                'safebrowsing.enabled': 'false'
                                                 })
         
         chrome_options.add_argument("--start-maximized")
