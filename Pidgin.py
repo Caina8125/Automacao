@@ -15,7 +15,7 @@ def notaFiscal(texto):
     count     = 0
     pidgin_Id = "notafiscal.bot@chat.amhp.local"
     senha     = "!!87316812"
-    users     = ["lucas.timoteo@chat.amhp.local"
+    users     = ["lucas.timoteo@chat.amhp.local",
                  "brenda.moura@chat.amhp.local",
                  "isabella.souza@chat.amhp.local"]
 

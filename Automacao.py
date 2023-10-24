@@ -58,6 +58,7 @@ class Application:
         self.quartoContainer["padx"] = 20
         self.quartoContainer["pady"] = 10
         self.quartoContainer.pack()
+        
 
         self.quintoContainer = Frame(master, background="white")
         self.quintoContainer["padx"] = 20
@@ -364,18 +365,14 @@ class Application:
         elif automacao == "Tesouraria - Nota Fiscal":
             self.gif()
             subirNF()
-            self.reiniciar()  
-
+            self.reiniciar()
         else:
             self.botao_iniciar()
 
     def voltar_inicio(self, master=None):
         self.ocultar_data()
-
         self.voltar.pack_forget()
-        
         self.quintoContainer.pack_forget()
-
         self.sextoContainer.pack_forget()
 
         self.quintoContainer = Frame(master, background="white")
