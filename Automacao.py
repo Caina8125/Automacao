@@ -88,6 +88,7 @@ class Application:
 
         self.comboBox = ttk.Combobox(self.quartoContainer, values=["Faturamento - Anexar Honorario Geap",
                                                                    "Faturamento - Conferência GEAP",
+                                                                   "Faturamento - Enviar PDF BRB",
                                                                    "Faturamento - Verificar Situação BRB",
                                                                    "Faturamento - Verificar Situação Fascal",
                                                                    "Faturamento - Verificar Situação Gama",
@@ -224,6 +225,11 @@ class Application:
         elif automacao == "Faturamento - Conferência GEAP":
             self.gif()
             conferencia()
+            self.reiniciar()
+
+        elif automacao == "Faturamento - Enviar PDF BRB":
+            self.gif()
+            ...
             self.reiniciar()
 
         elif automacao == "Faturamento - Verificar Situação BRB":
