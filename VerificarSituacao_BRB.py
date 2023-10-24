@@ -29,9 +29,13 @@ class Login(PageElement):
     entrar = (By.XPATH, '//*[@id="BtnEntrar"]')
 
     def logar(self, usuario, senha):
+        time.sleep(2)
         self.driver.find_element(*self.prestador_pj).click()
+        time.sleep(1)
         self.driver.find_element(*self.usuario).send_keys(usuario)
+        time.sleep(1)
         self.driver.find_element(*self.senha).send_keys(senha)
+        time.sleep(1)
         self.driver.find_element(*self.entrar).click()
         time.sleep(5)
 
