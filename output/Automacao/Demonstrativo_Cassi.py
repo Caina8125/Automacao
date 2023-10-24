@@ -76,18 +76,27 @@ class BaixarDemonstrativo(PageElement):
             df_tabela = pd.read_html(tabela)[0]
             quantidade_demonstrativos = len(df_tabela) + 1
 
-            for i in range(1, quantidade_demonstrativos):
-                time.sleep(2)
-                self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/fieldset/div/table/tbody/tr[{i}]/td[3]/form/input[3]').click()
-                time.sleep(2)
-                self.driver.find_element(*self.download_xml).click()
-                time.sleep(2)
-                self.driver.find_element(*self.voltar).click()
-                time.sleep(2)
-                self.driver.refresh()
+            for index, linha in df_tabela.iterrows():
+                numero_do_protocolo_df = str(linha['Número do Protocolo']).replace(".0","")
 
-        tkinter.messagebox.showinfo( 'Demonstrativos CASSI' , f"Downloads concluídos!" )
-        self.driver.quit()
+                for i in range(1, quantidade_demonstrativos):
+                    numero_protocolo_portal = str(self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/fieldset/div/table/tbody/tr[{i}]/td[1]').text).replace(".0", "")
+
+                    if numero_do_protocolo_df != numero_protocolo_portal:
+                        continue
+                    
+                    time.sleep(2)
+                    self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/fieldset/div/table/tbody/tr[{i}]/td[3]/form/input[3]').click()
+                    time.sleep(2)
+                    self.driver.find_element(*self.download_xml).click()
+                    time.sleep(2)
+                    self.driver.find_element(*self.voltar).click()
+                    time.sleep(2)
+                    self.driver.refresh()
+                    break
+
+            tkinter.messagebox.showinfo( 'Demonstrativos CASSI' , f"Downloads concluídos!" )
+            self.driver.quit()
 
 #---------------------------------------------------------------------------------------------------------------
 def demonstrativo_cassi(data_inicial, data_final):

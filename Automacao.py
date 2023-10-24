@@ -8,7 +8,7 @@ from Recursar_Duplicado import *
 from Buscar_fatura import iniciar
 from Atualiza_Local import *
 from Anexar_Honorario import anexar_guias
-from VerificarSituacao_BRB import verificar_brb
+from VerificarSituacao_BRB import verificacao_brb
 from Auditoria_GEAP import ExtrairDados
 from Recursar_SemDuplicado import recursar_sem_duplicado
 from Recurso_Postal import recursar_postal
@@ -36,6 +36,10 @@ from Demonstrativo_Stf import demonstrativo_stf
 from Demonstrativo_Tjdft import demonstrativo_tjdft
 from Demonstrativo_Unafisco import demonstrativo_unafisco
 from Nota_Fiscal import subirNF
+<<<<<<< HEAD
+=======
+from gerador_de_planilha import gerar_planilha
+>>>>>>> a2cc4153f0e359d95497fda2f6934e01efaba6dd
 from datetime import datetime
 import os
 
@@ -87,6 +91,7 @@ class Application:
 
         self.comboBox = ttk.Combobox(self.quartoContainer, values=["Faturamento - Anexar Honorario Geap",
                                                                    "Faturamento - Conferência GEAP",
+                                                                   "Faturamento - Enviar PDF BRB",
                                                                    "Faturamento - Verificar Situação BRB",
                                                                    "Faturamento - Verificar Situação Fascal",
                                                                    "Faturamento - Verificar Situação Gama",
@@ -109,6 +114,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos TJDFT", 
                                                                    "Financeiro - Demonstrativos Unafisco", 
                                                                    "Glosa - Auditoria GEAP",
+                                                                   "Glosa - Gerador de Planilha GDF",
                                                                    "Glosa - Recursar GEAP Duplicado",
                                                                    "Glosa - Recursar GEAP Sem Duplicado",
                                                                    "Glosa - Recursar Postal",
@@ -224,9 +230,14 @@ class Application:
             conferencia()
             self.reiniciar()
 
+        elif automacao == "Faturamento - Enviar PDF BRB":
+            self.gif()
+            ...
+            self.reiniciar()
+
         elif automacao == "Faturamento - Verificar Situação BRB":
             self.gif()
-            verificar_brb()
+            verificacao_brb()
             self.reiniciar()
 
         elif automacao == "Faturamento - Verificar Situação Fascal":
@@ -332,6 +343,11 @@ class Application:
             auditoria = ExtrairDados()
             auditoria.extrair_dados()
             self.reiniciar()
+
+        elif automacao == "Glosa - Gerador de Planilha GDF":
+            self.gif()
+            gerar_planilha()
+            self.reiniciar
 
         elif automacao == "Glosa - Recursar GEAP Duplicado":
             self.gif()
