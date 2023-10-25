@@ -10,10 +10,10 @@ from abc import ABC
 import pandas as pd
 import time
 import os
-from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.chrome.options import Options
 from seleniumwire import webdriver
-from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.firefox.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -256,7 +256,7 @@ class Recurso(PageElement):
                                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                                 writer.book = book
                                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                                df.to_excel(writer, 'Recurso', startrow= count, startcol=21, header=False, index=False)
+                                df.to_excel(writer, 'Recurso', startrow= count, startcol=20, header=False, index=False)
                                 writer.save()
                                 recursado = True
                                 break
@@ -292,10 +292,10 @@ def recursar_caixa():
     global url
     url = 'https://saude.caixa.gov.br/PORTALPRD/'
 
-    firefox_options = Options()
-    firefox_options.add_argument("--start-maximized")
-    firefox_options.add_argument('--ignore-certificate-errors')
-    firefox_options.add_argument('--ignore-ssl-errors')
+    chrome_options = Options()
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument('--ignore-ssl-errors')
 
     options = {
     'proxy': {
@@ -304,10 +304,10 @@ def recursar_caixa():
         }
     }
     try:
-        servico = Service(GeckoDriverManager().install())
-        driver = webdriver.Firefox(service=servico, seleniumwire_options=options, options=firefox_options)
+        servico = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
     except:
-        driver = webdriver.Firefox(seleniumwire_options=options, options=firefox_options)
+        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
     try:
         login_page = Login(driver, url)
