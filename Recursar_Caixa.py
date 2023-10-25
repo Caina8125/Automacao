@@ -10,16 +10,17 @@ from abc import ABC
 import pandas as pd
 import time
 import os
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options
 from seleniumwire import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
+from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.firefox.service import Service
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
         self.driver = driver
         self.url = url
     def open(self):
+        self.driver.maximize_window()
         self.driver.get(self.url)
 
 class Login(PageElement):
@@ -47,7 +48,7 @@ class Recurso(PageElement):
     motivo_recurso = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[3]/div/select')
     justificativa = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[4]/div/textarea')
     fechar = (By.XPATH, '//*[@id="modalRecursoConteudo"]/div[3]/button[3]')
-    salvar = (By.XPATH, '//*[@id="botaoSalvar"]')
+    salvar = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div/div[3]/button[2]')
     enviar = (By.XPATH, '//*[@id="botaoConfirmar"]')
     botao_ok = (By.XPATH, '//*[@id="ctl00_Body"]/div[1]/div/div/div[3]/button')
     n_protocolo = (By.XPATH, '/html/body/div[1]/div/div/div[2]/div/div')
@@ -175,16 +176,19 @@ class Recurso(PageElement):
     def injetar_dados(self, i, j, linha2):
         checkbox = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/ul/li[{j}]/a/i[1]').click()
         page_up = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/a').send_keys(Keys.CONTROL + Keys.HOME)
-        time.sleep(0.5)
+        time.sleep(1)
         self.driver.find_element(*self.recursar).click()
         time.sleep(0.5)
         self.driver.find_element(*self.valor_a_recursar).clear()
+        time.sleep(0.5)
         self.driver.find_element(*self.valor_a_recursar).send_keys(f"{linha2['Valor Recursado']}")
-        time.sleep(1)
+        time.sleep(0.5)
         self.driver.find_element(*self.motivo_recurso).send_keys(f"{linha2['Motivo Glosa']}")
+        time.sleep(0.5)
         self.driver.find_element(*self.justificativa).clear()
+        time.sleep(1)
         self.driver.find_element(*self.justificativa).send_keys(f"{linha2['Recurso Glosa']}")
-        time.sleep(2)
+        time.sleep(3)
         try:
             self.driver.find_element(*self.salvar).click()
         except:
@@ -288,10 +292,10 @@ def recursar_caixa():
     global url
     url = 'https://saude.caixa.gov.br/PORTALPRD/'
 
-    chrome_options = Options()
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
+    firefox_options = Options()
+    firefox_options.add_argument("--start-maximized")
+    firefox_options.add_argument('--ignore-certificate-errors')
+    firefox_options.add_argument('--ignore-ssl-errors')
 
     options = {
     'proxy': {
@@ -300,10 +304,10 @@ def recursar_caixa():
         }
     }
     try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        servico = Service(GeckoDriverManager().install())
+        driver = webdriver.Firefox(service=servico, seleniumwire_options=options, options=firefox_options)
     except:
-        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+        driver = webdriver.Firefox(seleniumwire_options=options, options=firefox_options)
 
     try:
         login_page = Login(driver, url)

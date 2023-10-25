@@ -15,28 +15,22 @@ def gerar_planilha():
         numero_op_fhasso = str(linha['GUIAATENDIMENTO']).replace('.0', '')
         fatura_recurso = str(linha['PROCESSOID']).replace('.0', '')
         realizado = linha['DATAREALIZADO']
-        procedimento = str(linha['Procedimento']).replace('.0', '')
-        valor_original = linha['Valor Original']
-        valor_glosa_fhasso = str(linha['Valor Glosa']).replace('-', '')
-        controle = str(linha['Controle']).replace('.0', '')
+        procedimento = str(linha['CODIGOID']).replace('.0', '')
+        controle = str(linha['ATENDIMENTOID']).replace('.0', '')
 
         for i, l in df_plan_gdf.iterrows():
             lista_linha = []
             numero_senha_plan_gdf = str(l['Autorização Origem']).replace('.0', '')
             data_de_atendimento_gdf = l['Data de Realização']
             codigo_gdf = str(l['Código']).replace('.0', '')
-            valor_apresentado = l['Vl Apresentado (R$)']
-            valor_glosa_gdf = str(l['Vl de Glosa (R$)'])
             autorizacao_nova = str(l['Autorização']).replace('.0', '')
 
             comparacao_senha = numero_senha_fhasso == numero_senha_plan_gdf
             comparacao_numero = numero_op_fhasso == numero_senha_plan_gdf
             comparacao_data = realizado == data_de_atendimento_gdf
             comparacao_codigo = procedimento == codigo_gdf
-            comparacao_valor_original = valor_original == valor_apresentado
-            comparacao_valor_glosa = valor_glosa_fhasso == valor_glosa_gdf
 
-            if (comparacao_senha or comparacao_numero) and comparacao_data and comparacao_codigo and comparacao_valor_original and comparacao_valor_glosa:
+            if (comparacao_senha or comparacao_numero) and comparacao_data and comparacao_codigo:
                 lista_linha = [int(controle), int(autorizacao_nova), int(numero_senha_fhasso), int(numero_op_fhasso), int(fatura_recurso)]
                 break
 
