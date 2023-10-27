@@ -343,7 +343,7 @@ class Application:
 
         elif automacao == "Glosa - Gerador de Planilha GDF":
             self.gif()
-            ...
+            gerar_planilha()
             self.reiniciar
 
         elif automacao == "Glosa - Recursar GEAP Duplicado":
