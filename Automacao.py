@@ -36,6 +36,7 @@ from Demonstrativo_Stf import demonstrativo_stf
 from Demonstrativo_Tjdft import demonstrativo_tjdft
 from Demonstrativo_Unafisco import demonstrativo_unafisco
 from Nota_Fiscal import subirNF
+from gerador_de_planilha import gerar_planilha
 from datetime import datetime
 import os
 
