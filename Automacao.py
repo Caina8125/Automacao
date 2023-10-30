@@ -110,6 +110,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos STF", 
                                                                    "Financeiro - Demonstrativos TJDFT", 
                                                                    "Financeiro - Demonstrativos Unafisco", 
+                                                                   "Glosa - Atualizar Situação GEAP",
                                                                    "Glosa - Auditoria GEAP",
                                                                    "Glosa - Gerador de Planilha GDF",
                                                                    "Glosa - Recursar GEAP Duplicado",

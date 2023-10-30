@@ -113,6 +113,28 @@ class ExtrairDados(LogarGeap):
         except:
             tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
 
+    def atualizar_situacao(self):
+        updater = ImportarGoogleSheets()
+        creds = updater.authenticate()
+        updater.get_spreadsheet(creds)
+        cabecalho = values.pop(0)
+        cabecalho.append('1')
+        cabecalho.append('2')
+        df = pd.DataFrame(values)
+        df.columns = cabecalho
+        count = 0
+
+        for i in range(len(df) + 1):
+            valor_linha = df.loc[i]
+
+            if valor_linha['SITUAÇÃO'][0] == 'Revisão Geap':
+                count += 0
+                print(count)
+
+            # self.logar()
+            # self.gerar_token()
+            
+
 class ImportarGoogleSheets(ExtrairDados):
     def __init__(self)-> None:
         # Autenticação no proxy
@@ -183,8 +205,23 @@ class ImportarGoogleSheets(ExtrairDados):
         except HttpError as err:
             print(err)
 
+    def update_situacao(self, num, valor):
+        try:
+            sheet_size = str(len(values) + 1)
+
+            # Injeta os dados na planilha do Google Sheets.
+            sheet = service.spreadsheets()
+            result = sheet.values().update(spreadsheetId=self.SAMPLE_SPREADSHEET_ID, range='F' + num,
+                                           valueInputOption="USER_ENTERED", body={'values': valor}).execute()
+
+
+        except HttpError as err:
+            print(err)
+
     def main(self):
         updater = ImportarGoogleSheets()
         creds = updater.authenticate()
         updater.get_spreadsheet(creds)
         updater.injetar_dados()
+
+ExtrairDados().atualizar_situacao()
