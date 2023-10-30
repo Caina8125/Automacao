@@ -223,5 +223,3 @@ class ImportarGoogleSheets(ExtrairDados):
         creds = updater.authenticate()
         updater.get_spreadsheet(creds)
         updater.injetar_dados()
-
-ExtrairDados().atualizar_situacao()
