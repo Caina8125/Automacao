@@ -1,6 +1,7 @@
 import pandas as pd
 from tkinter import filedialog
 import tkinter.messagebox
+from openpyxl import load_workbook
 
 def verificar_frame_vazio(df_filtrado, df, coluna, numero):
     if df_filtrado.empty == True:
@@ -19,8 +20,6 @@ def gerar_planilha():
         tkinter.messagebox.showinfo('Planilha Demonstrativo', 'Selecione a planilha do demonstrativo do GDF')
         planilha_gdf = filedialog.askopenfilename()
         df_plan_fhasso = pd.read_excel(planilha_fhasso)
-        df_plan_fhasso = df_plan_fhasso.loc[df_plan_fhasso["Recupera ?"] == "Sim"]
-        df_plan_fhasso = df_plan_fhasso.sort_values(by=['Fatura Inicial'])
         df_plan_fhasso['Controle Recurso'] = ''
         df_plan_unificada = pd.read_excel(planilha_unificada)
         df_plan_unificada['INSERIDO'] = ''
@@ -36,8 +35,6 @@ def gerar_planilha():
             fatura_inicial = str(linha['Fatura Inicial']).replace('.0', '')
             realizado = linha['Realizado']
             procedimento = str(linha['Procedimento']).replace('.0', '')
-            valor_original = str(linha['Valor Original'])
-            valor_glosa = str(linha['Valor Glosa']).replace('-', '')
             fatura_df_filtrado = df_plan_unificada.loc[(df_plan_unificada['PROCESSOID'] == int(fatura_recurso))]
             fatura_df = verificar_frame_vazio(fatura_df_filtrado, df_plan_unificada, 'PROCESSOID', fatura_recurso)
             fatura_df_gdf_filtrado = df_plan_gdf.loc[(df_plan_gdf['Lote Prestador'] == int(fatura_inicial))]
@@ -53,7 +50,7 @@ def gerar_planilha():
                 numero_op_plan_uni = str(l['GUIAATENDIMENTO']).replace('.0', '')
                 hdi_registro = str(l['HDIREGISTRO']).replace('.0', '')
                 fatura_recurso_plan_uni = str(l['PROCESSOID']).replace('.0', '')
-                realizado_plan_uni = l['DATAREALIZADO']
+                realizado_plan_uni = str(l['DATAREALIZADO'])
                 procedimento_plan_uni = str(l['CODIGOID']).replace('.0', '')
                 controle_plan_uni = str(l['ATENDIMENTOID']).replace('.0', '')
 
@@ -73,7 +70,16 @@ def gerar_planilha():
                     continue
 
             if primeira_validacao == False:
+
                 count_nao_encontradas += 1
+                dados = {"Encontrada" : ['Não encontrada na planilha normal/especial']}
+                df_dados = pd.DataFrame(dados)
+                book = load_workbook(planilha_fhasso)
+                writer = pd.ExcelWriter(planilha_fhasso, engine='openpyxl')
+                writer.book = book
+                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                df_dados.to_excel(writer, 'Planilha2', startrow= index + 1, startcol=52, header=False, index=False)
+                writer.save()
                 continue
 
             for ind, lin in fatura_df_gdf.iterrows():
@@ -82,17 +88,13 @@ def gerar_planilha():
                 data_de_atendimento_gdf = lin['Data de Realização']
                 codigo_gdf = str(lin['Código']).replace('.0', '')
                 autorizacao_nova = str(lin['Autorização']).replace('.0', '')
-                vl_apresentado = str(lin['Vl Apresentado (R$)']).replace('R$ ', '')
-                vl_de_glosa = str(lin['Vl de Glosa (R$)']).replace('R$ ', '')
 
                 comparacao_senha = numero_senha_fhasso == numero_senha_plan_gdf
                 comparacao_numero = numero_op_fhasso == numero_senha_plan_gdf
                 comparacao_data = realizado == data_de_atendimento_gdf
                 comparacao_codigo = procedimento == codigo_gdf
-                comparacao_valor_original = valor_original == vl_apresentado
-                comparacao_valor_glosa = valor_glosa == vl_de_glosa
 
-                if (comparacao_senha or comparacao_numero) and comparacao_data and comparacao_codigo and comparacao_valor_original and comparacao_valor_glosa:
+                if (comparacao_senha or comparacao_numero) and comparacao_data and comparacao_codigo:
                     controle = df_plan_fhasso['Controle Recurso'][index]
                     lista_linha = [controle, autorizacao_nova, numero_senha_fhasso, numero_op_fhasso, fatura_inicial, fatura_recurso]
                     segunda_comparacao = True
@@ -100,6 +102,14 @@ def gerar_planilha():
             
             if segunda_comparacao == False:
                 count_nao_encontradas += 1
+                dados = {"Encontrada" : ['Não encontrada na planilha do GDF']}
+                df_dados = pd.DataFrame(dados)
+                book = load_workbook(planilha_fhasso)
+                writer = pd.ExcelWriter(planilha_fhasso, engine='openpyxl')
+                writer.book = book
+                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                df_dados.to_excel(writer, 'Planilha2', startrow= index + 1, startcol=52, header=False, index=False)
+                writer.save()
                 continue
 
             lista.append(lista_linha)
