@@ -37,6 +37,7 @@ from Demonstrativo_Tjdft import demonstrativo_tjdft
 from Demonstrativo_Unafisco import demonstrativo_unafisco
 from Nota_Fiscal import subirNF
 from gerador_de_planilha import gerar_planilha
+from Enviar_Pdf_Brb import enviar_pdf
 from datetime import datetime
 import os
 
@@ -230,7 +231,7 @@ class Application:
 
         elif automacao == "Faturamento - Enviar PDF BRB":
             self.gif()
-            ...
+            enviar_pdf()
             self.reiniciar()
 
         elif automacao == "Faturamento - Verificar Situação BRB":
