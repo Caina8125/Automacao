@@ -78,7 +78,7 @@ def gerar_planilha():
                 writer = pd.ExcelWriter(planilha_fhasso, engine='openpyxl')
                 writer.book = book
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                df_dados.to_excel(writer, 'Planilha2', startrow= index + 1, startcol=52, header=False, index=False)
+                df_dados.to_excel(writer, startrow= index + 1, startcol=52, header=False, index=False)
                 writer.save()
                 continue
 
@@ -108,7 +108,7 @@ def gerar_planilha():
                 writer = pd.ExcelWriter(planilha_fhasso, engine='openpyxl')
                 writer.book = book
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                df_dados.to_excel(writer, 'Planilha2', startrow= index + 1, startcol=52, header=False, index=False)
+                df_dados.to_excel(writer, startrow= index + 1, startcol=52, header=False, index=False)
                 writer.save()
                 continue
 
@@ -118,7 +118,7 @@ def gerar_planilha():
 
         df_nova_planilha = pd.DataFrame(lista)
         df_nova_planilha.columns = cabecalho
-        df_nova_planilha.to_excel('GDF.xlsx', index=False)
+        df_nova_planilha.to_excel(r'\\10.0.0.239\automacao_glosa\GDF\GDF.xlsx', index=False)
         tkinter.messagebox.showinfo("Gerador de Planilha", f"Planilha gerada! \n Total de linhas não encontradas: {count_nao_encontradas}")
     
     except Exception as e:

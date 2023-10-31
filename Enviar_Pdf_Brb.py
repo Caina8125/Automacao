@@ -14,11 +14,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 
 class PageElement(ABC):
-    def __init__(self, webdriver, url=''):
-        self.webdriver = webdriver
+    def __init__(self, driver, url=''):
+        self.driver = driver
         self.url = url
     def open(self):
-        self.webdriver.get(self.url)
+        self.driver.get(self.url)
 
 class Login(PageElement):
     prestador_pj = (By.XPATH, '//*[@id="tipoAcesso"]/option[9]')
@@ -27,14 +27,14 @@ class Login(PageElement):
     entrar = (By.XPATH, '//*[@id="BtnEntrar"]')
 
     def logar(self, usuario, senha):
-        webdriver.implicitly_wait(30)
-        self.webdriver.find_element(*self.prestador_pj).click()
+        self.driver.implicitly_wait(30)
+        self.driver.find_element(*self.prestador_pj).click()
         time.sleep(2)
-        self.webdriver.find_element(*self.usuario).send_keys(usuario)
+        self.driver.find_element(*self.usuario).send_keys(usuario)
         time.sleep(2)
-        self.webdriver.find_element(*self.senha).send_keys(senha)
+        self.driver.find_element(*self.senha).send_keys(senha)
         time.sleep(2)
-        self.webdriver.find_element(*self.entrar).click()
+        self.driver.find_element(*self.entrar).click()
         time.sleep(5)
 
 class Caminho(PageElement):
@@ -42,14 +42,14 @@ class Caminho(PageElement):
 
     def exe_caminho(self):
         try:
-            WebDriverWait(webdriver, 15).until(EC.presence_of_element_located((self.envio_xml))).click()
+            WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((self.envio_xml))).click()
             time.sleep(2)
             
         except:
-            webdriver.refresh()
+            self.driver.refresh()
             time.sleep(5)
             login_page.logar(usuario = '00735860000173', senha = 'amhpdf0073')
-            WebDriverWait(webdriver, 30).until(EC.presence_of_element_located((self.envio_xml))).click()
+            WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((self.envio_xml))).click()
     
 class EnviarPdf(PageElement):
     pesquisar = (By.XPATH, '//*[@id="filtro"]/div[2]/div[2]/button[1]')
@@ -73,10 +73,9 @@ class EnviarPdf(PageElement):
 
     def enviar_pdf(self):
         self.arquivos()
-        self.webdriver.find_element(*self.pesquisar).click()
-        WebDriverWait(webdriver, 30).until(EC.presence_of_element_located((self.cem_itens))).click()
-        WebDriverWait(webdriver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[1]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.HOME)
-
+        self.driver.find_element(*self.pesquisar).click()
+        WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((self.cem_itens))).click()
+        WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[1]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.HOME)
 
         for planilha in self.lista_planilhas:
             if ".xls" in planilha and "lock" not in planilha:
@@ -97,8 +96,8 @@ class EnviarPdf(PageElement):
                     print(f'Pagina {page + 1}')
 
                     for i in range(1,101):
-                        webdriver.implicitly_wait(30)
-                        slot = WebDriverWait(webdriver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]'))).text
+                        self.driver.implicitly_wait(30)
+                        slot = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]'))).text
                         
                         if processo_planilha in slot and "Arquivo com inconsistências" not in slot:
                             print(processo_planilha)
@@ -107,17 +106,17 @@ class EnviarPdf(PageElement):
 
                             while botao_anexo_encontrado == False:
                                 try:
-                                    anexo = webdriver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div/div/div[5]/button[5]').click()
+                                    anexo = self.driver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div/div/div[5]/button[5]').click()
                                     time.sleep(1)
                                     break
                                 except:
-                                    webdriver.execute_script('scrollBy(0,100)')
+                                    self.driver.execute_script('scrollBy(0,100)')
 
                             arquivo_enviado = False
                             
                             try:
-                                webdriver.implicitly_wait(5)
-                                self.webdriver.find_element(*self.arquivo)
+                                self.driver.implicitly_wait(5)
+                                self.driver.find_element(*self.arquivo)
                                 arquivo_enviado = True
 
                             except:
@@ -125,29 +124,29 @@ class EnviarPdf(PageElement):
 
                             if arquivo_enviado == True:
                                 time.sleep(1)
-                                webdriver.save_screenshot(f"{pasta}//{linha['Nº Fatura']}_enviado_anteriormente.png")
+                                self.driver.save_screenshot(f"{pasta}//{linha['Nº Fatura']}_enviado_anteriormente.png")
                                 guia_achada = True
-                                self.webdriver.find_element(*self.fechar).click()
+                                self.driver.find_element(*self.fechar).click()
                                 time.sleep(1)
                                 break
 
-                            webdriver.implicitly_wait(30)
-                            self.webdriver.find_element(*self.caminho_arquivo).send_keys(caminho_planilha)
+                            self.driver.implicitly_wait(30)
+                            self.driver.find_element(*self.caminho_arquivo).send_keys(caminho_planilha)
                             time.sleep(0.5)
-                            self.webdriver.find_element(*self.adicionar_arquivo).click()
+                            self.driver.find_element(*self.adicionar_arquivo).click()
                             time.sleep(0.5)
                             botao_lixeira_encontrado = False
 
                             while botao_lixeira_encontrado == False:
                                 try:
-                                    self.webdriver.find_element(*self.lixeira).click()
+                                    self.driver.find_element(*self.lixeira).click()
                                     botao_lixeira_encontrado = True
                                 except:
                                     pass
 
-                            self.webdriver.find_element(*self.lixeira).click()
-                            webdriver.save_screenshot(f"{pasta}//{linha['Nº Fatura']}.png")
-                            self.webdriver.find_element(*self.fechar).click()
+                            self.driver.find_element(*self.lixeira).click()
+                            self.driver.save_screenshot(f"{pasta}//{linha['Nº Fatura']}.png")
+                            self.driver.find_element(*self.fechar).click()
                             guia_achada = True
                             break
 
@@ -155,15 +154,15 @@ class EnviarPdf(PageElement):
                             print("Arquivo com inconsistências.")
                 
                     if guia_achada == True:
-                        WebDriverWait(webdriver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.END)
+                        WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.END)
                         time.sleep(1)
-                        self.webdriver.find_element(*self.primeira_pagina).click()
-                        WebDriverWait(webdriver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.HOME)
+                        self.driver.find_element(*self.primeira_pagina).click()
+                        WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.HOME)
                         user = False
 
                         while user == False:
                             try:
-                                usuario = webdriver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
+                                usuario = self.driver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
                                 user = True
                             except:
                                 pass
@@ -171,29 +170,29 @@ class EnviarPdf(PageElement):
                         break
 
                     elif guia_achada == False:
-                        WebDriverWait(webdriver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.END)
+                        WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.END)
                         time.sleep(1)
-                        self.webdriver.find_element(*self.proxima_pagina).click()
+                        self.driver.find_element(*self.proxima_pagina).click()
                         user = False
 
                         while user == False:
                             try:
-                                usuario = webdriver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
+                                usuario = self.driver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
                                 user = True
                             except:
                                 pass
-                        WebDriverWait(webdriver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[1]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.HOME)
+                        WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[1]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.HOME)
 
                 #Se não achar o processo nas 5 páginas, irá cair nesse bloco de código.        
-                WebDriverWait(webdriver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.END)
+                WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.END)
                 time.sleep(1)
-                self.webdriver.find_element(*self.primeira_pagina).click()
-                WebDriverWait(webdriver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.HOME)
+                self.driver.find_element(*self.primeira_pagina).click()
+                WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.XPATH, f'/html/body/main/div/div[2]/div/div[2]/div[{i}]/div[1]/div/div[5]/button[1]'))).send_keys(Keys.CONTROL + Keys.HOME)
                 user = False
 
                 while user == False:
                     try:
-                        usuario = webdriver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
+                        usuario = self.driver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
                         user = True
                     except:
                         pass
@@ -221,11 +220,11 @@ def enviar_pdf():
     # chrome_options.add_argument('--ignore-certificate-errors')
     # chrome_options.add_argument('--ignore-ssl-errors')
 
-    webdriver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options)
 
-    login_page = Login(webdriver, url)
+    login_page = Login(driver, url)
     login_page.open()
-    webdriver.maximize_window()
+    driver.maximize_window()
     time.sleep(4)
     pyautogui.write(login_usuario)
     pyautogui.press("TAB")
@@ -239,15 +238,7 @@ def enviar_pdf():
         senha = 'amhpdf0073'
         )
 
-    Caminho(webdriver,url).exe_caminho()
+    Caminho(driver,url).exe_caminho()
 
-    envio_xml = EnviarPdf(webdriver, url)
+    envio_xml = EnviarPdf(driver, url)
     envio_xml.enviar_pdf()
-
-
-
-
-
-
-
-
