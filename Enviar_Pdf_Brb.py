@@ -2,11 +2,9 @@ import pandas as pd
 import pyautogui
 import time
 import os
-import sys
 from abc import ABC
 from tkinter import filedialog
 from selenium import webdriver
-from openpyxl import Workbook, load_workbook
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
@@ -79,7 +77,10 @@ class EnviarPdf(PageElement):
 
         for planilha in self.lista_planilhas:
             if ".xls" in planilha and "lock" not in planilha:
-                faturas_df = pd.read_excel(planilha)
+                faturas_df = pd.read_excel(planilha, header=23)
+                print(faturas_df)
+                faturas_df = faturas_df.iloc[:-6]
+
             else:
                 continue
 

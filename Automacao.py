@@ -35,6 +35,7 @@ from Demonstrativo_Sis import demonstrativo_sis
 from Demonstrativo_Stf import demonstrativo_stf
 from Demonstrativo_Tjdft import demonstrativo_tjdft
 from Demonstrativo_Unafisco import demonstrativo_unafisco
+from Gerar_relatorios_Brindes import Gerar_Relat_Normal
 from Nota_Fiscal import subirNF
 from gerador_de_planilha import gerar_planilha
 from Enviar_Pdf_Brb import enviar_pdf
@@ -120,6 +121,7 @@ class Application:
                                                                    "Glosa - Recursar Saúde Caixa",
                                                                    "Glosa - Recursar Serpro",
                                                                    "Glosa - Recursar SIS",
+                                                                   "Relatório - Brindes",
                                                                    "Tesouraria - Nota Fiscal"
                                                                     ], width=50)
         self.comboBox["background"] = 'white'
@@ -377,6 +379,12 @@ class Application:
             self.gif()
             recursar_sis()
             self.reiniciar()
+        
+        elif automacao == "Relatório - Brindes":
+            self.gif()
+            Gerar_Relat_Normal()
+            self.reiniciar()
+
         elif automacao == "Tesouraria - Nota Fiscal":
             self.gif()
             subirNF()
