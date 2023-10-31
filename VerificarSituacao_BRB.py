@@ -69,7 +69,19 @@ class injetar_dados(PageElement):
         guia_loc = None
         
         for index, linha in faturas_df.iterrows():
-            guia = int(linha['Nº Guia'])
+            guia = str(linha['Nº Guia']).replace('.0', '')
+
+            if not guia.isdigit():
+                print(f'Nr. Guia {guia} é inválido')
+                data = {'Situação': ['Número da guia operadora inválida(Possui letra)'], 'Validação Carteira': [''], 'Validação Proc.': [''], 'Validação Senha': [''], 'Pesquisado no Portal': ['Sim']}
+                df = pd.DataFrame(data)
+                book = load_workbook(planilha)
+                writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                writer.book = book
+                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                df.to_excel(writer, "Sheet1", startrow=count, startcol=7, header=False, index=False)
+                writer.save()
+                continue   
 
             if linha['Pesquisado no Portal'] == "Sim":
                 print('Já foi feita a pesquisa desta autorização.')
