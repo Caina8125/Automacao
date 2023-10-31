@@ -72,6 +72,7 @@ class injetar_dados(PageElement):
             guia = str(linha['Nº Guia']).replace('.0', '')
 
             if not guia.isdigit():
+                count += 1
                 print(f'Nr. Guia {guia} é inválido')
                 data = {'Situação': ['Número da guia operadora inválida(Possui letra)'], 'Validação Carteira': [''], 'Validação Proc.': [''], 'Validação Senha': [''], 'Pesquisado no Portal': ['Sim']}
                 df = pd.DataFrame(data)
@@ -308,7 +309,7 @@ def verificacao_brb():
 
         injetar_dados(driver,url).inserir_dados()
 
-        tkinter.messagebox.showinfo( 'Automação Faturamento - Fascal' , 'Buscas no portal da Fascal concluídos 😎✌' )
+        tkinter.messagebox.showinfo( 'Automação Faturamento - BRB' , 'Buscas no portal da BRB concluídos 😎✌' )
 
     except Exception as err:
         tkinter.messagebox.showerror( 'Erro na busca' , f'Ocorreu uma exceção não tratada \n {err.__class__.__name__} - {err}' )
