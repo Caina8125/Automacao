@@ -37,7 +37,7 @@ def Gerar_Relat_Normal():
         print()
 
 
-Gerar_Relat_Normal()
+# Gerar_Relat_Normal()
 
         
 
