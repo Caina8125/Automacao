@@ -20,6 +20,7 @@ class PageElement(ABC):
         self.driver = driver
         self.url = url
     def open(self):
+        self.driver.maximize_window()
         self.driver.get(self.url)
 
 class Login(PageElement):
@@ -47,7 +48,7 @@ class Recurso(PageElement):
     motivo_recurso = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[3]/div/select')
     justificativa = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div/div[2]/div[4]/div/textarea')
     fechar = (By.XPATH, '//*[@id="modalRecursoConteudo"]/div[3]/button[3]')
-    salvar = (By.XPATH, '//*[@id="botaoSalvar"]')
+    salvar = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div/div[3]/button[2]')
     enviar = (By.XPATH, '//*[@id="botaoConfirmar"]')
     botao_ok = (By.XPATH, '//*[@id="ctl00_Body"]/div[1]/div/div/div[3]/button')
     n_protocolo = (By.XPATH, '/html/body/div[1]/div/div/div[2]/div/div')
@@ -175,16 +176,19 @@ class Recurso(PageElement):
     def injetar_dados(self, i, j, linha2):
         checkbox = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/ul/li[{j}]/a/i[1]').click()
         page_up = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/a').send_keys(Keys.CONTROL + Keys.HOME)
-        time.sleep(0.5)
+        time.sleep(1)
         self.driver.find_element(*self.recursar).click()
         time.sleep(0.5)
         self.driver.find_element(*self.valor_a_recursar).clear()
+        time.sleep(0.5)
         self.driver.find_element(*self.valor_a_recursar).send_keys(f"{linha2['Valor Recursado']}")
-        time.sleep(1)
+        time.sleep(0.5)
         self.driver.find_element(*self.motivo_recurso).send_keys(f"{linha2['Motivo Glosa']}")
+        time.sleep(0.5)
         self.driver.find_element(*self.justificativa).clear()
+        time.sleep(1)
         self.driver.find_element(*self.justificativa).send_keys(f"{linha2['Recurso Glosa']}")
-        time.sleep(2)
+        time.sleep(3)
         try:
             self.driver.find_element(*self.salvar).click()
         except:
@@ -252,7 +256,7 @@ class Recurso(PageElement):
                                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                                 writer.book = book
                                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                                df.to_excel(writer, 'Recurso', startrow= count, startcol=21, header=False, index=False)
+                                df.to_excel(writer, 'Recurso', startrow= count, startcol=20, header=False, index=False)
                                 writer.save()
                                 recursado = True
                                 break
@@ -311,10 +315,10 @@ def recursar_caixa():
 
         login_page.exe_login(
             usuario = "00735860000173",
-            senha = "saude123"
+            senha = "Saude@2023"
         )
         Recurso(driver, url).fazer_recurso()
         tkinter.messagebox.showinfo( 'Automação Saúde Caixa Recurso de Glosa' , 'Recursos do Saúde Caixa Concluídos 😎✌' )
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal do Saúde Caixa caiu 😢' )
+    except Exception as e:
+        tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada \n {e.__class__.__name__}: {e}' )
         driver.quit()

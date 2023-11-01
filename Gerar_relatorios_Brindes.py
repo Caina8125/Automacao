@@ -5,9 +5,7 @@ import openpyxl
 def Gerar_Relat_Normal():
     global convenio
 
-    df        = pd.read_excel(r"\\10.0.0.239\automacao_faturamento\Brindes\Dados.xlsx", sheet_name='Dados')
-
-
+    df              = pd.read_excel(r"\\10.0.0.239\automacao_faturamento\Brindes\Dados.xlsx", sheet_name='Dados')
     normal          = df[df["Tipo Brinde"] == "Normal"] 
     total_normal    = normal['Quantidade'].sum()
     diretoria       = df[df["Tipo Brinde"] == "Diretoria"]
@@ -15,10 +13,9 @@ def Gerar_Relat_Normal():
     fora            = df[df["Tipo Brinde"] == "FORA"]
     total_fora      = fora['Quantidade'].sum()
 
-
-    convenios = df["Convênio"]
-    convenios = convenios.drop_duplicates()
-    convenios = convenios.to_list()
+    convenios       = df["Convênio"]
+    convenios       = convenios.drop_duplicates()
+    convenios       = convenios.to_list()
 
     for convenio in convenios:
         dados             = df[df["Convênio"] == convenio]

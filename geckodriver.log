@@ -61,3 +61,103 @@ Read port: 58902
 console.error: Region.sys.mjs: "Error fetching region" (new TypeError("NetworkError when attempting to fetch resource.", ""))
 console.error: Region.sys.mjs: "Failed to fetch region" (new Error("NO_RESULT", "resource://gre/modules/Region.sys.mjs", 411))
 DevTools listening on ws://127.0.0.1:58893/devtools/browser/218db016-74e4-4412-8659-183f469d3520
+1698230294407	geckodriver	INFO	Listening on 127.0.0.1:55288
+1698230297491	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--start-maximized" "--ignore-certificate-e ... --remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\lucas.paz\\AppData\\Local\\Temp\\rust_mozprofile4fnM0n"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698230297790	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+console.error: "Warning: unrecognized command line flag" "-start-maximized"
+console.error: "Warning: unrecognized command line flag" "-ignore-ssl-errors"
+1698230298053	Marionette	INFO	Listening on port 55299
+WebDriver BiDi listening on ws://127.0.0.1:55289
+Read port: 55299
+1698230298256	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1698230298256	RemoteAgent	INFO	Proxy settings initialised: {"proxyType":"manual","httpProxy":"127.0.0.1:55292","sslProxy":"127.0.0.1:55292"}
+console.error: Region.sys.mjs: "Error fetching region" (new TypeError("NetworkError when attempting to fetch resource.", ""))
+console.error: Region.sys.mjs: "Failed to fetch region" (new Error("NO_RESULT", "resource://gre/modules/Region.sys.mjs", 411))
+DevTools listening on ws://127.0.0.1:55289/devtools/browser/a5ec7081-4ca2-4cc5-b84a-99fedba7b6d5
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://saude.caixa.gov.br."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://saude.caixa.gov.br."
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/Content/js/saude/e/Portal/inicio_prestador.js, line 164: TypeError: MutationObserver.observe: Argument 1 is not an object.
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/e/portal/inicio_prestador.aspx?i=MENUITEMID_636005437870018929&m=MAIN, line 587: TypeError: document.querySelector(...) is null
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursosglosaprestador.aspx?i=PORTAL_RECURSARGLOSA&m=MENU_RECURSODEGLOSA_AGRUPADO, line 681: TypeError: document.getElementById(...) is null
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursoglosa.aspx?handleRecurso=540871&p=1, line 858: TypeError: document.getElementById(...) is null
+1698230370130	Marionette	WARN	TimedPromise timed out after 500 ms: stacktrace:
+TimedPromise/<@chrome://remote/content/marionette/sync.sys.mjs:219:24
+TimedPromise@chrome://remote/content/marionette/sync.sys.mjs:203:10
+interaction.flushEventLoop@chrome://remote/content/marionette/interaction.sys.mjs:429:10
+webdriverClickElement@chrome://remote/content/marionette/interaction.sys.mjs:178:31
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursoglosa.aspx?handleRecurso=540871&p=1, line 874: TypeError: document.getElementById(...) is null
+1698230831906	geckodriver	INFO	Listening on 127.0.0.1:55550
+1698230834981	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--start-maximized" "--ignore-certificate-e ... --remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\lucas.paz\\AppData\\Local\\Temp\\rust_mozprofilebrdUuO"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698230835238	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+console.error: "Warning: unrecognized command line flag" "-start-maximized"
+console.error: "Warning: unrecognized command line flag" "-ignore-ssl-errors"
+1698230835344	Marionette	INFO	Listening on port 55562
+WebDriver BiDi listening on ws://127.0.0.1:55551
+Read port: 55562
+1698230835520	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1698230835521	RemoteAgent	INFO	Proxy settings initialised: {"proxyType":"manual","httpProxy":"127.0.0.1:55554","sslProxy":"127.0.0.1:55554"}
+console.error: Region.sys.mjs: "Error fetching region" (new TypeError("NetworkError when attempting to fetch resource.", ""))
+console.error: Region.sys.mjs: "Failed to fetch region" (new Error("NO_RESULT", "resource://gre/modules/Region.sys.mjs", 411))
+DevTools listening on ws://127.0.0.1:55551/devtools/browser/3c45dd5b-2c91-4a7b-a273-7a8a1f348d96
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://saude.caixa.gov.br."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://saude.caixa.gov.br."
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/Content/js/saude/e/Portal/inicio_prestador.js, line 164: TypeError: MutationObserver.observe: Argument 1 is not an object.
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/e/portal/inicio_prestador.aspx?i=MENUITEMID_636005437870018929&m=MAIN, line 587: TypeError: document.querySelector(...) is null
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursosglosaprestador.aspx?i=PORTAL_RECURSARGLOSA&m=MENU_RECURSODEGLOSA_AGRUPADO, line 681: TypeError: document.getElementById(...) is null
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursoglosa.aspx?handleRecurso=540871&p=1, line 874: TypeError: document.getElementById(...) is null
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursoglosa.aspx?handleRecurso=540871&p=1, line 876: TypeError: document.getElementById(...) is null
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursoglosa.aspx?handleRecurso=540871&p=1, line 878: TypeError: document.getElementById(...) is null
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursosglosaprestador.aspx?i=PORTAL_RECURSARGLOSA&m=MENU_RECURSODEGLOSA_AGRUPADO, line 600: TypeError: document.getElementById(...) is null
+1698230970214	Marionette	INFO	Stopped listening on port 55562
+Dynamically enable window occlusion 1
+1698232233632	geckodriver	INFO	Listening on 127.0.0.1:55886
+1698232236676	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--start-maximized" "--ignore-certificate-e ... --remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\lucas.paz\\AppData\\Local\\Temp\\rust_mozprofileEoj2xl"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698232236941	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+console.error: "Warning: unrecognized command line flag" "-start-maximized"
+console.error: "Warning: unrecognized command line flag" "-ignore-ssl-errors"
+1698232237048	Marionette	INFO	Listening on port 55897
+WebDriver BiDi listening on ws://127.0.0.1:55887
+Read port: 55897
+1698232237238	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1698232237239	RemoteAgent	INFO	Proxy settings initialised: {"proxyType":"manual","httpProxy":"127.0.0.1:55890","sslProxy":"127.0.0.1:55890"}
+console.error: Region.sys.mjs: "Error fetching region" (new TypeError("NetworkError when attempting to fetch resource.", ""))
+console.error: Region.sys.mjs: "Failed to fetch region" (new Error("NO_RESULT", "resource://gre/modules/Region.sys.mjs", 411))
+DevTools listening on ws://127.0.0.1:55887/devtools/browser/9f51a223-8e95-4991-a090-b380ad834750
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://saude.caixa.gov.br."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://saude.caixa.gov.br."
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/Content/js/saude/e/Portal/inicio_prestador.js, line 164: TypeError: MutationObserver.observe: Argument 1 is not an object.
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/e/portal/inicio_prestador.aspx?i=MENUITEMID_636005437870018929&m=MAIN, line 587: TypeError: document.querySelector(...) is null
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursosglosaprestador.aspx?i=PORTAL_RECURSARGLOSA&m=MENU_RECURSODEGLOSA_AGRUPADO, line 681: TypeError: document.getElementById(...) is null
+1698232256121	Marionette	INFO	Stopped listening on port 55897
+Dynamically enable window occlusion 1
+1698232282255	geckodriver	INFO	Listening on 127.0.0.1:55991
+1698232285316	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--start-maximized" "--ignore-certificate-e ... --remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\lucas.paz\\AppData\\Local\\Temp\\rust_mozprofileAPepvU"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698232285578	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+console.error: "Warning: unrecognized command line flag" "-start-maximized"
+console.error: "Warning: unrecognized command line flag" "-ignore-ssl-errors"
+1698232285687	Marionette	INFO	Listening on port 56002
+WebDriver BiDi listening on ws://127.0.0.1:55992
+Read port: 56002
+1698232285865	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1698232285866	RemoteAgent	INFO	Proxy settings initialised: {"proxyType":"manual","httpProxy":"127.0.0.1:55995","sslProxy":"127.0.0.1:55995"}
+console.error: Region.sys.mjs: "Error fetching region" (new TypeError("NetworkError when attempting to fetch resource.", ""))
+console.error: Region.sys.mjs: "Failed to fetch region" (new Error("NO_RESULT", "resource://gre/modules/Region.sys.mjs", 411))
+DevTools listening on ws://127.0.0.1:55992/devtools/browser/08895201-c65e-4e1a-bbec-bff3f3960ace
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://saude.caixa.gov.br."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://saude.caixa.gov.br."
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/Content/js/saude/e/Portal/inicio_prestador.js, line 164: TypeError: MutationObserver.observe: Argument 1 is not an object.
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/e/portal/inicio_prestador.aspx?i=MENUITEMID_636005437870018929&m=MAIN, line 587: TypeError: document.querySelector(...) is null
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursosglosaprestador.aspx?i=PORTAL_RECURSARGLOSA&m=MENU_RECURSODEGLOSA_AGRUPADO, line 681: TypeError: document.getElementById(...) is null
+JavaScript error: https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursoglosa.aspx?handleRecurso=540871&p=1, line 878: TypeError: document.getElementById(...) is null

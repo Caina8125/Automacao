@@ -69,7 +69,20 @@ class injetar_dados(PageElement):
         guia_loc = None
         
         for index, linha in faturas_df.iterrows():
-            guia = int(linha['Nº Guia'])
+            guia = str(linha['Nº Guia']).replace('.0', '')
+
+            if not guia.isdigit():
+                count += 1
+                print(f'Nr. Guia {guia} é inválido')
+                data = {'Situação': ['Número da guia operadora inválida(Possui letra)'], 'Validação Carteira': [''], 'Validação Proc.': [''], 'Validação Senha': [''], 'Pesquisado no Portal': ['Sim']}
+                df = pd.DataFrame(data)
+                book = load_workbook(planilha)
+                writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                writer.book = book
+                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                df.to_excel(writer, "Sheet1", startrow=count, startcol=7, header=False, index=False)
+                writer.save()
+                continue   
 
             if linha['Pesquisado no Portal'] == "Sim":
                 print('Já foi feita a pesquisa desta autorização.')
@@ -296,7 +309,7 @@ def verificacao_brb():
 
         injetar_dados(driver,url).inserir_dados()
 
-        tkinter.messagebox.showinfo( 'Automação Faturamento - Fascal' , 'Buscas no portal da Fascal concluídos 😎✌' )
+        tkinter.messagebox.showinfo( 'Automação Faturamento - BRB' , 'Buscas no portal da BRB concluídos 😎✌' )
 
     except Exception as err:
         tkinter.messagebox.showerror( 'Erro na busca' , f'Ocorreu uma exceção não tratada \n {err.__class__.__name__} - {err}' )

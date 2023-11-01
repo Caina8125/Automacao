@@ -240,6 +240,7 @@ class inserir_dados(PageElement):
                     self.driver.find_element(*self.alerta2).click()
                 except:
                     print('Alerta2 não apareceu')
+                break
 
             try:
                 modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
@@ -262,6 +263,7 @@ class inserir_dados(PageElement):
             except:
                 print("Não teve Modal")
                 pass
+
             count = 0
             faturas_df1 = pd.read_excel(planilha)
 

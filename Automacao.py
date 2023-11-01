@@ -36,10 +36,8 @@ from Demonstrativo_Stf import demonstrativo_stf
 from Demonstrativo_Tjdft import demonstrativo_tjdft
 from Demonstrativo_Unafisco import demonstrativo_unafisco
 from Nota_Fiscal import subirNF
-<<<<<<< HEAD
-=======
 from gerador_de_planilha import gerar_planilha
->>>>>>> a2cc4153f0e359d95497fda2f6934e01efaba6dd
+from Enviar_Pdf_Brb import enviar_pdf
 from datetime import datetime
 import os
 
@@ -113,6 +111,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos STF", 
                                                                    "Financeiro - Demonstrativos TJDFT", 
                                                                    "Financeiro - Demonstrativos Unafisco", 
+                                                                   "Glosa - Atualizar Situação GEAP",
                                                                    "Glosa - Auditoria GEAP",
                                                                    "Glosa - Gerador de Planilha GDF",
                                                                    "Glosa - Recursar GEAP Duplicado",
@@ -232,7 +231,7 @@ class Application:
 
         elif automacao == "Faturamento - Enviar PDF BRB":
             self.gif()
-            ...
+            enviar_pdf()
             self.reiniciar()
 
         elif automacao == "Faturamento - Verificar Situação BRB":
@@ -347,7 +346,7 @@ class Application:
         elif automacao == "Glosa - Gerador de Planilha GDF":
             self.gif()
             gerar_planilha()
-            self.reiniciar
+            self.reiniciar()
 
         elif automacao == "Glosa - Recursar GEAP Duplicado":
             self.gif()
