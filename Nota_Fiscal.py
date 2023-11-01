@@ -229,7 +229,7 @@ class Nf(PageElement):
             except:
                 self.driver.switch_to.frame('iframeModal')
                 erro = self.driver.find_element(By.ID, "TxtErro").text
-                # Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
+                Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
                 self.driver.switch_to.default_content()
                 self.driver.switch_to.frame('iframe')
                 self.driver.find_element(*self.fecharModalErro).click()
@@ -314,9 +314,9 @@ def subirNF():
         Caminho(driver,url).exe_caminho()
         time.sleep(1)
         Nf(driver,url).inserirDadosNf()
-        # Pidgin.notaFiscal("Todas as Notas Concluídas")
+        Pidgin.notaFiscal("Todas as Notas Concluídas")
     except:
-        # Pidgin.notaFiscal("Deu erro na automação provavelmente o portal caiu")
+        Pidgin.notaFiscal("Deu erro na automação provavelmente o portal caiu")
         driver.quit()
         pass
     
