@@ -1,13 +1,46 @@
 from tkinter import *
 import tkinter as tk 
 from tkinter import ttk
-from Buscar_fatura import *
-from Atualiza import *
 import threading
-import sys
 from PIL import Image, ImageTk
 from itertools import count, cycle
-
+from Recursar_Duplicado import *
+from Buscar_fatura import iniciar
+from Atualiza_Local import *
+from Anexar_Honorario import anexar_guias
+from VerificarSituacao_BRB import verificacao_brb
+from Auditoria_GEAP import ExtrairDados
+from Recursar_SemDuplicado import recursar_sem_duplicado
+from Recurso_Postal import recursar_postal
+from Recursar_Caixa import recursar_caixa
+from Recurso_Serpro import recursar_serpro
+from Recursar_SIS import recursar_sis
+from GEAP_Conferencia import conferencia
+from VerificarSituacao_Fascal import verificacao_fascal
+from VerificarSituacao_Gama import verificar_gama
+from Demonstrativo_Brb import demonstrativo_brb
+from Demonstrativo_Caixa import demonstrativo_caixa
+from Demonstrativo_Camara import demonstrativo_camara
+from Demonstrativo_Casembrapa import demonstrativo_casembrapa
+from Demonstrativo_Cassi import demonstrativo_cassi
+from Demonstrativo_Codevasf import demonstrativo_codevasf
+from Demonstrativo_Evida import demonstrativo_evida
+from Demonstrativo_Fascal import demonstrativo_fascal
+from Demonstrativo_Gama import demonstrativo_gama
+from Demonstrativo_Mpu import demonstrativo_mpu
+from Demonstrativo_Pmdf import demonstrativo_pmdf
+from Demonstrativo_Postal import demonstrativo_postal
+from Demonstrativo_Serpro import demonstrativo_serpro
+from Demonstrativo_Sis import demonstrativo_sis
+from Demonstrativo_Stf import demonstrativo_stf
+from Demonstrativo_Tjdft import demonstrativo_tjdft
+from Demonstrativo_Unafisco import demonstrativo_unafisco
+from Gerar_relatorios_Brindes import Gerar_Relat_Normal
+from Nota_Fiscal import subirNF
+from gerador_de_planilha import gerar_planilha
+from Enviar_Pdf_Brb import enviar_pdf
+from datetime import datetime
+import os
 
 class Application:
     def __init__(self, master=None):
@@ -26,15 +59,18 @@ class Application:
 
         self.quartoContainer = Frame(master, background="white")
         self.quartoContainer["padx"] = 20
+        self.quartoContainer["pady"] = 10
         self.quartoContainer.pack()
+        
 
         self.quintoContainer = Frame(master, background="white")
-        self.quintoContainer
+        self.quintoContainer["padx"] = 20
+        self.quintoContainer["pady"] = 5
         self.quintoContainer.pack()
 
         self.sextoContainer = Frame(master, background="white")
         self.sextoContainer["padx"] = 100
-        self.sextoContainer["pady"] = 28
+        self.sextoContainer["pady"] = 10
         self.sextoContainer.pack()
 
         self.cabecalho = Label(self.primeiroContainer, bg="#274360")
@@ -43,6 +79,7 @@ class Application:
         self.cabecalho.pack()
 
         foto = tk.PhotoImage(file="logo.png")
+        
         self.img = tk.Label(self.segundoContainer,image=foto, border=0)
         self.img.foto = foto
         self.img["pady"] = 5
@@ -51,33 +88,351 @@ class Application:
         self.nomeLabel = Label(self.terceiroContainer, text="Selecione a automação",font=self.fontePadrao, background="white")
         self.nomeLabel.pack(side=LEFT)
 
-        self.comboBox = ttk.Combobox(self.quartoContainer, values=["Glosa - Auditoria Geap", "Faturamento - Anexar Honorario Geap", "Financeiro - Buscar Faturas"], width=50)
+        self.comboBox = ttk.Combobox(self.quartoContainer, values=["Faturamento - Anexar Honorario Geap",
+                                                                   "Faturamento - Conferência GEAP",
+                                                                   "Faturamento - Enviar PDF BRB",
+                                                                   "Faturamento - Verificar Situação BRB",
+                                                                   "Faturamento - Verificar Situação Fascal",
+                                                                   "Faturamento - Verificar Situação Gama",
+                                                                   "Financeiro - Buscar Faturas GEAP", 
+                                                                   "Financeiro - Demonstrativos BRB", 
+                                                                   "Financeiro - Demonstrativos Câmara dos Deputados", 
+                                                                   "Financeiro - Demonstrativos Casembrapa", 
+                                                                   "Financeiro - Demonstrativos Cassi", 
+                                                                   "Financeiro - Demonstrativos Codevasf", 
+                                                                   "Financeiro - Demonstrativos E-Vida", 
+                                                                   "Financeiro - Demonstrativos Fascal", 
+                                                                   "Financeiro - Demonstrativos Gama", 
+                                                                   "Financeiro - Demonstrativos MPU", 
+                                                                   "Financeiro - Demonstrativos PMDF", 
+                                                                   "Financeiro - Demonstrativos Postal", 
+                                                                   "Financeiro - Demonstrativos Saúde Caixa", 
+                                                                   "Financeiro - Demonstrativos Serpro", 
+                                                                   "Financeiro - Demonstrativos SIS", 
+                                                                   "Financeiro - Demonstrativos STF", 
+                                                                   "Financeiro - Demonstrativos TJDFT", 
+                                                                   "Financeiro - Demonstrativos Unafisco", 
+                                                                   "Glosa - Atualizar Situação GEAP",
+                                                                   "Glosa - Auditoria GEAP",
+                                                                   "Glosa - Gerador de Planilha GDF",
+                                                                   "Glosa - Recursar GEAP Duplicado",
+                                                                   "Glosa - Recursar GEAP Sem Duplicado",
+                                                                   "Glosa - Recursar Postal",
+                                                                   "Glosa - Recursar Saúde Caixa",
+                                                                   "Glosa - Recursar Serpro",
+                                                                   "Glosa - Recursar SIS",
+                                                                   "Relatório - Brindes",
+                                                                   "Tesouraria - Nota Fiscal"
+                                                                    ], width=50)
         self.comboBox["background"] = 'white'
         self.comboBox.pack(side=LEFT)
-
 
         self.buttonIniciar = Button(self.sextoContainer, bg="#274360",foreground="white",width=10, command=lambda: threading.Thread(target=self.chamarAutomacao).start())
         self.buttonIniciar["text"] = "Iniciar"
         self.buttonIniciar.pack(side=LEFT)
 
-    def carregando(self):
-        self.info = Label(self.quintoContainer, text="Carregando...",font=self.fontePadrao, background="white")
+    def gif(self):
+        
+        self.info = Label(self.quintoContainer, text= "Trabalhando...",font=('Arial,10,bold'), background="white")
         self.info.pack()
 
-        lbl = ImageLabel(self.quintoContainer,background="white")
-        lbl.pack(side=LEFT)
-        lbl.load('loader2.gif')
+        self.lbl = ImageLabel(self.quintoContainer,background="white")
+        self.lbl.pack(side=LEFT)
+        self.lbl.load('loader2.gif')
 
     def ocultar(self):
         self.buttonIniciar.pack_forget()
 
+    def ocultar_data(self):
+        try:
+            self.inserir_data_inicial.pack_forget()
+            self.inserir_data_final.pack_forget()
+            self.botao_ok.pack_forget()
+            self.voltar.pack_forget()
+        except:
+            pass
+
+    def desocultar(self):
+        self.lbl.pack_forget()
+
+    def botao_iniciar(self):
+        self.buttonIniciar = Button(self.sextoContainer, bg="#274360",foreground="white",width=10, command=lambda: threading.Thread(target=self.chamarAutomacao).start())
+        self.buttonIniciar["text"] = "Iniciar"
+        self.buttonIniciar.pack(side=LEFT)
+
+    def obter_datas(self):           
+        global data_inicial, data_final, validacao
+        data_inicial = self.inserir_data_inicial.get()
+        data_final = self.inserir_data_final.get()
+        validacao = data_valida(data_inicial, data_final)
+        self.ocultar_data()
+
+        if validacao:
+            self.gif()
+            demonstrativo_cassi(data_inicial, data_final)
+            self.reiniciar()
+
+        else:
+            tkinter.messagebox.showerror( 'Data inválida!' , 'Digíte uma data válida')
+            self.inserir_data()
+
+    def inserir_data(self):
+        self.inserir_data_inicial = tk.Entry(self.quintoContainer)
+        self.inserir_data_inicial.insert(0, "Digite a data inicial")
+        
+
+        self.inserir_data_final = tk.Entry(self.quintoContainer)
+        self.inserir_data_final.insert(0, "Digite a data final")
+
+        self.botao_ok = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", command=lambda: threading.Thread(target=self.obter_datas).start())
+
+        self.voltar = Button(self.sextoContainer, bg="#274360", foreground="white", text="Voltar", command=lambda: threading.Thread(target=self.voltar_inicio).start())
+
+        self.inserir_data_inicial.pack(side=LEFT)
+        self.inserir_data_inicial.bind("<FocusIn>", self.limpar_placeholder1)
+        self.inserir_data_final.pack(side=LEFT)
+        self.inserir_data_final.bind("<FocusIn>", self.limpar_placeholder2)
+        self.botao_ok.pack(side=LEFT, padx=10)
+        self.voltar.pack(side=RIGHT)
+
+    def limpar_placeholder1(self, event):
+        if self.inserir_data_inicial.get() == "Digite a data inicial":
+            self.inserir_data_inicial.delete(0, "end")
+            self.inserir_data_inicial.config(fg="black")
+
+    def limpar_placeholder2(self, event):
+        if self.inserir_data_final.get() == "Digite a data final":
+            self.inserir_data_final.delete(0, "end")
+            self.inserir_data_final.config(fg="black")
+
+    # def botaoHistorico(self):
+    #     self.info.pack_forget()
+
+    #     self.buttonHistorico = Button(self.sextoContainer, bg="#274360",foreground="white",width=10)
+    #     self.buttonHistorico["text"] = "Histórico"
+    #     self.buttonHistorico.pack(side=LEFT)
+
     def chamarAutomacao(self):
+        self.ocultar()
+        try:
+            self.info.pack_forget()
+            # self.buttonHistorico.pack_forget()
+        except:
+            pass
+        
         automacao = self.comboBox.get()
-        if automacao == "Financeiro - Buscar Faturas":
-            self.ocultar()
-            self.carregando()
+        if automacao == "Faturamento - Anexar Honorario Geap":
+            self.gif()
+            anexar_guias()
+            self.reiniciar()
+
+        elif automacao == "Faturamento - Conferência GEAP":
+            self.gif()
+            conferencia()
+            self.reiniciar()
+
+        elif automacao == "Faturamento - Enviar PDF BRB":
+            self.gif()
+            enviar_pdf()
+            self.reiniciar()
+
+        elif automacao == "Faturamento - Verificar Situação BRB":
+            self.gif()
+            verificacao_brb()
+            self.reiniciar()
+
+        elif automacao == "Faturamento - Verificar Situação Fascal":
+            self.gif()
+            verificacao_fascal()
+            self.reiniciar()
+
+        elif automacao == "Faturamento - Verificar Situação Gama":
+            self.gif()
+            verificar_gama()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Buscar Faturas GEAP":
+            self.gif()
             iniciar()
-            
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos BRB":
+            self.gif()
+            demonstrativo_brb()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Câmara dos Deputados":
+            self.gif()
+            demonstrativo_camara()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Casembrapa":
+            self.gif()
+            demonstrativo_casembrapa()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Cassi":
+            self.inserir_data()
+
+        elif automacao == "Financeiro - Demonstrativos Codevasf":
+            self.gif()
+            demonstrativo_codevasf()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos E-Vida":
+            self.gif()
+            demonstrativo_evida()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Fascal":
+            self.gif()
+            demonstrativo_fascal()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Gama":
+            self.gif()
+            demonstrativo_gama()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos MPU":
+            self.gif()
+            demonstrativo_mpu()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos PMDF":
+            self.gif()
+            demonstrativo_pmdf()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Postal":
+            self.gif()
+            demonstrativo_postal()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Saúde Caixa":
+            self.gif()
+            demonstrativo_caixa()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Serpro":
+            self.gif()
+            demonstrativo_serpro()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos SIS":
+            self.gif()
+            demonstrativo_sis()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos STF":
+            self.gif()
+            demonstrativo_stf()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos TJDFT":
+            self.gif()
+            demonstrativo_tjdft()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Unafisco":
+            self.gif()
+            demonstrativo_unafisco()
+            self.reiniciar()
+    
+        elif automacao == "Glosa - Auditoria GEAP":
+            self.gif()
+            auditoria = ExtrairDados()
+            auditoria.extrair_dados()
+            self.reiniciar()
+
+        elif automacao == "Glosa - Gerador de Planilha GDF":
+            self.gif()
+            gerar_planilha()
+            self.reiniciar()
+
+        elif automacao == "Glosa - Recursar GEAP Duplicado":
+            self.gif()
+            recursar_duplicado()
+            self.reiniciar()
+        
+        elif automacao == "Glosa - Recursar GEAP Sem Duplicado":
+            self.gif()
+            recursar_sem_duplicado()
+            self.reiniciar()
+
+        elif automacao == "Glosa - Recursar Postal":
+            self.gif()
+            recursar_postal()
+            self.reiniciar()
+
+        elif automacao == "Glosa - Recursar Saúde Caixa":
+            self.gif()
+            recursar_caixa()
+            self.reiniciar()
+
+        elif automacao == "Glosa - Recursar Serpro":
+            self.gif()
+            recursar_serpro()
+            self.reiniciar()
+
+        elif automacao == "Glosa - Recursar SIS":
+            self.gif()
+            recursar_sis()
+            self.reiniciar()
+        
+        elif automacao == "Relatório - Brindes":
+            self.gif()
+            Gerar_Relat_Normal()
+            self.reiniciar()
+
+        elif automacao == "Tesouraria - Nota Fiscal":
+            self.gif()
+            subirNF()
+            self.reiniciar()
+        else:
+            self.botao_iniciar()
+
+    def voltar_inicio(self, master=None):
+        self.ocultar_data()
+        self.voltar.pack_forget()
+        self.quintoContainer.pack_forget()
+        self.sextoContainer.pack_forget()
+
+        self.quintoContainer = Frame(master, background="white")
+        self.quintoContainer["padx"] = 20
+        self.quintoContainer["pady"] = 5
+        self.quintoContainer.pack()
+
+        self.sextoContainer = Frame(master, background="white")
+        self.sextoContainer["padx"] = 100
+        self.sextoContainer["pady"] = 10
+        self.sextoContainer.pack()
+        self.botao_iniciar()
+
+    def reiniciar(self, master=None):
+        self.desocultar()
+
+        self.info.pack_forget()
+
+        ImageLabel().unload()
+
+        self.quintoContainer.pack_forget()
+
+        self.sextoContainer.pack_forget()
+
+        self.quintoContainer = Frame(master, background="white")
+        self.quintoContainer["padx"] = 20
+        self.quintoContainer["pady"] = 5
+        self.quintoContainer.pack()
+
+        self.sextoContainer = Frame(master, background="white")
+        self.sextoContainer["padx"] = 100
+        self.sextoContainer["pady"] = 10
+        self.sextoContainer.pack()
+
+        self.botao_iniciar()
+        # self.botaoHistorico()
+     
 #---------------------------------------------------------------------------------------------------------
 #Classe do Gif
 
@@ -99,7 +454,7 @@ class ImageLabel(tk.Label):
         try:
             self.delay = im.info['duration']
         except:
-            self.delay = 100
+            self.delay = 80
 
         if len(frames) == 1:
             self.config(image=next(self.frames))
@@ -117,16 +472,32 @@ class ImageLabel(tk.Label):
 
 
 #-------------------------------------------------------------------------------------------
-    
+def data_valida(date_string1, date_string2, date_format="%d/%m/%Y"):
+    try:
+        datetime.strptime(date_string1, date_format)
+        datetime.strptime(date_string2, date_format)
+        return True
+    except ValueError:
+        return False
 
-Script()
+local = dataLocal()
+atualiza = dataAtualiza()
 
-root = tk.Tk()
-Application(root)
-root.title('AMHP - Automações')
-root.geometry("500x300")
-root.configure(background="white")
-root.resizable(width=False, height=False)
+if(local == atualiza):
+    print("Software atualizado")
+    root = tk.Tk()
+    Application(root)
+    root.title('AMHP - Automações')
+    root.geometry("530x330")
+    root.configure(background="white")
+    root.resizable(width=False, height=False)
+    root.eval('tk::PlaceWindow . center')
+    # ctypes.windll.kernel32.FreeConsole()
+    root.mainloop()
 
-# ctypes.windll.kernel32.FreeConsole()
-root.mainloop()
+else:
+    try:
+        tkinter.messagebox.showwarning('AMHP - Automações', 'Uma atualização será feita!')
+        os.startfile(r"C:\Instaladores\INSTALA-AUTOMACAO.bat")
+    except Exception as e:
+        print(f"{e.__class__.__name__}: {e}")
