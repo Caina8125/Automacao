@@ -232,13 +232,6 @@ class Nf(PageElement):
 
                 Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
 
-
-                # Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
-
-                Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
-
-                # Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
-
                 self.driver.switch_to.default_content()
                 self.driver.switch_to.frame('iframe')
                 self.driver.find_element(*self.fecharModalErro).click()
@@ -324,18 +317,9 @@ def subirNF():
         time.sleep(1)
         Nf(driver,url).inserirDadosNf()
         Pidgin.notaFiscal("Todas as Notas Concluídas")
-    # except:
-    #     Pidgin.notaFiscal("Deu erro na automação provavelmente o portal caiu")
 
-        # Pidgin.notaFiscal("Todas as Notas Concluídas")
-        # Pidgin.notaFiscal("Deu erro na automação provavelmente o portal caiu")
-
-
-        Pidgin.notaFiscal("Todas as Notas Concluídas")
     except:
         Pidgin.notaFiscal("Deu erro na automação provavelmente o portal caiu")
-
         driver.quit()
         pass
-    
     driver.quit()
