@@ -37,13 +37,12 @@ class caminho(PageElement):
     demonstrativo        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/a/span[1]')
     analise_conta        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/ul/li[3]/a/span')
     selecionar_convenio  = (By.XPATH, '//*[@id="s2id_OperadorasCredenciadas_HandleOperadoraSelected"]/a/span[2]/b')
-    opcao_camara         = (By.XPATH, '/html/body/div[14]/ul/li[2]/div')
+    opcao_camed         = (By.XPATH, '/html/body/div[14]/ul/li[3]/div')
     inserir_protocolo    = (By.XPATH, '//*[@id="Protocolo"]')
     baixar_demonstrativo = (By.XPATH, '//*[@id="btn-Baixar_Demonstrativo"]')
     baixar_xml           = (By.XPATH, '//*[@id="btn-Baixar_XML"]')
     fechar_botao         = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
     fechar_alerta        = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
-    erro                 = False
 
     def exe_caminho(self):
         time.sleep(1)
@@ -54,7 +53,7 @@ class caminho(PageElement):
         caminho(driver, url).Alert()
         self.driver.find_element(*self.selecionar_convenio).click()
         time.sleep(1)
-        self.driver.find_element(*self.opcao_camara).click()
+        self.driver.find_element(*self.opcao_camed).click()
         time.sleep(1)
 
     def buscar_demonstrativo(self):
@@ -82,13 +81,13 @@ class caminho(PageElement):
 
             self.driver.find_element(*self.inserir_protocolo).send_keys(protocolo)
             time.sleep(1)
-            endereco = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear"
+            endereco = r"\\10.0.0.239\automacao_financeiro\CAMED\Renomear"
             arquivo_na_pasta = os.listdir(f"{endereco}")
 
             for arquivo in arquivo_na_pasta:
                 if '.pdf' in arquivo:
                     endereco_arquivo = f'{endereco}\\{arquivo}'
-                    shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\CAMARA\Não Renomeados")
+                    shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\CAMED\Não Renomeados")
 
             self.driver.find_element(*self.baixar_demonstrativo).click()
             time.sleep(6)
@@ -96,7 +95,7 @@ class caminho(PageElement):
             time.sleep(8)
 
             for i in range(10):
-                pasta = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear"
+                pasta = r"\\10.0.0.239\automacao_financeiro\CAMED\Renomear"
                 nomes_arquivos = os.listdir(pasta)
                 if len(nomes_arquivos) == 0:
                     break
@@ -105,8 +104,8 @@ class caminho(PageElement):
                 for nome in nomes_arquivos:
                     if '.pdf' in nome:
                         nomepdf  = os.path.join(pasta, nome)
-                        renomear = r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear" +f"\\{fatura}"  +  ".pdf"
-                        arqDest  = r"\\10.0.0.239\automacao_financeiro\CAMARA" + f"\\{fatura}"  +  ".pdf"
+                        renomear = r"\\10.0.0.239\automacao_financeiro\CAMED\Renomear" +f"\\{fatura}"  +  ".pdf"
+                        arqDest  = r"\\10.0.0.239\automacao_financeiro\CAMED" + f"\\{fatura}"  +  ".pdf"
                         
                         try:
                             os.rename(nomepdf,renomear)
@@ -120,7 +119,7 @@ class caminho(PageElement):
                             print("Download ainda não foi feito/Arquivo não renomeado")
                             time.sleep(2)
                     else:
-                        arqDest_xml = r"\\10.0.0.239\automacao_financeiro\CAMARA" + f"\\{nome}"
+                        arqDest_xml = r"\\10.0.0.239\automacao_financeiro\CAMED" + f"\\{nome}"
                         nomexml     = os.path.join(pasta, nome)
                         try:
                             shutil.move(nomexml,arqDest_xml)
@@ -174,7 +173,7 @@ class caminho(PageElement):
             pass
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def demonstrativo_camara():
+def demonstrativo_camed():
 
     try:
         global planilha
@@ -183,7 +182,7 @@ def demonstrativo_camara():
 
         chrome_options = Options()
 
-        chrome_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CAMARA\Renomear",
+        chrome_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CAMED\Renomear",
                                                 "download.prompt_for_download": False,
                                                 "download.directory_upgrade": True,
                                                 "plugins.always_open_pdf_externally": True,

@@ -21,6 +21,7 @@ from VerificarSituacao_Gama import verificar_gama
 from Demonstrativo_Brb import demonstrativo_brb
 from Demonstrativo_Caixa import demonstrativo_caixa
 from Demonstrativo_Camara import demonstrativo_camara
+from Demonstrativo_Camed import demonstrativo_camed
 from Demonstrativo_Casembrapa import demonstrativo_casembrapa
 from Demonstrativo_Cassi import demonstrativo_cassi
 from Demonstrativo_Codevasf import demonstrativo_codevasf
@@ -97,6 +98,7 @@ class Application:
                                                                    "Financeiro - Buscar Faturas GEAP", 
                                                                    "Financeiro - Demonstrativos BRB", 
                                                                    "Financeiro - Demonstrativos Câmara dos Deputados", 
+                                                                   "Financeiro - Demonstrativos Camed", 
                                                                    "Financeiro - Demonstrativos Casembrapa", 
                                                                    "Financeiro - Demonstrativos Cassi", 
                                                                    "Financeiro - Demonstrativos Codevasf", 
@@ -264,6 +266,11 @@ class Application:
         elif automacao == "Financeiro - Demonstrativos Câmara dos Deputados":
             self.gif()
             demonstrativo_camara()
+            self.reiniciar()
+
+        elif automacao == "Financeiro - Demonstrativos Camed":
+            self.gif()
+            demonstrativo_camed()
             self.reiniciar()
 
         elif automacao == "Financeiro - Demonstrativos Casembrapa":
