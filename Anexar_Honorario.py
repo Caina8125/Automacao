@@ -164,6 +164,8 @@ def anexar_guias():
 
         caminho(driver, url).exe_caminho()
 
+        driver.get()
+
         time.sleep(2)
 
         Anexar_Guia(driver, url).injetar_guia()
