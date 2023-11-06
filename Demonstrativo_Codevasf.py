@@ -233,4 +233,4 @@ def demonstrativo_codevasf():
     
     except Exception as err:
         tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
-        Pidgin.main(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        Pidgin.financeiroDemo(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
