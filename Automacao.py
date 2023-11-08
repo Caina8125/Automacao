@@ -223,181 +223,183 @@ class Application:
             pass
         
         automacao = self.comboBox.get()
-        if automacao == "Faturamento - Anexar Honorario Geap":
-            self.gif()
-            anexar_guias()
-            self.reiniciar()
 
-        elif automacao == "Faturamento - Conferência GEAP":
-            self.gif()
-            conferencia()
-            self.reiniciar()
+        match automacao:
+            case "Faturamento - Anexar Honorario Geap":
+                self.gif()
+                anexar_guias()
+                self.reiniciar()
 
-        elif automacao == "Faturamento - Enviar PDF BRB":
-            self.gif()
-            enviar_pdf()
-            self.reiniciar()
+            case "Faturamento - Conferência GEAP":
+                self.gif()
+                conferencia()
+                self.reiniciar()
 
-        elif automacao == "Faturamento - Verificar Situação BRB":
-            self.gif()
-            verificacao_brb()
-            self.reiniciar()
+            case "Faturamento - Enviar PDF BRB":
+                self.gif()
+                enviar_pdf()
+                self.reiniciar()
 
-        elif automacao == "Faturamento - Verificar Situação Fascal":
-            self.gif()
-            verificacao_fascal()
-            self.reiniciar()
+            case "Faturamento - Verificar Situação BRB":
+                self.gif()
+                verificacao_brb()
+                self.reiniciar()
 
-        elif automacao == "Faturamento - Verificar Situação Gama":
-            self.gif()
-            verificar_gama()
-            self.reiniciar()
+            case "Faturamento - Verificar Situação Fascal":
+                self.gif()
+                verificacao_fascal()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Buscar Faturas GEAP":
-            self.gif()
-            iniciar()
-            self.reiniciar()
+            case "Faturamento - Verificar Situação Gama":
+                self.gif()
+                verificar_gama()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos BRB":
-            self.gif()
-            demonstrativo_brb()
-            self.reiniciar()
+            case "Financeiro - Buscar Faturas GEAP":
+                self.gif()
+                iniciar()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Câmara dos Deputados":
-            self.gif()
-            demonstrativo_camara()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos BRB":
+                self.gif()
+                demonstrativo_brb()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Camed":
-            self.gif()
-            demonstrativo_camed()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos Câmara dos Deputados":
+                self.gif()
+                demonstrativo_camara()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Casembrapa":
-            self.gif()
-            demonstrativo_casembrapa()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos Camed":
+                self.gif()
+                demonstrativo_camed()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Cassi":
-            self.inserir_data()
+            case "Financeiro - Demonstrativos Casembrapa":
+                self.gif()
+                demonstrativo_casembrapa()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Codevasf":
-            self.gif()
-            demonstrativo_codevasf()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos Cassi":
+                self.inserir_data()
 
-        elif automacao == "Financeiro - Demonstrativos E-Vida":
-            self.gif()
-            demonstrativo_evida()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos Codevasf":
+                self.gif()
+                demonstrativo_codevasf()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Fascal":
-            self.gif()
-            demonstrativo_fascal()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos E-Vida":
+                self.gif()
+                demonstrativo_evida()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Gama":
-            self.gif()
-            demonstrativo_gama()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos Fascal":
+                self.gif()
+                demonstrativo_fascal()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos MPU":
-            self.gif()
-            demonstrativo_mpu()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos Gama":
+                self.gif()
+                demonstrativo_gama()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos PMDF":
-            self.gif()
-            demonstrativo_pmdf()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos MPU":
+                self.gif()
+                demonstrativo_mpu()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Postal":
-            self.gif()
-            demonstrativo_postal()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos PMDF":
+                self.gif()
+                demonstrativo_pmdf()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Saúde Caixa":
-            self.gif()
-            demonstrativo_caixa()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos Postal":
+                self.gif()
+                demonstrativo_postal()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Serpro":
-            self.gif()
-            demonstrativo_serpro()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos Saúde Caixa":
+                self.gif()
+                demonstrativo_caixa()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos SIS":
-            self.gif()
-            demonstrativo_sis()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos Serpro":
+                self.gif()
+                demonstrativo_serpro()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos STF":
-            self.gif()
-            demonstrativo_stf()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos SIS":
+                self.gif()
+                demonstrativo_sis()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos TJDFT":
-            self.gif()
-            demonstrativo_tjdft()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos STF":
+                self.gif()
+                demonstrativo_stf()
+                self.reiniciar()
 
-        elif automacao == "Financeiro - Demonstrativos Unafisco":
-            self.gif()
-            demonstrativo_unafisco()
-            self.reiniciar()
-    
-        elif automacao == "Glosa - Auditoria GEAP":
-            self.gif()
-            auditoria = ExtrairDados()
-            auditoria.extrair_dados()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos TJDFT":
+                self.gif()
+                demonstrativo_tjdft()
+                self.reiniciar()
 
-        elif automacao == "Glosa - Gerador de Planilha GDF":
-            self.gif()
-            gerar_planilha()
-            self.reiniciar()
-
-        elif automacao == "Glosa - Recursar GEAP Duplicado":
-            self.gif()
-            recursar_duplicado()
-            self.reiniciar()
+            case "Financeiro - Demonstrativos Unafisco":
+                self.gif()
+                demonstrativo_unafisco()
+                self.reiniciar()
         
-        elif automacao == "Glosa - Recursar GEAP Sem Duplicado":
-            self.gif()
-            recursar_sem_duplicado()
-            self.reiniciar()
+            case "Glosa - Auditoria GEAP":
+                self.gif()
+                auditoria = ExtrairDados()
+                auditoria.extrair_dados()
+                self.reiniciar()
 
-        elif automacao == "Glosa - Recursar Postal":
-            self.gif()
-            recursar_postal()
-            self.reiniciar()
+            case "Glosa - Gerador de Planilha GDF":
+                self.gif()
+                gerar_planilha()
+                self.reiniciar()
 
-        elif automacao == "Glosa - Recursar Saúde Caixa":
-            self.gif()
-            recursar_caixa()
-            self.reiniciar()
+            case "Glosa - Recursar GEAP Duplicado":
+                self.gif()
+                recursar_duplicado()
+                self.reiniciar()
+            
+            case "Glosa - Recursar GEAP Sem Duplicado":
+                self.gif()
+                recursar_sem_duplicado()
+                self.reiniciar()
 
-        elif automacao == "Glosa - Recursar Serpro":
-            self.gif()
-            recursar_serpro()
-            self.reiniciar()
+            case "Glosa - Recursar Postal":
+                self.gif()
+                recursar_postal()
+                self.reiniciar()
 
-        elif automacao == "Glosa - Recursar SIS":
-            self.gif()
-            recursar_sis()
-            self.reiniciar()
-        
-        elif automacao == "Relatório - Brindes":
-            self.gif()
-            Gerar_Relat_Normal()
-            self.reiniciar()
+            case "Glosa - Recursar Saúde Caixa":
+                self.gif()
+                recursar_caixa()
+                self.reiniciar()
 
-        elif automacao == "Tesouraria - Nota Fiscal":
-            self.gif()
-            subirNF()
-            self.reiniciar()
-        else:
-            self.botao_iniciar()
+            case "Glosa - Recursar Serpro":
+                self.gif()
+                recursar_serpro()
+                self.reiniciar()
+
+            case "Glosa - Recursar SIS":
+                self.gif()
+                recursar_sis()
+                self.reiniciar()
+            
+            case "Relatório - Brindes":
+                self.gif()
+                Gerar_Relat_Normal()
+                self.reiniciar()
+
+            case "Tesouraria - Nota Fiscal":
+                self.gif()
+                subirNF()
+                self.reiniciar()
+            case _:
+                self.botao_iniciar()
 
     def voltar_inicio(self, master=None):
         self.ocultar_data()
