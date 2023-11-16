@@ -40,8 +40,11 @@ def gerar_planilha():
             realizado_plan_uni = str(l['DATAREALIZADO'])
             procedimento_plan_uni = str(l['CODIGOID']).replace('.0', '')
             controle_plan_uni = str(l['ATENDIMENTOID']).replace('.0', '')
-            fatura_df_gdf_filtrado = df_plan_gdf.loc[(df_plan_gdf['Autorização Origem'] == int(senha_plan_uni))]
-            fatura_df_gdf = verificar_frame_vazio(fatura_df_gdf_filtrado, df_plan_gdf, 'Autorização Origem', senha_plan_uni)
+            if senha_plan_uni.isdigit():
+                fatura_df_gdf_filtrado = df_plan_gdf.loc[(df_plan_gdf['Autorização Origem'] == int(senha_plan_uni))]
+                fatura_df_gdf = verificar_frame_vazio(fatura_df_gdf_filtrado, df_plan_gdf, 'Autorização Origem', senha_plan_uni)
+            else:
+                fatura_df_gdf_filtrado = df_plan_gdf.loc[(df_plan_gdf['Autorização Origem'] == senha_plan_uni)]
 
             if fatura_atualizada(senha_plan_uni, numero_op_plan_uni, lista_autorizacao_nova):
                 count_nao_encontradas += 1

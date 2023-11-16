@@ -101,7 +101,7 @@ class capturar_protocolo(PageElement):
 
             capturar_protocolo(driver,url).confere()
 
-            self.driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
+            self.driver.back()
 
     def confere(self):
 
