@@ -82,7 +82,7 @@ class capturar_protocolo(PageElement):
                 print(f"{count}){protocolo_plan} : Fatura encontrada => {fatura_plan}")
                 continue
 
-            print(f"{count}) Buscanco a fatura do Protocolo => {protocolo_plan}")
+            print(f"{count}) Buscando a fatura do Protocolo => {protocolo_plan}")
             
             self.driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
             self.driver.find_element(*self.baixar).click()
@@ -102,6 +102,9 @@ class capturar_protocolo(PageElement):
             capturar_protocolo(driver,url).confere()
 
             self.driver.back()
+            time.sleep(3)
+            self.driver.find_element(*self.inserir_protocolo).clear()
+            time.sleep(2)
 
     def confere(self):
 
