@@ -182,7 +182,7 @@ def iniciar():
 
         login_page.exe_login(
             cpf = '66661692120',
-            senha = "amhpdf0073"
+            senha = "Amhp2023"
         )
     except:
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
