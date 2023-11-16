@@ -156,13 +156,15 @@ def anexar_guias():
 
         login_page.exe_login(
             login = "23003723",
-            senha = "amhpdf0073",
+            senha = "Amhp2023",
             cpf = "66661692120"
         )
 
         time.sleep(4)
 
         caminho(driver, url).exe_caminho()
+
+        driver.get()
 
         time.sleep(2)
 

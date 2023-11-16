@@ -219,7 +219,7 @@ def demonstrativo_codevasf():
 
         global usuario, senha
         usuario = "00735860000173"
-        senha = '124605101' #int(input('Digite a senha: '))
+        senha = '128225821' #int(input('Digite a senha: '))
 
         global login_page
         login_page = Login(driver, url)
@@ -233,4 +233,4 @@ def demonstrativo_codevasf():
     
     except Exception as err:
         tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
-        Pidgin.main(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        Pidgin.financeiroDemo(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")

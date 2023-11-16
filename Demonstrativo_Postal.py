@@ -93,7 +93,7 @@ class caminho(PageElement):
             self.driver.find_element(*self.baixar_demonstrativo).click()
             time.sleep(8)
             self.driver.find_element(*self.baixar_xml).click()
-            time.sleep(4)
+            time.sleep(6)
 
             for i in range(10):
                 pasta = r"\\10.0.0.239\automacao_financeiro\POSTAL\Renomear"

@@ -23,34 +23,40 @@ class PageElement(ABC):
         self.driver.get(self.url)
 
 class Login(PageElement):
-    multiusuario = (By.XPATH, '/html/body/div[3]/div[3]/div/form/div[1]/label')
-    prestador = (By.XPATH, '//*[@id="login_code"]')
-    cpf = (By.XPATH, '//*[@id="login_cpf"]')
-    senha = (By.XPATH, '//*[@id="login_password"]')
-    logar = (By.XPATH, '//*[@id="btnLogin"]')
+    acessar = (By.XPATH, '//*[@id="login_user"]/div[1]/a')
+    usuario = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[1]/div/div[1]/div/input')
+    senha = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[2]/div/div[1]/div[1]/input')
+    entrar = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/button/div[2]/div/div')
 
-    def exe_login(self, prestador, cpf, senha):
-        self.driver.find_element(*self.multiusuario).click()
-        self.driver.find_element(*self.prestador).send_keys(prestador)
-        self.driver.find_element(*self.cpf).send_keys(cpf)
+    def exe_login(self, senha, cpf):
+        self.driver.find_element(*self.acessar).click()
+        time.sleep(2)
+        self.driver.find_element(*self.usuario).send_keys(cpf)
+        time.sleep(2)
         self.driver.find_element(*self.senha).send_keys(senha)
-        self.driver.find_element(*self.logar).click()
-        time.sleep(4)
+        time.sleep(1)
+        self.driver.find_element(*self.senha).send_keys(senha)
+        time.sleep(2)
+        self.driver.find_element(*self.entrar).click()
 
+        
 class caminho(PageElement):
-
-    alerta = (By.XPATH, '/html/body/div[2]/div/center/a')
+    versao_anterior = (By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[3]/button/span[2]/span')
+    alerta = (By.XPATH,' /html/body/div[2]/div/center/a')
+    guia = (By.XPATH,'//*[@id="objTableDetalhe"]/tbody/tr[3]/td[1]/a')
 
     def exe_caminho(self):
+        time.sleep(4)
         try:
             self.driver.find_element(*self.alerta).click()
         except:
-            
-            print('Não tem alerta')
-            
-            # gif()
-
-        self.driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
+            print('Alerta não apareceu')
+        self.driver.implicitly_wait(15)
+        self.driver.find_element(*self.versao_anterior).click()
+        time.sleep(2)
+        driver.switch_to.window(driver.window_handles[1])
+        time.sleep(1)
+        driver.get('https://www2.geap.org.br/PRESTADOR/tiss-baixa.asp')
         time.sleep(3)
 
 class capturar_protocolo(PageElement):
@@ -76,7 +82,7 @@ class capturar_protocolo(PageElement):
                 print(f"{count}){protocolo_plan} : Fatura encontrada => {fatura_plan}")
                 continue
 
-            print(f"{count}) Buscanco a fatura do Protocolo => {protocolo_plan}")
+            print(f"{count}) Buscando a fatura do Protocolo => {protocolo_plan}")
             
             self.driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
             self.driver.find_element(*self.baixar).click()
@@ -95,9 +101,10 @@ class capturar_protocolo(PageElement):
 
             capturar_protocolo(driver,url).confere()
 
-            self.driver.get("https://www2.geap.com.br/PRESTADOR/tiss-baixa.asp")
-
-    
+            self.driver.back()
+            time.sleep(3)
+            self.driver.find_element(*self.inserir_protocolo).clear()
+            time.sleep(2)
 
     def confere(self):
 
@@ -158,24 +165,24 @@ def iniciar():
         }
 
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        servico = Service(ChromeDriverManager().install())
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
 
         global driver
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
-
-        #ctypes.windll.kernel32.FreeConsole()
-
-        #driver.maximize_window()
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
         login_page = Login(driver , url)
 
         login_page.open()
 
         login_page.exe_login(
-            prestador = "23003723",
             cpf = '66661692120',
-            senha = "amhpdf0073"
+            senha = "Amhp2023"
         )
     except:
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
@@ -185,5 +192,5 @@ def iniciar():
 
         capturar_protocolo(driver, url).exe_capturar()
         tkinter.messagebox.showinfo( 'Automação GEAP Financeiro' , 'Busca de Faturas na GEAP Concluído 😎✌' )
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
+    except Exception as e:
+        tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma exceção não tratada \n {e.__class__.__name__} - {e}' )

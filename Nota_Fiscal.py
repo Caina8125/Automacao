@@ -232,7 +232,6 @@ class Nf(PageElement):
 
                 Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
 
-
                 # Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
 
                 Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
