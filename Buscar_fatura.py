@@ -176,10 +176,6 @@ def iniciar():
         except:
             driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
-        #ctypes.windll.kernel32.FreeConsole()
-
-        #driver.maximize_window()
-
         login_page = Login(driver , url)
 
         login_page.open()
