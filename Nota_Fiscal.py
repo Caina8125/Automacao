@@ -324,14 +324,6 @@ def subirNF():
         time.sleep(1)
         Nf(driver,url).inserirDadosNf()
         Pidgin.notaFiscal("Todas as Notas Concluídas")
-    # except:
-    #     Pidgin.notaFiscal("Deu erro na automação provavelmente o portal caiu")
-
-        # Pidgin.notaFiscal("Todas as Notas Concluídas")
-        # Pidgin.notaFiscal("Deu erro na automação provavelmente o portal caiu")
-
-
-        Pidgin.notaFiscal("Todas as Notas Concluídas")
     except:
         Pidgin.notaFiscal("Deu erro na automação provavelmente o portal caiu")
 

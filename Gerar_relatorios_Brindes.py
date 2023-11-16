@@ -13,11 +13,9 @@ def Gerar_Relat_Normal():
     total_diretoria = diretoria['Quantidade'].sum()
     fora            = df[df["Tipo Brinde"] == "FORA"]
     total_fora      = fora['Quantidade'].sum()
-
     convenios       = df["Convênio"]
     convenios       = convenios.drop_duplicates()
     convenios       = convenios.to_list()
-
 
     for convenio in convenios:
         dados             = df[df["Convênio"] == convenio]
