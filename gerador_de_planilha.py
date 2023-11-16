@@ -2,7 +2,7 @@ import pandas as pd
 from tkinter import filedialog
 import tkinter.messagebox
 from openpyxl import load_workbook
-import csv
+from datetime import datetime
 
 def fatura_atualizada(numero_autorizacao, numero_operadora, lista_autorizacao):
     if (numero_autorizacao in lista_autorizacao) or (numero_operadora in lista_autorizacao):
@@ -26,7 +26,6 @@ def gerar_planilha():
         planilha_gdf = filedialog.askopenfilename()
         df_plan_unificada = pd.read_excel(planilha_unificada)
         # df_plan_unificada['AUTORIZACAO'] = df_plan_unificada['AUTORIZACAO'].astype(str)
-        print(df_plan_unificada['AUTORIZACAO'])
         df_plan_gdf = pd.read_excel(planilha_gdf)
         # df_plan_gdf['Autorização Origem'] = df_plan_gdf['Autorização Origem'].astype(str)
         lista_autorizacao_nova = df_plan_gdf['Autorização'].values.tolist()
@@ -89,7 +88,10 @@ def gerar_planilha():
             cabecalho = ['Controle', 'Autorização Nova', 'Autorização Original', 'Nro. Guia', 'Fatura Inicial', 'Fatura Recurso']
             df_nova_planilha = pd.DataFrame(lista)
             df_nova_planilha.columns = cabecalho
-            df_nova_planilha.to_excel(r'\\10.0.0.239\automacao_glosa\GDF\GDF.xlsx', index=False)
+            data_e_hora_atuais = datetime.now()
+            data_e_hora_em_texto = data_e_hora_atuais.strftime('%d_%m_%Y_%H_%M')
+            segundo = data_e_hora_atuais.second
+            df_nova_planilha.to_excel(f'GDF\\GDF_{data_e_hora_em_texto}_{segundo}.xlsx', index=False)
             tkinter.messagebox.showinfo("Gerador de Planilha", f"Planilha gerada! \n Total de linhas não encontradas: {count_nao_encontradas}")
 
         else:
