@@ -111,5 +111,3 @@ def gerar_planilha():
     
     except Exception as e:
         tkinter.messagebox.showerror("Gerador de Planilha", f"Ocorreu uma exceção não tratada \n {e.__class__.__name__} - {e}")
-
-gerar_planilha()
