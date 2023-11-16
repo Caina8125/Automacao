@@ -165,6 +165,7 @@ def iniciar():
         }
 
         chrome_options = Options()
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument("--start-maximized")
         chrome_options.add_argument('--ignore-certificate-errors')
         chrome_options.add_argument('--ignore-ssl-errors')
