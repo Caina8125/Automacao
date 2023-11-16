@@ -4,6 +4,9 @@ import tkinter.messagebox
 from openpyxl import load_workbook
 from datetime import datetime
 
+def substituir_pontos(valor):   
+    return valor.replace('.0', '')
+
 def fatura_atualizada(numero_autorizacao, numero_operadora, lista_autorizacao):
     if (numero_autorizacao in lista_autorizacao) or (numero_operadora in lista_autorizacao):
         return True
@@ -14,9 +17,11 @@ def verificar_frame_vazio(df_filtrado, df, coluna, numero):
     if df_filtrado.empty == True:
         fatura_df = df.loc[(df[coluna] == numero)]
         return fatura_df
-        
     else:
         return df_filtrado
+    
+def is_datetime(obj):
+    return isinstance(obj, datetime)
 
 def gerar_planilha():
     try:
@@ -27,17 +32,21 @@ def gerar_planilha():
         df_plan_unificada = pd.read_excel(planilha_unificada)
         # df_plan_unificada['AUTORIZACAO'] = df_plan_unificada['AUTORIZACAO'].astype(str)
         df_plan_gdf = pd.read_excel(planilha_gdf)
-        # df_plan_gdf['Autorização Origem'] = df_plan_gdf['Autorização Origem'].astype(str)
+        df_plan_gdf['Autorização'] = df_plan_gdf['Autorização'].astype(str)
+        df_plan_gdf['Autorização'] = df_plan_gdf['Autorização'].apply(substituir_pontos)
         lista_autorizacao_nova = df_plan_gdf['Autorização'].values.tolist()
         lista = []
         count_nao_encontradas = 0
 
         for i, l in df_plan_unificada.iterrows():
-            primeira_validacao = False
             senha_plan_uni = str(l['AUTORIZACAO']).replace('.0', '')
             numero_op_plan_uni = str(l['GUIAATENDIMENTO']).replace('.0', '')
             fatura_recurso_plan_uni = str(l['PROCESSOID']).replace('.0', '')
-            realizado_plan_uni = str(l['DATAREALIZADO'])
+            realizado_plan_uni = l['DATAREALIZADO']
+
+            if is_datetime(realizado_plan_uni):
+                realizado_plan_uni = realizado_plan_uni.strftime('%d/%m/%Y')
+
             procedimento_plan_uni = str(l['CODIGOID']).replace('.0', '')
             controle_plan_uni = str(l['ATENDIMENTOID']).replace('.0', '')
             if senha_plan_uni.isdigit():
@@ -102,3 +111,5 @@ def gerar_planilha():
     
     except Exception as e:
         tkinter.messagebox.showerror("Gerador de Planilha", f"Ocorreu uma exceção não tratada \n {e.__class__.__name__} - {e}")
+
+gerar_planilha()
