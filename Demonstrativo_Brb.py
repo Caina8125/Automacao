@@ -156,9 +156,11 @@ def demonstrativo_brb():
         chrome_options.add_argument('--ignore-certificate-errors')
         chrome_options.add_argument('--ignore-ssl-errors')
         chrome_options.add_argument('--kiosk-printing')
-        servico = Service(ChromeDriverManager().install())
-
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
         global usuario, senha, login_page, caminho
 

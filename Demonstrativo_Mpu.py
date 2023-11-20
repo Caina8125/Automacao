@@ -182,9 +182,11 @@ def demonstrativo_mpu():
             "plugins.always_open_pdf_externally": True
     })
         chrome_options.add_argument("--start-maximized")
-        servico = Service(ChromeDriverManager().install())
-
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
         usuario = "00735860000173"
         senha = "a0r85qbt"

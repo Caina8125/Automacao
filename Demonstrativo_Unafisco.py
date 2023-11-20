@@ -147,9 +147,11 @@ def demonstrativo_unafisco():
             "plugins.always_open_pdf_externally": True
     })
         chrome_options.add_argument("--start-maximized")
-        servico = Service(ChromeDriverManager().install())
-
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
         global usuario, senha, login_page, caminho
         usuario = "00735860000173"

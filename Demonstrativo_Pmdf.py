@@ -175,8 +175,10 @@ def demonstrativo_pmdf():
     })
         chrome_options.add_argument("--start-maximized")
         servico = Service(ChromeDriverManager().install())
-
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        try:
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
         usuario = "00735860000173"
         senha = "00735860000173"
