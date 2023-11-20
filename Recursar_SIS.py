@@ -312,7 +312,7 @@ def recursar_sis():
 
         login_page.exe_login(
             usuario = "01047886154",
-            senha = "Amhp0073%"
+            senha = "Amhpbrasil*"
         )
 
         Recurso(driver, url).fazer_recurso()
