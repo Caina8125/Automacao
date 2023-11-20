@@ -299,8 +299,8 @@ def recursar_caixa():
 
     options = {
     'proxy': {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+            'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
         }
     }
     try:
