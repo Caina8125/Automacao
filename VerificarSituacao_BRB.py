@@ -1,5 +1,4 @@
 import pandas as pd
-import pyautogui
 import time
 from abc import ABC
 from tkinter import filedialog
@@ -11,7 +10,7 @@ from openpyxl import Workbook, load_workbook
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from Filtro_Faturamento import *
+from Filtro_Faturamento import processar_planilha, remove
 from selenium.webdriver.chrome.options import Options
 import tkinter
 
