@@ -76,6 +76,7 @@ class injetar_dados(PageElement):
                 data = {'Situação': ['Número da guia operadora inválida(Possui letra)'], 'Validação Carteira': [''], 'Validação Proc.': [''], 'Validação Senha': [''], 'Pesquisado no Portal': ['Sim']}
                 df = pd.DataFrame(data)
                 book = load_workbook(planilha)
+                time.sleep(4)
                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                 writer.book = book
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
