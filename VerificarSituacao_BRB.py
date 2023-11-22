@@ -76,12 +76,13 @@ class injetar_dados(PageElement):
                 data = {'Situação': ['Número da guia operadora inválida(Possui letra)'], 'Validação Carteira': [''], 'Validação Proc.': [''], 'Validação Senha': [''], 'Pesquisado no Portal': ['Sim']}
                 df = pd.DataFrame(data)
                 book = load_workbook(planilha)
-                time.sleep(4)
+                time.sleep(2)
                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                 writer.book = book
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                 df.to_excel(writer, "Sheet1", startrow=count, startcol=7, header=False, index=False)
                 writer.save()
+                writer.close()
                 continue   
 
             if linha['Pesquisado no Portal'] == "Sim":
@@ -191,11 +192,13 @@ class injetar_dados(PageElement):
                         data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': ['Mat/Med, Taxas'], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                         df = pd.DataFrame(data)
                         book = load_workbook(planilha)
+                        time.sleep(2)
                         writer = pd.ExcelWriter(planilha, engine='openpyxl')
                         writer.book = book
                         writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                         df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                         writer.save()
+                        writer.close()
                         count2 = count2 + 1
                         continue   
 
@@ -203,11 +206,13 @@ class injetar_dados(PageElement):
                         data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': ['Mat/Med, Taxas'], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                         df = pd.DataFrame(data)
                         book = load_workbook(planilha)
+                        time.sleep(2)
                         writer = pd.ExcelWriter(planilha, engine='openpyxl')
                         writer.book = book
                         writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                         df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                         writer.save()
+                        writer.close()
                         count2 = count2 + 1
                         continue 
 
@@ -220,11 +225,13 @@ class injetar_dados(PageElement):
                             data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': ['Mat/Med, Taxas'], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                             df = pd.DataFrame(data)
                             book = load_workbook(planilha)
+                            time.sleep(2)
                             writer = pd.ExcelWriter(planilha, engine='openpyxl')
                             writer.book = book
                             writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                             df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                             writer.save()
+                            writer.close()
                             count2 = count2 + 1
                             break
 
@@ -240,11 +247,13 @@ class injetar_dados(PageElement):
                     data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': [dados_proc], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                     df = pd.DataFrame(data)
                     book = load_workbook(planilha)
+                    time.sleep(2)
                     writer = pd.ExcelWriter(planilha, engine='openpyxl')
                     writer.book = book
                     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                     df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                     writer.save()
+                    writer.close()
                     count2 = count2 + 1
                     print('___________________________________________________________________________')
                 except:
@@ -253,11 +262,13 @@ class injetar_dados(PageElement):
                     print(f"{guia}: {situacao}")
                     df = pd.DataFrame(data)
                     book = load_workbook(planilha)
+                    time.sleep(2)
                     writer = pd.ExcelWriter(planilha, engine='openpyxl')
                     writer.book = book
                     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                     df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                     writer.save()
+                    writer.close()
                     self.driver.find_element(*self.guia_op).clear()
                     ('___________________________________________________________________________')
             
