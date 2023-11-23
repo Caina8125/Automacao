@@ -3,6 +3,7 @@ import time
 from abc import ABC
 from tkinter import filedialog
 from selenium import webdriver
+from seleniumwire import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from openpyxl import Workbook, load_workbook
@@ -83,7 +84,6 @@ class injetar_dados(PageElement):
                 data = {'Situação': ['Número da guia operadora inválida(Possui letra)'], 'Validação Carteira': [''], 'Validação Proc.': [''], 'Validação Senha': [''], 'Pesquisado no Portal': ['Sim']}
                 df = pd.DataFrame(data)
                 book = load_workbook(planilha)
-                time.sleep(2)
                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                 writer.book = book
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
@@ -161,7 +161,7 @@ class injetar_dados(PageElement):
                             pass
                     self.driver.implicitly_wait(3)
                     situacao = WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[2]/div[3]/span'))).text
-                    time.sleep(2)
+                    time.sleep(0.5)
                     print(f"{guia} está {situacao}")
 
                     carteira = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[1]/div[1]/strong[2]').text.replace("-", "")
@@ -174,7 +174,7 @@ class injetar_dados(PageElement):
 
                     else:
                         senha_portal = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[1]/div[3]/span').text
-                        time.sleep(2)
+                        time.sleep(0.5)
                         senha_planilha = f'{linha2["Senha Aut."]}'.replace(".0", "")
 
                         if senha_portal == senha_planilha:
@@ -206,7 +206,7 @@ class injetar_dados(PageElement):
                         data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': ['Mat/Med, Taxas'], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                         df = pd.DataFrame(data)
                         book = load_workbook(planilha)
-                        time.sleep(2)
+                        time.sleep(0.5)
                         writer = pd.ExcelWriter(planilha, engine='openpyxl')
                         writer.book = book
                         writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
@@ -220,7 +220,7 @@ class injetar_dados(PageElement):
                         data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': ['Mat/Med, Taxas'], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                         df = pd.DataFrame(data)
                         book = load_workbook(planilha)
-                        time.sleep(2)
+                        time.sleep(0.5)
                         writer = pd.ExcelWriter(planilha, engine='openpyxl')
                         writer.book = book
                         writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
@@ -239,7 +239,7 @@ class injetar_dados(PageElement):
                             data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': ['Mat/Med, Taxas'], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                             df = pd.DataFrame(data)
                             book = load_workbook(planilha)
-                            time.sleep(2)
+                            time.sleep(0.5)
                             writer = pd.ExcelWriter(planilha, engine='openpyxl')
                             writer.book = book
                             writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
@@ -261,7 +261,7 @@ class injetar_dados(PageElement):
                     data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': [dados_proc], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                     df = pd.DataFrame(data)
                     book = load_workbook(planilha)
-                    time.sleep(2)
+                    time.sleep(0.5)
                     writer = pd.ExcelWriter(planilha, engine='openpyxl')
                     writer.book = book
                     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
@@ -276,7 +276,7 @@ class injetar_dados(PageElement):
                     print(f"{guia}: {situacao}")
                     df = pd.DataFrame(data)
                     book = load_workbook(planilha)
-                    time.sleep(2)
+                    time.sleep(0.5)
                     writer = pd.ExcelWriter(planilha, engine='openpyxl')
                     writer.book = book
                     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
@@ -300,12 +300,12 @@ def verificacao_brb():
             pass
         global planilha
         planilha = filedialog.askopenfilename()
-
-        url = 'https://www2.geap.com.br/auth/prestadorVue.asp'
-        refresh = 'https://portal.saudebrb.com.br/GuiasTISS/Logon'
+        url = 'https://portal.saudebrb.com.br/GuiasTISS/Logon'
 
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
 
         options = {
         'proxy': {
@@ -315,18 +315,13 @@ def verificacao_brb():
         }
         try:
             servico = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=servico, options=chrome_options)
+            driver = webdriver.Chrome(service=servico, options=chrome_options, seleniumwire_options=options)
         except:
-            driver = webdriver.Chrome(options=chrome_options)
+            driver = webdriver.Chrome(options=chrome_options, seleniumwire_options=options)
 
         global login_page
         login_page = Login(driver, url)
         login_page.open()
-        pyautogui.write('lucas.timoteo')
-        pyautogui.press("TAB")
-        pyautogui.write('Caina8125')
-        pyautogui.press("enter")
-        driver.get(refresh)
         login_page.logar(
             usuario = '00735860000173_2',
             senha = '00735860000173'
