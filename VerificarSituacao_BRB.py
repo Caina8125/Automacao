@@ -5,7 +5,6 @@ from tkinter import filedialog
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
-from seleniumwire import webdriver
 from openpyxl import Workbook, load_workbook
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -13,6 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from Filtro_Faturamento import processar_planilha, remove
 from selenium.webdriver.chrome.options import Options
 import tkinter
+import pyautogui
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -293,12 +293,11 @@ def verificacao_brb():
         global planilha
         planilha = filedialog.askopenfilename()
 
-        url = 'https://portal.saudebrb.com.br/GuiasTISS/Logon'
+        url = 'https://www2.geap.com.br/auth/prestadorVue.asp'
+        refresh = 'https://portal.saudebrb.com.br/GuiasTISS/Logon'
 
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")
-        chrome_options.add_argument('--ignore-certificate-errors')
-        chrome_options.add_argument('--ignore-ssl-errors')
 
         options = {
         'proxy': {
@@ -308,13 +307,18 @@ def verificacao_brb():
         }
         try:
             servico = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+            driver = webdriver.Chrome(service=servico, options=chrome_options)
         except:
-            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+            driver = webdriver.Chrome(options=chrome_options)
 
         global login_page
         login_page = Login(driver, url)
         login_page.open()
+        pyautogui.write('lucas.timoteo')
+        pyautogui.press("TAB")
+        pyautogui.write('Caina8125')
+        pyautogui.press("enter")
+        driver.get(refresh)
         login_page.logar(
             usuario = '00735860000173_2',
             senha = '00735860000173'
