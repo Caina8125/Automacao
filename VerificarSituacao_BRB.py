@@ -331,10 +331,3 @@ def verificacao_brb():
     except Exception as err:
         tkinter.messagebox.showerror( 'Erro na busca' , f'Ocorreu uma exceção não tratada \n {err.__class__.__name__} - {err}' )
         driver.quit()
-
-
-
-
-
-
-
