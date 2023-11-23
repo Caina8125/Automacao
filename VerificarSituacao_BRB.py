@@ -61,6 +61,13 @@ class Caminho(PageElement):
 class injetar_dados(PageElement):
     guia_op = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[2]/input-text-search/div/div/div/input') 
     buscar = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[2]/input-text-search/div/div/div/span/span')
+
+    def confere_planilha(self, novo_df, numero_guia, df):
+        if novo_df.empty == True:
+            novo_df = df.loc[(df["Nº Guia"] == int(numero_guia))]
+            return novo_df
+        else:
+            return novo_df
     
     def inserir_dados(self):
         faturas_df = pd.read_excel(planilha)
@@ -68,6 +75,7 @@ class injetar_dados(PageElement):
         guia_loc = None
         
         for index, linha in faturas_df.iterrows():
+            print(guia)
             guia = str(linha['Nº Guia']).replace('.0', '')
 
             if not guia.isdigit():
@@ -128,9 +136,10 @@ class injetar_dados(PageElement):
             count = count + 1
 
             guia_df = faturas_df.loc[(faturas_df["Nº Guia"] == guia)]
+            guia_df = self.confere_planilha(guia_df, guia, faturas_df)
             count2 = 0
 
-            for index, linha2 in guia_df.iterrows():
+            for index2, linha2 in guia_df.iterrows():
 
                 if linha['Pesquisado no Portal'] == "Sim":
                     print('Já foi feita a pesquisa desta autorização.')
