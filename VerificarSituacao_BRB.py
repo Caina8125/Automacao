@@ -75,7 +75,6 @@ class injetar_dados(PageElement):
         guia_loc = None
         
         for index, linha in faturas_df.iterrows():
-            print(guia)
             guia = str(linha['Nº Guia']).replace('.0', '')
 
             if not guia.isdigit():
