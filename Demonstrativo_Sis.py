@@ -233,7 +233,7 @@ def demonstrativo_sis():
 
         login_page.exe_login(
             usuario = "01047886154",
-            senha = "Amhp0073%"
+            senha = "Amhpbrasil*"
         )
         Caminho(driver, url).exe_caminho()
         BaixarDemonstrativos(driver, url).baixar_demonstrativos(planilha)

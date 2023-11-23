@@ -30,11 +30,11 @@ class Login(PageElement):
     def logar(self, usuario, senha):
         time.sleep(2)
         self.driver.find_element(*self.prestador_pj).click()
-        time.sleep(1)
+        time.sleep(2)
         self.driver.find_element(*self.usuario).send_keys(usuario)
-        time.sleep(1)
+        time.sleep(2)
         self.driver.find_element(*self.senha).send_keys(senha)
-        time.sleep(1)
+        time.sleep(2)
         self.driver.find_element(*self.entrar).click()
         time.sleep(5)
 
@@ -146,12 +146,14 @@ class injetar_dados(PageElement):
 
                         try:
                             usuario = self.driver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
+                            time.sleep(2)
                             user = True
 
                         except:
                             pass
                     self.driver.implicitly_wait(3)
                     situacao = WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[2]/div[3]/span'))).text
+                    time.sleep(2)
                     print(f"{guia} está {situacao}")
 
                     carteira = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[1]/div[1]/strong[2]').text.replace("-", "")
@@ -164,6 +166,7 @@ class injetar_dados(PageElement):
 
                     else:
                         senha_portal = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[1]/div[3]/span').text
+                        time.sleep(2)
                         senha_planilha = f'{linha2["Senha Aut."]}'.replace(".0", "")
 
                         if senha_portal == senha_planilha:
@@ -181,8 +184,11 @@ class injetar_dados(PageElement):
                     try:
                         self.driver.implicitly_wait(0.5)
                         procedimentos = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[1]/div/div[2]/div/div/div[5]/a')
+                        time.sleep(2)
                         procedimentos = procedimentos.get_attribute('outerHTML')
+                        time.sleep(2)
                         procedimentos = procedimentos.replace('<a href="#" data-toggle="tooltip" data-placement="top" data-bind="attr: { title: $parent.CodigoAMB }" title="" data-original-title="', '')
+                        time.sleep(2)
                         procedimentos = procedimentos.replace('-', '').replace('.', '')
 
                     except:
