@@ -9,7 +9,6 @@ from Buscar_fatura import iniciar
 from Atualiza_Local import *
 from Anexar_Honorario import anexar_guias
 from VerificarSituacao_BRB import verificacao_brb
-from Auditoria_GEAP import ExtrairDados
 from Recursar_SemDuplicado import recursar_sem_duplicado
 from Recurso_Postal import recursar_postal
 from Recursar_Caixa import recursar_caixa
@@ -116,8 +115,6 @@ class Application:
                                                                    "Financeiro - Demonstrativos STF", 
                                                                    "Financeiro - Demonstrativos TJDFT", 
                                                                    "Financeiro - Demonstrativos Unafisco", 
-                                                                   "Glosa - Atualizar Situação GEAP",
-                                                                   "Glosa - Auditoria GEAP",
                                                                    "Glosa - Gerador de Planilha GDF",
                                                                    "Glosa - Recursar GEAP Duplicado",
                                                                    "Glosa - Recursar GEAP Sem Duplicado",
@@ -353,12 +350,6 @@ class Application:
             case "Financeiro - Demonstrativos Unafisco":
                 self.gif()
                 demonstrativo_unafisco()
-                self.reiniciar()
-        
-            case "Glosa - Auditoria GEAP":
-                self.gif()
-                auditoria = ExtrairDados()
-                auditoria.extrair_dados()
                 self.reiniciar()
 
             case "Glosa - Gerador de Planilha GDF":
