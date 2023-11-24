@@ -26,6 +26,7 @@ from Demonstrativo_Casembrapa import demonstrativo_casembrapa
 from Demonstrativo_Cassi import demonstrativo_cassi
 from Demonstrativo_Codevasf import demonstrativo_codevasf
 from Demonstrativo_Evida import demonstrativo_evida
+from Demonstrativo_Fapes import demonstrativo_fapes
 from Demonstrativo_Fascal import demonstrativo_fascal
 from Demonstrativo_Gama import demonstrativo_gama
 from Demonstrativo_Mpu import demonstrativo_mpu
@@ -103,6 +104,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos Cassi", 
                                                                    "Financeiro - Demonstrativos Codevasf", 
                                                                    "Financeiro - Demonstrativos E-Vida", 
+                                                                   "Financeiro - Demonstrativos Fapes", 
                                                                    "Financeiro - Demonstrativos Fascal", 
                                                                    "Financeiro - Demonstrativos Gama", 
                                                                    "Financeiro - Demonstrativos MPU", 
@@ -291,6 +293,11 @@ class Application:
             case "Financeiro - Demonstrativos E-Vida":
                 self.gif()
                 demonstrativo_evida()
+                self.reiniciar()
+
+            case "Financeiro - Demonstrativos Fapes":
+                self.gif()
+                demonstrativo_fapes()
                 self.reiniciar()
 
             case "Financeiro - Demonstrativos Fascal":
