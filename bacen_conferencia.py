@@ -48,6 +48,7 @@ class ConferirFatura(PageElement):
     tbody = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody')
     detalhes = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[12]/td/div/div[2]/a')
     cem_guias = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[22]/td/div/div[2]/a[2]')
+    quarenta_guias = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[22]/td/div/div[2]/a[1]')
     tabela = (By.XPATH, '//*[@id="FormMain"]/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table')
 
     def remover_pontos(self, valor):
@@ -114,10 +115,17 @@ class ConferirFatura(PageElement):
             self.driver.find_element(*self.detalhes).click()
             sleep(2)
             try:
+                self.driver.implicitly_wait(4)
                 self.driver.find_element(*self.cem_guias).click()
                 sleep(2)
             except:
-                pass
+                try:
+                    self.driver.implicitly_wait(4)
+                    self.driver.find_element(*self.quarenta_guias).click()
+                    sleep(2)
+                except:
+                    pass
+            self.driver.implicitly_wait(30)
             tabela = self.driver.find_element(*self.tabela)
             tabela_html = tabela.get_attribute('outerHTML')
             df_fatura = pd.read_html(tabela_html, header=0)[0]
