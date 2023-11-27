@@ -50,7 +50,7 @@ class Recurso(PageElement):
     fechar = (By.XPATH, '//*[@id="modalRecursoConteudo"]/div[3]/button[3]')
     salvar = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div/div[3]/button[2]')
     enviar = (By.XPATH, '//*[@id="botaoConfirmar"]')
-    botao_ok = (By.XPATH, '//*[@id="ctl00_Body"]/div[1]/div/div/div[3]/button')
+    botao_ok = (By.XPATH, '/html/body/div[2]/div/div/div[3]/button')
     n_protocolo = (By.XPATH, '/html/body/div[1]/div/div/div[2]/div/div')
     botao_ok_enviar = (By.XPATH, '/html/body/div[1]/div/div/div[3]/button[2]')
 
