@@ -131,7 +131,7 @@ class ConferirFatura(PageElement):
             df_fatura = pd.read_html(tabela_html, header=0)[0]
             df_fatura['Guia Prestador'] = (df_fatura['Guia Prestador'].astype(str)).apply(self.remover_pontos)
             lista_de_numeros_portal = df_fatura['Guia Prestador'].values.tolist()
-            df = pd.read_excel(planilha, header=18)
+            df = pd.read_excel(planilha, sheet_name=count, header=18)
             df = df.iloc[:-3]
             lista_de_nao_encontradas = []
 
@@ -181,6 +181,7 @@ def conferir_bacen():
             senha = "Amhpdf!2023"
         )
         ConferirFatura(driver, url).fazer_conferencia(planilha)
+        driver.quit()
         messagebox.showinfo( 'Automação Bacen' , 'Todas as pesquisas foram concluídas.' )
     except Exception as e:
         messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada \n {e.__class__.__name__}: {e}' )
