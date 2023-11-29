@@ -15,6 +15,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from tkinter import messagebox
 import os
+from datetime import datetime
 
 class EnviarXML(PageElement):
     opcao_envio_de_xml = (By.XPATH, '/html/body/form/div[3]/div[3]/div[1]/div/ul/li[10]/a')
@@ -29,21 +30,36 @@ class EnviarXML(PageElement):
         sleep(2)
     
     def enviar_arquivo(self, lista_de_arquivos):
+        lista_processos = []
         for arquivo in lista_de_arquivos:
+            string_vet = arquivo.split("_")
+            numero_processo = string_vet[0].replace("0000000000000", '').replace(pasta, '').replace('\\', '')
+            lista_processos.append(numero_processo)
             self.driver.find_element(*self.input_file).send_keys(arquivo)
             sleep(1)
             self.driver.find_element(*self.salvar_novo).click()
             sleep(1.5)
         sleep(10)
-        return ...
+        return lista_processos
 
-    def confere_envio(self):
-        ...
-
+    def confere_envio(self, lista_de_processos):
+        self.driver.get("https://www3.bcb.gov.br/portalbcsaude/saude/a/portal/prestador/tiss/ConsultarArquivoTiss.aspx?i=PORTAL_SUBMENU_XML_CONSULTARARQUIVO&m=MENU_ENVIO_XML_AGRUPADO")
+        listas_para_df = []
+        for processo in lista_de_processos:
+            protocolo = acessar_portal.buscar_protocolo(processo)
+            lista = [processo, protocolo]
+            listas_para_df.append(lista)
+        cabecalho = ["N° Fatura", "N° Protocolo"]
+        df = pd.DataFrame(listas_para_df, columns=cabecalho, index=False)
+        data_e_hora_atuais = datetime.now()
+        data_e_hora_em_texto = data_e_hora_atuais.strftime('%d_%m_%Y_%H_%M')
+        segundo = data_e_hora_atuais.second
+        df.to_excel(f'Bacen\\Envio_xml_{data_e_hora_em_texto}_{segundo}.xlsx', index=False)
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # def fazer_envio():
 messagebox.showwarning("Automação Bacen", "Selecione uma pasta!")
+global pasta
 pasta = askdirectory()
 lista_de_arquivos = [f"{pasta}\\{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith(".xml")]
 url = 'https://www3.bcb.gov.br/portalbcsaude/Login'
@@ -67,6 +83,7 @@ except:
     driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
 try:
+    global acessar_portal
     acessar_portal = BuscarProtocolo(driver, url)
     acessar_portal.open()
 
@@ -77,6 +94,7 @@ try:
     enviar_xml = EnviarXML(driver, url='')
     enviar_xml.caminho()
     lista_de_processos = enviar_xml.enviar_arquivo(lista_de_arquivos)
+    enviar_xml.confere_envio(lista_de_processos)
     driver.quit()
     messagebox.showinfo( 'Automação Bacen' , 'Todas as pesquisas foram concluídas.' )
 except Exception as e:

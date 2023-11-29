@@ -196,6 +196,9 @@ def demonstrativo_caixa():
             "download.default_directory": r"\\10.0.0.239\automacao_financeiro\SAUDE CAIXA\Renomear",
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
+            "safebrowsing.enabled": False,
+            "safebrowsing.disable_download_protection,": True,
+            "safebrowsing_for_trusted_sources_enabled": False,
             "plugins.always_open_pdf_externally": True,
             "printing.print_preview_sticky_settings.appState": json.dumps(settings),
             "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\SAUDE CAIXA"

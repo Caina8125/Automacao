@@ -186,7 +186,9 @@ def demonstrativo_camed():
                                                 "download.prompt_for_download": False,
                                                 "download.directory_upgrade": True,
                                                 "plugins.always_open_pdf_externally": True,
-                                                'safebrowsing.enabled': 'false'
+                                                "safebrowsing.enabled": False,
+                                                "safebrowsing.disable_download_protection,": True,
+                                                "safebrowsing_for_trusted_sources_enabled": False,
                                                 })
         
         chrome_options.add_argument("--start-maximized")

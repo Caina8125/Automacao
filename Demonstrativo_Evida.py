@@ -152,7 +152,10 @@ def demonstrativo_evida():
             "download.default_directory": r"\\10.0.0.239\automacao_financeiro\E-VIDA",
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
-            "plugins.always_open_pdf_externally": True
+            "plugins.always_open_pdf_externally": True,
+            "safebrowsing.enabled": False,
+            "safebrowsing.disable_download_protection,": True,
+            "safebrowsing_for_trusted_sources_enabled": False,
     })
         chrome_options.add_argument("--start-maximized")
         try:
