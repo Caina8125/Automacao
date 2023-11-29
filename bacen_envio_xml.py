@@ -50,7 +50,7 @@ class EnviarXML(PageElement):
             lista = [processo, protocolo]
             listas_para_df.append(lista)
         cabecalho = ["N° Fatura", "N° Protocolo"]
-        df = pd.DataFrame(listas_para_df, columns=cabecalho, index=False)
+        df = pd.DataFrame(listas_para_df, columns=cabecalho)
         data_e_hora_atuais = datetime.now()
         data_e_hora_em_texto = data_e_hora_atuais.strftime('%d_%m_%Y_%H_%M')
         segundo = data_e_hora_atuais.second
@@ -61,7 +61,7 @@ class EnviarXML(PageElement):
 messagebox.showwarning("Automação Bacen", "Selecione uma pasta!")
 global pasta
 pasta = askdirectory()
-lista_de_arquivos = [f"{pasta}\\{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith(".xml")]
+lista_de_arquivos = [f"{pasta}\\{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith(".xml") or arquivo.endswith(".zip")]
 url = 'https://www3.bcb.gov.br/portalbcsaude/Login'
 global driver
 
@@ -96,7 +96,7 @@ try:
     lista_de_processos = enviar_xml.enviar_arquivo(lista_de_arquivos)
     enviar_xml.confere_envio(lista_de_processos)
     driver.quit()
-    messagebox.showinfo( 'Automação Bacen' , 'Todas as pesquisas foram concluídas.' )
+    messagebox.showinfo( 'Automação Bacen' , 'Todas os envios foram concluídos.' )
 except Exception as e:
     messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada \n {e.__class__.__name__}: {e}' )
     driver.quit()
