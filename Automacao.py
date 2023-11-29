@@ -41,6 +41,7 @@ from Nota_Fiscal import subirNF
 from gerador_de_planilha import gerar_planilha
 from Enviar_Pdf_Brb import enviar_pdf
 from bacen_conferencia import conferir_bacen
+from bacen_envio_xml import fazer_envio_xml
 from datetime import datetime
 import os
 
@@ -93,7 +94,9 @@ class Application:
         self.comboBox = ttk.Combobox(self.quartoContainer, values=["Faturamento - Anexar Honorario Geap",
                                                                    "Faturamento - Conferência GEAP",
                                                                    "Faturamento - Conferência Bacen",
+                                                                   "Faturamento - Enviar PDF Bacen",
                                                                    "Faturamento - Enviar PDF BRB",
+                                                                   "Faturamento - Enviar XML Bacen",
                                                                    "Faturamento - Verificar Situação BRB",
                                                                    "Faturamento - Verificar Situação Fascal",
                                                                    "Faturamento - Verificar Situação Gama",
@@ -241,9 +244,17 @@ class Application:
                 conferir_bacen()
                 self.reiniciar()
 
+            case "Faturamento - Enviar PDF Bacen":
+                ...
+
             case "Faturamento - Enviar PDF BRB":
                 self.gif()
                 enviar_pdf()
+                self.reiniciar()
+
+            case "Faturamento - Enviar XML BRB":
+                self.gif()
+                fazer_envio_xml()
                 self.reiniciar()
 
             case "Faturamento - Verificar Situação BRB":

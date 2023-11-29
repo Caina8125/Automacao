@@ -57,7 +57,7 @@ class EnviarXML(PageElement):
         df.to_excel(f'Bacen\\Envio_xml_{data_e_hora_em_texto}_{segundo}.xlsx', index=False)
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def fazer_envio():
+def fazer_envio_xml():
     messagebox.showwarning("Automação Bacen", "Selecione uma pasta!")
     global pasta
     pasta = askdirectory()
