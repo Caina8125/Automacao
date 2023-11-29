@@ -252,7 +252,7 @@ class Application:
                 enviar_pdf()
                 self.reiniciar()
 
-            case "Faturamento - Enviar XML BRB":
+            case "Faturamento - Enviar XML Bacen":
                 self.gif()
                 fazer_envio_xml()
                 self.reiniciar()
