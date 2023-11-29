@@ -57,46 +57,46 @@ class EnviarXML(PageElement):
         df.to_excel(f'Bacen\\Envio_xml_{data_e_hora_em_texto}_{segundo}.xlsx', index=False)
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# def fazer_envio():
-messagebox.showwarning("Automação Bacen", "Selecione uma pasta!")
-global pasta
-pasta = askdirectory()
-lista_de_arquivos = [f"{pasta}\\{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith(".xml") or arquivo.endswith(".zip")]
-url = 'https://www3.bcb.gov.br/portalbcsaude/Login'
-global driver
+def fazer_envio():
+    messagebox.showwarning("Automação Bacen", "Selecione uma pasta!")
+    global pasta
+    pasta = askdirectory()
+    lista_de_arquivos = [f"{pasta}\\{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith(".xml") or arquivo.endswith(".zip")]
+    url = 'https://www3.bcb.gov.br/portalbcsaude/Login'
+    global driver
 
-chrome_options = Options()
-chrome_options.add_argument("--start-maximized")
-chrome_options.add_argument('--ignore-certificate-errors')
-chrome_options.add_argument('--ignore-ssl-errors')
+    chrome_options = Options()
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument('--ignore-ssl-errors')
 
-options = {
-'proxy': {
-        'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-        'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+    options = {
+    'proxy': {
+            'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+            'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+        }
     }
-}
-try:
-    servico = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
-except:
-    driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+    try:
+        servico = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+    except:
+        driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
-try:
-    global acessar_portal
-    acessar_portal = BuscarProtocolo(driver, url)
-    acessar_portal.open()
+    try:
+        global acessar_portal
+        acessar_portal = BuscarProtocolo(driver, url)
+        acessar_portal.open()
 
-    acessar_portal.login_layout_novo(
-        usuario = "00735860000173",
-        senha = "Amhpdf!2023"
-    )
-    enviar_xml = EnviarXML(driver, url='')
-    enviar_xml.caminho()
-    lista_de_processos = enviar_xml.enviar_arquivo(lista_de_arquivos)
-    enviar_xml.confere_envio(lista_de_processos)
-    driver.quit()
-    messagebox.showinfo( 'Automação Bacen' , 'Todas os envios foram concluídos.' )
-except Exception as e:
-    messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada \n {e.__class__.__name__}: {e}' )
-    driver.quit()
+        acessar_portal.login_layout_novo(
+            usuario = "00735860000173",
+            senha = "Amhpdf!2023"
+        )
+        enviar_xml = EnviarXML(driver, url='')
+        enviar_xml.caminho()
+        lista_de_processos = enviar_xml.enviar_arquivo(lista_de_arquivos)
+        enviar_xml.confere_envio(lista_de_processos)
+        driver.quit()
+        messagebox.showinfo( 'Automação Bacen' , 'Todas os envios foram concluídos.' )
+    except Exception as e:
+        messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada \n {e.__class__.__name__}: {e}' )
+        driver.quit()
