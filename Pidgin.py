@@ -26,3 +26,16 @@ def notaFiscal(texto):
     for i in range(3):
         connection.send(xmpp.protocol.Message(to=users[count], body=texto))
         count += 1
+
+def teste(texto):
+    count     = 0
+    pidgin_Id = "notafiscal.bot@chat.amhp.local"
+    senha     = "!!87316812"
+    users     = "lucas.timoteo@chat.amhp.local",
+
+    jid = xmpp.protocol.JID(pidgin_Id)
+    connection = xmpp.Client(server=jid.getDomain())
+    connection.connect()
+    connection.auth(user=jid.getNode(), password=senha, resource=jid.getResource())
+    connection.send(xmpp.protocol.Message(to=users[count], body=texto))
+    count += 1
