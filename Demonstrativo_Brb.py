@@ -92,10 +92,17 @@ class BaixarDemonstrativo(PageElement):
                     time.sleep(1.5)
                     self.driver.find_element(*self.pesquisar).click()
                     time.sleep(1.5)
-                    try:
-                        self.driver.implicitly_wait(10)
-                        self.driver.find_element(*self.ver_xml).click()
-                    except:
+                    ver_xml_clicado = False
+                    for k in range(5):
+                        try:
+                            self.driver.implicitly_wait(10)
+                            self.driver.find_element(*self.ver_xml).click()
+                            ver_xml_clicado = True
+                            break
+                        except:
+                            time.sleep(2)
+                                
+                    if ver_xml_clicado == False:
                         self.driver.find_element(*self.botao_ok).click()
                         time.sleep(1.5)
                         self.driver.find_element(*self.lote).clear()
@@ -117,7 +124,15 @@ class BaixarDemonstrativo(PageElement):
                     time.sleep(1.5)
                     self.driver.find_element(*self.detalhes_da_fatura).click()
                     time.sleep(1.5)
-                    self.driver.find_element(*self.relatorio_de_servico).click()
+                    codigo = self.driver.find_element(By.XPATH, '//*[@id="div-Servicos"]/div[1]/div[4]/div/div/div[1]/div/div[1]/div[1]/div[2]/span').text
+
+                    for j in range(0, 10):
+                        try:
+                            self.driver.find_element(*self.relatorio_de_servico).click()
+                            break
+                        except:
+                            time.sleep(2)
+                            continue
 
                     novo_nome = r"\\10.0.0.239\automacao_financeiro\BRB" + f"\\{numero_fatura}.pdf"
                     lista_faturas_com_erro = []
@@ -127,7 +142,7 @@ class BaixarDemonstrativo(PageElement):
                     for i in range(10):
 
                         try:
-                            os.rename(f"{endereco}\\RelatorioServicos.pdf", novo_nome)
+                            os.rename(f"{endereco}\\RelatorioServicos_{codigo}.pdf", novo_nome)
                             download_feito = True
                             break
 
@@ -146,6 +161,7 @@ class BaixarDemonstrativo(PageElement):
 
                     print('---------------------------------------------------------------')
                     self.driver.find_element(*self.lote).clear()
+                    time.sleep(2)
         
                 tkinter.messagebox.showinfo( 'Demonstrativos BRB' , f"Downloads concluídos: {count} de {quantidade_de_faturas}." )
                 self.driver.quit()
