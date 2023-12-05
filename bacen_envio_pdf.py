@@ -52,6 +52,8 @@ class EnvioPDF(PageElement):
     input_file = (By.XPATH, '/html/body/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr/td/table/tbody/tr[2]/td[2]/input')
     botao_enviar = (By.XPATH, '/html/body/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr/td/table/tbody/tr[3]/td/input')
     botao_salvar = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/div/div[2]/div/div/div/div[3]/a')
+    lupa_conta_fisica = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a[1]')
+    processar_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/div[1]/div/div/div/div/div/div/div/div[3]/div/table/tbody/tr/td/div/nobr/a')
 
     def exe_caminho(self):
         self.driver.find_element(*self.faturamento).click()
@@ -101,12 +103,19 @@ for pasta in lista_de_pastas:
     numero_processo = pasta[1]
     protocolo = ... #acrescentar alguma lógica aqui para pegar esse número de peg
     lista_de_arquivos = [f"{pasta[0]}/{arquivo}" for arquivo in os.listdir(pasta[0]) if arquivo.endswith('.pdf')]
+
     for arquivo in lista_de_arquivos:
         if "_Guia" in arquivo:
             n_amhptiss = arquivo.replace(f'{pasta}/', '').replace('_Guia.pdf', '')
             teste.renomear_arquivo(pasta, arquivo, protocolo, n_amhptiss)
-            ista_de_arquivos = [f"{pasta}/{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith('.pdf')]
+            lista_de_arquivos = [f"{pasta}/{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith('.pdf')]
+            
     nome_arquivo_zip = f'{numero_processo}.zip'
     teste.zipar_arquivos(pasta, nome_arquivo_zip, lista_de_arquivos)
+
+    sz = (os.path.getsize(f"{pasta[0]}\\{nome_arquivo_zip}") / 1024) / 1024
+
+    if sz >= 25.00:
+        continue
 
     print('')

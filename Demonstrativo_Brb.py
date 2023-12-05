@@ -11,6 +11,7 @@ import time
 import tkinter
 import Pidgin
 import tkinter.messagebox
+import os
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -62,6 +63,8 @@ class BaixarDemonstrativo(PageElement):
     salvar = (By.XPATH, '//*[@id="btn-salxar-xml-servico"]')
     fechar = (By.XPATH, '//*[@id="operation-modal"]/div/div/div[3]/button[2]')
     botao_ok = (By.XPATH, '//*[@id="button-0"]')
+    detalhes_da_fatura = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[1]/div/div[2]/a[1]/i')
+    relatorio_de_servico = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[3]/div[2]/div[1]/div[2]/input[4]')
 
 
     def baixar_demonstrativo(self, planilha):
@@ -109,15 +112,39 @@ class BaixarDemonstrativo(PageElement):
                     self.driver.find_element(*self.salvar).click()
                     time.sleep(4)
 
+
+                    self.driver.find_element(*self.fechar).click()
+                    time.sleep(1.5)
+                    self.driver.find_element(*self.detalhes_da_fatura).click()
+                    time.sleep(1.5)
+                    self.driver.find_element(*self.relatorio_de_servico).click()
+
+                    novo_nome = r"\\10.0.0.239\automacao_financeiro\BRB" + f"\\{numero_fatura}.pdf"
+                    lista_faturas_com_erro = []
+                    download_feito = False
+                    endereco = r"\\10.0.0.239\automacao_financeiro\BRB"
+
+                    for i in range(10):
+
+                        try:
+                            os.rename(f"{endereco}\\RelatorioServicos.pdf", novo_nome)
+                            download_feito = True
+                            break
+
+                        except:
+                            print("Download ainda não foi feito")
+
+                            if i == 9:
+                                erro_portal = True
+                                self.driver.quit()
+
+                            time.sleep(2)
                     count += 1
-                    print(f"Download da fatura {numero_fatura} concluído com sucesso")
+                    print(f"Download do XML da fatura {numero_fatura} concluído com sucesso")
 
                     df.loc[index, 'Concluído'] = 'Sim'
 
                     print('---------------------------------------------------------------')
-
-                    self.driver.find_element(*self.fechar).click()
-                    time.sleep(1)
                     self.driver.find_element(*self.lote).clear()
         
                 tkinter.messagebox.showinfo( 'Demonstrativos BRB' , f"Downloads concluídos: {count} de {quantidade_de_faturas}." )
