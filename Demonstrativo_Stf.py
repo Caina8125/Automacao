@@ -196,6 +196,9 @@ def demonstrativo_stf():
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
             "plugins.always_open_pdf_externally": True,
+            "safebrowsing.enabled": False,
+            "safebrowsing.disable_download_protection,": True,
+            "safebrowsing_for_trusted_sources_enabled": False,
             "printing.print_preview_sticky_settings.appState": json.dumps(settings),
             "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\STF"
     })
@@ -206,8 +209,8 @@ def demonstrativo_stf():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
         }
         try:

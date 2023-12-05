@@ -202,7 +202,7 @@ class EnviarPdf(PageElement):
 def enviar_pdf():
     global pasta, login_page
     login_usuario = 'lucas.paz'
-    senha_usuario = 'Gsw2022&'
+    senha_usuario = 'RDRsoda90901@'
 
     pasta = filedialog.askdirectory()
 

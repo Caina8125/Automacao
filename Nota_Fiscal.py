@@ -38,6 +38,7 @@ class Caminho(PageElement):
         time.sleep(2)
         
         try:
+            self.driver.implicitly_wait(60)
             self.driver.find_element(*self.declararServico).click()
             time.sleep(2)
             self.driver.find_element(*self.incluir).click()
@@ -87,6 +88,7 @@ class Nf(PageElement):
     
 
     def alterarCompetencia(self):
+        self.driver.implicitly_wait(60)
         driver.get("https://df.issnetonline.com.br/online/Default/alterar_competencia.aspx")
         time.sleep(1)
         self.driver.find_element(*self.selectMes).click()
@@ -100,6 +102,7 @@ class Nf(PageElement):
     # Função para verificar se a DataCompetencia da NF é a mesma Data do Portal, 
     # Se não for essa função vai alterar a data do Portal
     def verificarMesCompetente(self,mesPlanilha): 
+        self.driver.implicitly_wait(60)
         match mesPlanilha:
             case "Janeiro":
                 self.driver.find_element(*self.janeiro).click()
@@ -127,7 +130,7 @@ class Nf(PageElement):
                 self.driver.find_element(*self.dezembro).click()
 
     def inserirDezEmDez(self,count,cnpj,nf):
-
+        self.driver.implicitly_wait(60)
         self.driver.switch_to.frame('iframe')
         self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{count}_txtCPF_CNPJ"]').send_keys(cnpj)
         self.driver.find_element(*self.inserirNumDoc).click()
@@ -142,6 +145,7 @@ class Nf(PageElement):
 
 
     def inserirDadosNf(self):
+        self.driver.implicitly_wait(60)
         global mesPorExtenso
         global count_linha
         global i
@@ -230,7 +234,17 @@ class Nf(PageElement):
                 self.driver.switch_to.frame('iframeModal')
                 erro = self.driver.find_element(By.ID, "TxtErro").text
 
+<<<<<<< HEAD
                 Pidgin.teste(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
+=======
+                Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
+
+                # Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
+
+                Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
+
+                # Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
+>>>>>>> master
 
                 self.driver.switch_to.default_content()
                 self.driver.switch_to.frame('iframe')
@@ -242,7 +256,8 @@ class Nf(PageElement):
             
 
     # Função para salvar o resultado da NF no Excel
-    def salvarResultadoExcel(self,resultado,count_linha): 
+    def salvarResultadoExcel(self,resultado,count_linha):
+        self.driver.implicitly_wait(60) 
         result        = [resultado]
         df            = pd.DataFrame(result)
         book          = load_workbook(planilha)
@@ -316,8 +331,12 @@ def subirNF():
         Caminho(driver,url).exe_caminho()
         time.sleep(1)
         Nf(driver,url).inserirDadosNf()
+<<<<<<< HEAD
         Pidgin.teste("Todas as Notas Concluídas")
 
+=======
+        Pidgin.notaFiscal("Todas as Notas Concluídas")
+>>>>>>> master
     except:
         Pidgin.teste("Deu erro na automação provavelmente o portal caiu")
         driver.quit()

@@ -137,8 +137,8 @@ def anexar_guias():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
         }
 
@@ -156,13 +156,15 @@ def anexar_guias():
 
         login_page.exe_login(
             login = "23003723",
-            senha = "amhpdf0073",
+            senha = "Amhp2023",
             cpf = "66661692120"
         )
 
         time.sleep(4)
 
         caminho(driver, url).exe_caminho()
+
+        driver.get()
 
         time.sleep(2)
 

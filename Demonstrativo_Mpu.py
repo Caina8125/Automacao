@@ -169,8 +169,8 @@ def demonstrativo_mpu():
 
         options = {
             'proxy' : {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
         }
 
@@ -179,12 +179,17 @@ def demonstrativo_mpu():
             "download.default_directory": r"\\10.0.0.239\automacao_financeiro\MPU",
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
+            "safebrowsing.enabled": False,
+            "safebrowsing.disable_download_protection,": True,
+            "safebrowsing_for_trusted_sources_enabled": False,
             "plugins.always_open_pdf_externally": True
     })
         chrome_options.add_argument("--start-maximized")
-        servico = Service(ChromeDriverManager().install())
-
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
         usuario = "00735860000173"
         senha = "a0r85qbt"

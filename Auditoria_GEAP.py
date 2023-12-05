@@ -124,16 +124,24 @@ class ExtrairDados(LogarGeap):
         df.columns = cabecalho
         count = 0
 
-        for i in range(len(df) + 1):
-            valor_linha = df.loc[i]
+        for index, linha in df.iterrows():
 
-            if valor_linha['SITUAÇÃO'][0] == 'Revisão Geap':
-                count += 0
-                print(count)
+            if linha['SITUAÇÃO'] == 'Revisão Geap':
+                id = str(linha['ENDEREÇO']).replace('https://www2.geap.com.br/AuditoriaDigital/guia/', '')
+                self.logar()
+                self.gerar_token()
+                url = f"https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/{id}"
+                response = requests.get(url=self.url, headers=self.headers, proxies=self.proxies)
+                data = response.json()
+                situacao = data["ResultData"]["Situacao"]
 
-            # self.logar()
-            # self.gerar_token()
-            
+                match situacao:
+                    case 'Revisão Geap':
+                        continue
+                    case 'Revisão Prestador':
+                        valor = ['Revisão Prestador']
+                        ImportarGoogleSheets().update_situacao(index + 1, valor)
+
 
 class ImportarGoogleSheets(ExtrairDados):
     def __init__(self)-> None:

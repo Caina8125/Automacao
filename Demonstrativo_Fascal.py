@@ -10,6 +10,8 @@ from abc import ABC
 import time
 import Pidgin
 import tkinter
+import json
+import os
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -35,6 +37,7 @@ class Login(PageElement):
 class Caminho(PageElement):
     faturas = (By.XPATH, '//*[@id="menuPrincipal"]/div/div[12]/a')
     relatorio_de_faturas = (By.XPATH, '/html/body/header/div[4]/div/div/div/div[12]/div[1]/div[2]/div/div[2]/div/div/div/div[1]/a')
+    somente_com_glosa = (By.XPATH, '//*[@id="chkSomenteComGlosa"]')
 
     def exe_caminho(self):
         try:
@@ -51,9 +54,11 @@ class Caminho(PageElement):
         time.sleep(2)
         self.driver.find_element(*self.relatorio_de_faturas).click()
         time.sleep(2)
+        self.driver.find_element(*self.somente_com_glosa).click()
+        time.sleep(2)
 
 class BaixarDemonstrativo(PageElement):
-    lote = (By.XPATH, '//*[@id="txtLote"]')
+    codigo = (By.XPATH, '/html/body/main/div/div[1]/div[2]/div/div/div[2]/div[1]/div[1]/input-text[1]/div/div/input')
     pesquisar = (By.XPATH, '//*[@id="filtro"]/div[2]/div[2]/button')
     ver_xml = (By.XPATH, '//*[@id="div-Servicos"]/div[1]/div[4]/div/div/div[1]/div/div[2]/a[2]')
     radio_button = (By.XPATH, '//*[@id="divEscolhaProtocoloXml"]/div/input')
@@ -61,6 +66,8 @@ class BaixarDemonstrativo(PageElement):
     salvar = (By.XPATH, '//*[@id="btn-salxar-xml-servico"]')
     fechar = (By.XPATH, '//*[@id="operation-modal"]/div/div/div[3]/button[2]')
     botao_ok = (By.XPATH, '//*[@id="button-0"]')
+    detalhes_da_fatura = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[1]/div/div[2]/a[1]/i')
+    relatorio_de_servico = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[3]/div[2]/div[1]/div[2]/input[4]')
 
     def baixar_demonstrativo(self, planilha):
         df = pd.read_excel(planilha, header=5)
@@ -69,6 +76,7 @@ class BaixarDemonstrativo(PageElement):
         df['Concluído'] = ''
         count = 0
         quantidade_de_faturas = len(df)
+        erro_portal = False
 
         for tentativa in range(1, 6):
             print(f'Tentativa {tentativa}')
@@ -80,10 +88,11 @@ class BaixarDemonstrativo(PageElement):
                         continue
                     
                     numero_fatura = f"{linha['Nº Fatura']}".replace(".0", "")
+                    numero_protocolo = f"{linha['Nº do Protocolo']}".replace(".0", "")
                     print(numero_fatura)
                     self.driver.implicitly_wait(30)
                     time.sleep(1.5)
-                    self.driver.find_element(*self.lote).send_keys(numero_fatura)
+                    self.driver.find_element(*self.codigo).send_keys(numero_protocolo)
                     time.sleep(1.5)
                     self.driver.find_element(*self.pesquisar).click()
                     time.sleep(1.5)
@@ -95,41 +104,78 @@ class BaixarDemonstrativo(PageElement):
                     except:
                         self.driver.find_element(*self.botao_ok).click()
                         time.sleep(1.5)
-                        self.driver.find_element(*self.lote).clear()
+                        self.driver.find_element(*self.codigo).clear()
                         df.loc[index, 'Concluído'] = 'Sim'
                         continue
 
                     self.driver.implicitly_wait(30)
                     time.sleep(1.5)
-                    self.driver.find_element(*self.radio_button).click()
-                    time.sleep(1.5)
+                    # self.driver.find_element(*self.radio_button).click()
+                    # time.sleep(1.5)
                     self.driver.find_element(*self.exportar_todos).click()
                     time.sleep(1.5)
-                    self.driver.implicitly_wait(30)
+                    self.driver.implicitly_wait(180)
                     time.sleep(1.5)
                     self.driver.find_element(*self.salvar).click()
                     time.sleep(4)
+                    self.driver.implicitly_wait(30)
+                    print(f"Download do xml da fatura {numero_fatura} concluído com sucesso")
+                    time.sleep(3)
+                    self.driver.find_element(*self.fechar).click()
+                    time.sleep(2)
+                    self.driver.find_element(*self.detalhes_da_fatura).click()
+                    time.sleep(1.5)
+                    self.driver.find_element(*self.relatorio_de_servico).click()
 
-                    count += 1
-                    print(f"Download da fatura {numero_fatura} concluído com sucesso")
+                    novo_nome = r"\\10.0.0.239\automacao_financeiro\FASCAL" + f"\\{numero_fatura}.pdf"
+                    lista_faturas_com_erro = []
+                    download_feito = False
+                    endereco = r"\\10.0.0.239\automacao_financeiro\FASCAL"
+
+                    for i in range(10):
+
+                        try:
+                            os.rename(f"{endereco}\\RelatorioServicos_{numero_protocolo}.pdf", novo_nome)
+                            download_feito = True
+                            break
+
+                        except:
+                            print("Download ainda não foi feito")
+
+                            if i == 9:
+                                erro_portal = True
+                                self.driver.quit()
+
+                            time.sleep(2)
+
+                    if download_feito == True:
+                        count += 1
+                        print(f"Download da fatura {numero_fatura} concluído com sucesso")
+
+                    else:
+                        print(f"Download da fatura {numero_fatura} não foi feito ou não foi possível renomear.")
+                        lista_faturas_com_erro.append(numero_fatura)
 
                     df.loc[index, 'Concluído'] = 'Sim'
 
                     print('---------------------------------------------------------------')
 
-                    self.driver.find_element(*self.fechar).click()
                     time.sleep(1)
-                    self.driver.find_element(*self.lote).clear()
+                    self.driver.find_element(*self.codigo).clear()
         
                 tkinter.messagebox.showinfo( 'Demonstrativos Fascal' , f"Downloads concluídos: {count} de {quantidade_de_faturas}." )
                 self.driver.quit()
                 break
 
             except Exception as err:
+                if erro_portal == True:
+                    tkinter.messagebox.showerror("Automação", "Ocorreu algum erro ao fazer download no site.")
+
                 print(err)
                 self.driver.get(self.url)
                 login_page.exe_login(usuario, senha)
                 caminho.exe_caminho()
+
 
 
 #--------------------------------------------------------------------------------------------------------------------
@@ -141,22 +187,42 @@ def demonstrativo_fascal():
 
         options = {
             'proxy' : {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
+        }
+
+        settings = {
+        "recentDestinations": [{
+                "id": "Save as PDF",
+                "origin": "local",
+                "account": "",
+            }],
+            "selectedDestinationId": "Save as PDF",
+            "version": 2
         }
 
         chrome_options = Options()
         chrome_options.add_experimental_option('prefs', {
+            "printing.print_to_pdf": True,
             "download.default_directory": r"\\10.0.0.239\automacao_financeiro\FASCAL",
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
-            "plugins.always_open_pdf_externally": True
+            "safebrowsing.enabled": False,
+            "safebrowsing.disable_download_protection,": True,
+            "safebrowsing_for_trusted_sources_enabled": False,
+            "plugins.always_open_pdf_externally": True,
+            "printing.print_preview_sticky_settings.appState": json.dumps(settings),
+            "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\FASCAÇ"
     })
         chrome_options.add_argument("--start-maximized")
-        servico = Service(ChromeDriverManager().install())
 
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        try:
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+            servico = Service(ChromeDriverManager().install())
+
+        except:
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
         global usuario, senha, login_page, caminho
 

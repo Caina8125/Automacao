@@ -117,8 +117,8 @@ def demonstrativo_gama():
 
         options = {
             'proxy' : {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
         }
 
@@ -133,9 +133,11 @@ def demonstrativo_gama():
         chrome_options.add_argument("--start-maximized")
         chrome_options.add_argument('--ignore-certificate-errors')
         chrome_options.add_argument('--ignore-ssl-errors')
-        servico = Service(ChromeDriverManager().install())
-
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
         
         usuario = "amhpfinanceiro"
         senha = "H!4Pdgf4"

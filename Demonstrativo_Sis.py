@@ -207,6 +207,9 @@ def demonstrativo_sis():
             "download.default_directory": r"\\10.0.0.239\automacao_financeiro\SIS\Renomear",
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
+            "safebrowsing.enabled": False,
+            "safebrowsing.disable_download_protection,": True,
+            "safebrowsing_for_trusted_sources_enabled": False,
             "plugins.always_open_pdf_externally": True,
             "printing.print_preview_sticky_settings.appState": json.dumps(settings),
             "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\SIS"
@@ -218,8 +221,8 @@ def demonstrativo_sis():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
         }
         try:
@@ -233,7 +236,7 @@ def demonstrativo_sis():
 
         login_page.exe_login(
             usuario = "01047886154",
-            senha = "Amhp0073%"
+            senha = "Amhpbrasil*"
         )
         Caminho(driver, url).exe_caminho()
         BaixarDemonstrativos(driver, url).baixar_demonstrativos(planilha)

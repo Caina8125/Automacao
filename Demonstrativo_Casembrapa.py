@@ -70,7 +70,10 @@ class Caminho(PageElement):
 class BaixarDemonstrativo(PageElement):
     salutis = (By.XPATH, '//*[@id="menuButtons"]/td[1]')
     numero_dos_lotes_prestador = (By.XPATH, '//*[@id="vars"]/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/textarea')
+    numero_dos_lotes_operadora1 = (By.XPATH, '//*[@id="vars"]/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[5]/td[2]/table/tbody/tr/td[1]/textarea')
+    numero_dos_lotes_operadora2 = (By.XPATH, '//*[@id="vars"]/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[7]/td[2]/table/tbody/tr/td[1]/textarea')
     numero_dos_protocolos = (By.XPATH, '//*[@id="vars"]/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[7]/td[2]/table/tbody/tr/td[1]/textarea')
+    numero_dos_protocolos2 = (By.XPATH, '//*[@id="vars"]/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[9]/td[2]/table/tbody/tr/td[1]/textarea')
     executar = (By.XPATH, '//*[@id="buttonsContainer_1"]/td[1]/span[2]')
     imprimir = (By.XPATH, '//*[@id="bt_1892814041"]/table/tbody/tr/td[2]')
     imprimir_em_texto = (By.XPATH, '//*[@id="buttonsContainer_1"]/td[4]/span[2]')
@@ -83,6 +86,7 @@ class BaixarDemonstrativo(PageElement):
         df = df.iloc[:-1]
         df = df.dropna()
         df['Concluído'] = ''
+        contador_vezes = 1
         count = 0
         quantidade_de_faturas = len(df)
         lista_diretorio = os.listdir(r"\\10.0.0.239\automacao_financeiro\CASEMBRAPA")
@@ -98,6 +102,7 @@ class BaixarDemonstrativo(PageElement):
             try:
                 for index, linha in df.iterrows():
                     numero_fatura = str(linha["Nº Fatura"]).replace('.0', '')
+                    numero_protocolo = str(linha["Nº do Protocolo"]).replace('.0', '')
 
                     if df['Concluído'][index] == "Sim":
                         continue
@@ -112,8 +117,26 @@ class BaixarDemonstrativo(PageElement):
                     self.driver.switch_to.frame('inlineFrameTabId1')
                     time.sleep(1)
                     self.driver.find_element(*self.numero_dos_lotes_prestador).clear()
-                    time.sleep(2)
-                    self.driver.find_element(*self.numero_dos_lotes_prestador).send_keys(numero_fatura)
+                    time.sleep(1)
+
+                    if contador_vezes == 1:
+                        self.driver.find_element(*self.numero_dos_lotes_operadora1).clear()
+                        time.sleep(0.5)
+                        self.driver.find_element(*self.numero_dos_protocolos).clear()
+                        time.sleep(1)
+                        self.driver.find_element(*self.numero_dos_protocolos).click()
+                        time.sleep(1)
+                        self.driver.find_element(*self.numero_dos_protocolos).send_keys(numero_protocolo)
+
+                    else:
+                        self.driver.find_element(*self.numero_dos_lotes_operadora2).clear()
+                        time.sleep(0.5)
+                        self.driver.find_element(*self.numero_dos_protocolos2).clear()
+                        time.sleep(1)
+                        self.driver.find_element(*self.numero_dos_protocolos2).click()
+                        time.sleep(1)
+                        self.driver.find_element(*self.numero_dos_protocolos2).send_keys(numero_protocolo)
+
                     time.sleep(2)
                     self.driver.switch_to.default_content()
                     time.sleep(1)
@@ -199,6 +222,7 @@ class BaixarDemonstrativo(PageElement):
                     print("-------------------------------------------------------------------------------")
 
                     self.driver.find_element(*self.botao_voltar).click()
+                    contador_vezes += 1
 
                 if count == quantidade_de_faturas:
                     tkinter.messagebox.showinfo( 'Demonstrativos Casembrapa' , f"Downloads concluídos: {count} de {quantidade_de_faturas}." )
@@ -212,12 +236,12 @@ class BaixarDemonstrativo(PageElement):
                 print(f"{error.__class__.__name__}: {error}")                  
 
                 if erro_portal == True:
-                    print("Portal sem resposta, tente novamente mais tarde")
+                    tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {error.__class__.__name__} - {error}")
                     break
-
+                
                 Caminho(driver, url).refazer_caminho()
+                contador_vezes = 1
             
-
 #--------------------------------------------------------------------------------
 def demonstrativo_casembrapa():
     try:
@@ -237,8 +261,8 @@ def demonstrativo_casembrapa():
 
         options = {
             'proxy' : {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
         }
 
@@ -248,6 +272,9 @@ def demonstrativo_casembrapa():
             "download.default_directory": r"\\10.0.0.239\automacao_financeiro\CASEMBRAPA",
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
+            "safebrowsing.enabled": False,
+            "safebrowsing.disable_download_protection,": True,
+            "safebrowsing_for_trusted_sources_enabled": False,
             "plugins.always_open_pdf_externally": True,
             "printing.print_preview_sticky_settings.appState": json.dumps(settings),
             "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\CASEMBRAPA\Renomear"
@@ -256,10 +283,13 @@ def demonstrativo_casembrapa():
         chrome_options.add_argument('--ignore-certificate-errors')
         chrome_options.add_argument('--ignore-ssl-errors')
         chrome_options.add_argument('--kiosk-printing')
-        servico = Service(ChromeDriverManager().install())
-
         global driver
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+
+        except:
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
         global usuario, senha
         usuario = "00735860000173"
@@ -271,10 +301,16 @@ def demonstrativo_casembrapa():
         login_page.exe_login(usuario, senha)
         Caminho(driver, url).exe_caminho()
         BaixarDemonstrativo(driver, url).baixar_demonstrativo(planilha)
+        driver.quit()
     
     except FileNotFoundError as err:
         tkinter.messagebox.showerror('Automação', f'Nenhuma planilha foi selecionada!')
     
     except Exception as err:
         tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+<<<<<<< HEAD
         Pidgin.financeiroDemo(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+=======
+        Pidgin.financeiroDemo(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+        driver.quit()
+>>>>>>> master

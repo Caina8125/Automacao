@@ -94,7 +94,7 @@ class caminho(PageElement):
             self.driver.find_element(*self.baixar_demonstrativo).click()
             time.sleep(6)
             self.driver.find_element(*self.baixar_xml).click()
-            time.sleep(4)
+            time.sleep(8)
 
             for i in range(10):
                 pasta = r"\\10.0.0.239\automacao_financeiro\SERPRO\Renomear"
@@ -191,7 +191,9 @@ def demonstrativo_serpro():
                                                 "download.prompt_for_download": False,
                                                 "download.directory_upgrade": True,
                                                 "plugins.always_open_pdf_externally": True,
-                                                'safebrowsing.enabled': 'false'
+                                                "safebrowsing.enabled": False,
+                                                "safebrowsing.disable_download_protection,": True,
+                                                "safebrowsing_for_trusted_sources_enabled": False,
                                                 })
         chrome_options.add_argument("--start-maximized")
 
@@ -201,8 +203,8 @@ def demonstrativo_serpro():
 
         proxy = {
         'proxy': {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
         }
 

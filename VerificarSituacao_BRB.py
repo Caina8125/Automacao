@@ -1,19 +1,19 @@
 import pandas as pd
-import pyautogui
 import time
 from abc import ABC
 from tkinter import filedialog
 from selenium import webdriver
+from seleniumwire import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
-from seleniumwire import webdriver
 from openpyxl import Workbook, load_workbook
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from Filtro_Faturamento import *
+from Filtro_Faturamento import processar_planilha, remove
 from selenium.webdriver.chrome.options import Options
 import tkinter
+import pyautogui
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -31,11 +31,11 @@ class Login(PageElement):
     def logar(self, usuario, senha):
         time.sleep(2)
         self.driver.find_element(*self.prestador_pj).click()
-        time.sleep(1)
+        time.sleep(2)
         self.driver.find_element(*self.usuario).send_keys(usuario)
-        time.sleep(1)
+        time.sleep(2)
         self.driver.find_element(*self.senha).send_keys(senha)
-        time.sleep(1)
+        time.sleep(2)
         self.driver.find_element(*self.entrar).click()
         time.sleep(5)
 
@@ -62,6 +62,13 @@ class Caminho(PageElement):
 class injetar_dados(PageElement):
     guia_op = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[2]/input-text-search/div/div/div/input') 
     buscar = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[2]/input-text-search/div/div/div/span/span')
+
+    def confere_planilha(self, novo_df, numero_guia, df):
+        if novo_df.empty == True:
+            novo_df = df.loc[(df["Nº Guia"] == int(numero_guia))]
+            return novo_df
+        else:
+            return novo_df
     
     def inserir_dados(self):
         faturas_df = pd.read_excel(planilha)
@@ -82,6 +89,7 @@ class injetar_dados(PageElement):
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                 df.to_excel(writer, "Sheet1", startrow=count, startcol=7, header=False, index=False)
                 writer.save()
+                writer.close()
                 continue   
 
             if linha['Pesquisado no Portal'] == "Sim":
@@ -127,9 +135,10 @@ class injetar_dados(PageElement):
             count = count + 1
 
             guia_df = faturas_df.loc[(faturas_df["Nº Guia"] == guia)]
+            guia_df = self.confere_planilha(guia_df, guia, faturas_df)
             count2 = 0
 
-            for index, linha2 in guia_df.iterrows():
+            for index2, linha2 in guia_df.iterrows():
 
                 if linha['Pesquisado no Portal'] == "Sim":
                     print('Já foi feita a pesquisa desta autorização.')
@@ -145,12 +154,14 @@ class injetar_dados(PageElement):
 
                         try:
                             usuario = self.driver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
+                            time.sleep(2)
                             user = True
 
                         except:
                             pass
                     self.driver.implicitly_wait(3)
                     situacao = WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[2]/div[3]/span'))).text
+                    time.sleep(0.5)
                     print(f"{guia} está {situacao}")
 
                     carteira = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[1]/div[1]/strong[2]').text.replace("-", "")
@@ -163,6 +174,7 @@ class injetar_dados(PageElement):
 
                     else:
                         senha_portal = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[1]/div[3]/span').text
+                        time.sleep(0.5)
                         senha_planilha = f'{linha2["Senha Aut."]}'.replace(".0", "")
 
                         if senha_portal == senha_planilha:
@@ -180,8 +192,11 @@ class injetar_dados(PageElement):
                     try:
                         self.driver.implicitly_wait(0.5)
                         procedimentos = self.driver.find_element(By.XPATH, '//*[@id="localizarprocedimentos"]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[1]/div/div[2]/div/div/div[5]/a')
+                        time.sleep(2)
                         procedimentos = procedimentos.get_attribute('outerHTML')
+                        time.sleep(2)
                         procedimentos = procedimentos.replace('<a href="#" data-toggle="tooltip" data-placement="top" data-bind="attr: { title: $parent.CodigoAMB }" title="" data-original-title="', '')
+                        time.sleep(2)
                         procedimentos = procedimentos.replace('-', '').replace('.', '')
 
                     except:
@@ -191,11 +206,13 @@ class injetar_dados(PageElement):
                         data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': ['Mat/Med, Taxas'], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                         df = pd.DataFrame(data)
                         book = load_workbook(planilha)
+                        time.sleep(0.5)
                         writer = pd.ExcelWriter(planilha, engine='openpyxl')
                         writer.book = book
                         writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                         df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                         writer.save()
+                        writer.close()
                         count2 = count2 + 1
                         continue   
 
@@ -203,11 +220,13 @@ class injetar_dados(PageElement):
                         data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': ['Mat/Med, Taxas'], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                         df = pd.DataFrame(data)
                         book = load_workbook(planilha)
+                        time.sleep(0.5)
                         writer = pd.ExcelWriter(planilha, engine='openpyxl')
                         writer.book = book
                         writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                         df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                         writer.save()
+                        writer.close()
                         count2 = count2 + 1
                         continue 
 
@@ -220,11 +239,13 @@ class injetar_dados(PageElement):
                             data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': ['Mat/Med, Taxas'], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                             df = pd.DataFrame(data)
                             book = load_workbook(planilha)
+                            time.sleep(0.5)
                             writer = pd.ExcelWriter(planilha, engine='openpyxl')
                             writer.book = book
                             writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                             df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                             writer.save()
+                            writer.close()
                             count2 = count2 + 1
                             break
 
@@ -240,11 +261,13 @@ class injetar_dados(PageElement):
                     data = {'Situação': [situacao], 'Validação Carteira': [matricula], 'Validação Proc.': [dados_proc], 'Validação Senha': [validacao_senha], 'Pesquisado no Portal': ['Sim']}
                     df = pd.DataFrame(data)
                     book = load_workbook(planilha)
+                    time.sleep(0.5)
                     writer = pd.ExcelWriter(planilha, engine='openpyxl')
                     writer.book = book
                     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                     df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                     writer.save()
+                    writer.close()
                     count2 = count2 + 1
                     print('___________________________________________________________________________')
                 except:
@@ -253,11 +276,13 @@ class injetar_dados(PageElement):
                     print(f"{guia}: {situacao}")
                     df = pd.DataFrame(data)
                     book = load_workbook(planilha)
+                    time.sleep(0.5)
                     writer = pd.ExcelWriter(planilha, engine='openpyxl')
                     writer.book = book
                     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                     df.to_excel(writer, "Sheet1", startrow= count + count2, startcol=7, header=False, index=False)
                     writer.save()
+                    writer.close()
                     self.driver.find_element(*self.guia_op).clear()
                     ('___________________________________________________________________________')
             
@@ -275,7 +300,6 @@ def verificacao_brb():
             pass
         global planilha
         planilha = filedialog.askopenfilename()
-
         url = 'https://portal.saudebrb.com.br/GuiasTISS/Logon'
 
         chrome_options = Options()
@@ -285,15 +309,15 @@ def verificacao_brb():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+            'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
         }
         try:
             servico = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+            driver = webdriver.Chrome(service=servico, options=chrome_options, seleniumwire_options=options)
         except:
-            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+            driver = webdriver.Chrome(options=chrome_options, seleniumwire_options=options)
 
         global login_page
         login_page = Login(driver, url)
@@ -314,10 +338,3 @@ def verificacao_brb():
     except Exception as err:
         tkinter.messagebox.showerror( 'Erro na busca' , f'Ocorreu uma exceção não tratada \n {err.__class__.__name__} - {err}' )
         driver.quit()
-
-
-
-
-
-
-

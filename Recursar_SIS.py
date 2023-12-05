@@ -296,8 +296,8 @@ def recursar_sis():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
         }
 
@@ -312,7 +312,7 @@ def recursar_sis():
 
         login_page.exe_login(
             usuario = "01047886154",
-            senha = "Amhp0073%"
+            senha = "Amhpbrasil*"
         )
 
         Recurso(driver, url).fazer_recurso()

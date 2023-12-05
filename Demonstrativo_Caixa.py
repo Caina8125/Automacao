@@ -196,6 +196,9 @@ def demonstrativo_caixa():
             "download.default_directory": r"\\10.0.0.239\automacao_financeiro\SAUDE CAIXA\Renomear",
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
+            "safebrowsing.enabled": False,
+            "safebrowsing.disable_download_protection,": True,
+            "safebrowsing_for_trusted_sources_enabled": False,
             "plugins.always_open_pdf_externally": True,
             "printing.print_preview_sticky_settings.appState": json.dumps(settings),
             "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\SAUDE CAIXA"
@@ -207,8 +210,8 @@ def demonstrativo_caixa():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-                'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
             }
         }
         try:
@@ -222,7 +225,7 @@ def demonstrativo_caixa():
 
         login_page.exe_login(
             usuario = "00735860000173",
-            senha = "Saude@2023"
+            senha = "Saude@2024!"
         )
         Caminho(driver, url).exe_caminho()
         BaixarDemonstrativos(driver, url).baixar_demonstrativos(planilha)
@@ -232,5 +235,9 @@ def demonstrativo_caixa():
     
     except Exception as err:
         tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+<<<<<<< HEAD
         Pidgin.financeiroDemo(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+=======
+        Pidgin.financeiroDemos(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+>>>>>>> master
     driver.quit()
