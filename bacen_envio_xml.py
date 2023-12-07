@@ -1,5 +1,5 @@
 from abc import ABC
-from time import sleep
+import time
 import pandas as pd
 from selenium import webdriver
 from seleniumwire import webdriver
@@ -25,9 +25,9 @@ class EnviarXML(PageElement):
 
     def caminho(self):
         self.driver.find_element(*self.opcao_envio_de_xml).click()
-        sleep(2)
+        time.sleep(2)
         self.driver.find_element(*self.opcao_enviar_arquivo).click()
-        sleep(2)
+        time.sleep(2)
     
     def enviar_arquivo(self, lista_de_arquivos):
         lista_processos = []
@@ -36,10 +36,10 @@ class EnviarXML(PageElement):
             numero_processo = string_vet[0].replace("0000000000000", '').replace(pasta, '').replace('\\', '')
             lista_processos.append(numero_processo)
             self.driver.find_element(*self.input_file).send_keys(arquivo)
-            sleep(1)
+            time.sleep(1.5)
             self.driver.find_element(*self.salvar_novo).click()
-            sleep(1.5)
-        sleep(10)
+            time.sleep(2)
+        time.sleep(10)
         return lista_processos
 
     def confere_envio(self, lista_de_processos):
