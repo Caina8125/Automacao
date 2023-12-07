@@ -31,16 +31,20 @@ class EnviarXML(PageElement):
     
     def enviar_arquivo(self, lista_de_arquivos):
         lista_processos = []
-        for arquivo in lista_de_arquivos:
-            string_vet = arquivo.split("_")
-            numero_processo = string_vet[0].replace("0000000000000", '').replace(pasta, '').replace('\\', '')
-            lista_processos.append(numero_processo)
-            self.driver.find_element(*self.input_file).send_keys(arquivo)
-            time.sleep(1.5)
-            self.driver.find_element(*self.salvar_novo).click()
-            time.sleep(2)
-        time.sleep(10)
-        return lista_processos
+        try:
+            for arquivo in lista_de_arquivos:
+                string_vet = arquivo.split("_")
+                numero_processo = string_vet[0].replace("0000000000000", '').replace(pasta, '').replace('\\', '')
+                lista_processos.append(numero_processo)
+                self.driver.find_element(*self.input_file).send_keys(arquivo)
+                time.sleep(2)
+                self.driver.find_element(*self.salvar_novo).click()
+                time.sleep(3)
+            time.sleep(10)
+            return lista_processos
+        
+        except:
+            return lista_processos
 
     def confere_envio(self, lista_de_processos):
         self.driver.get("https://www3.bcb.gov.br/portalbcsaude/saude/a/portal/prestador/tiss/ConsultarArquivoTiss.aspx?i=PORTAL_SUBMENU_XML_CONSULTARARQUIVO&m=MENU_ENVIO_XML_AGRUPADO")
