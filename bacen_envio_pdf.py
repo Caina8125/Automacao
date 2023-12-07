@@ -5,7 +5,7 @@ from selenium import webdriver
 from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from tkinter.filedialog import askdirectory
+from tkinter.filedialog import askdirectory, askopenfilenames
 from bacen_protocolo import BuscarProtocolo
 from abc import ABC
 import pandas as pd
@@ -47,13 +47,18 @@ class EnvioPDF(PageElement):
     lupa_pesquisa = (By.XPATH, '//*[@id="tsk_toolbar"]/div/div/div/div/div/div/div/div[2]/div/table/tbody/tr/td/form/div[1]/input[2]')
     lupa_ver_fatura = (By.XPATH, '//*[@id="FormMain"]/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a/img')
     tbody_guia_com_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody')
+    tbody_guia_sem_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[4]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody')
     botao_novo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[1]/div[2]/a')
     procurar_arquivo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/div/div[3]/div/div/div/div/div/div/form/table/tbody/tr[2]/td[2]/div/div[2]/a/img')
     input_file = (By.XPATH, '/html/body/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr/td/table/tbody/tr[2]/td[2]/input')
     botao_enviar = (By.XPATH, '/html/body/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr/td/table/tbody/tr[3]/td/input')
     botao_salvar = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/div/div[2]/div/div/div/div[3]/a')
-    lupa_conta_fisica = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a[1]')
+    detalhes = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[3]/td/div/div[2]/a')
+    lupa_conta_fisica = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a[1]')
     processar_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/div[1]/div/div/div/div/div/div/div/div[3]/div/table/tbody/tr/td/div/nobr/a')
+    a_numero_protocolo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/div[1]/div/div/div/div/div/div/div/div[1]/a[2]')
+
+
 
     def exe_caminho(self):
         self.driver.find_element(*self.faturamento).click()
@@ -70,7 +75,7 @@ class EnvioPDF(PageElement):
     def renomear_arquivo(self, pasta, arquivo, protocolo, amhptiss):
         os.rename(arquivo, f"{pasta}\\PEG{protocolo}_GUIAPRESTADOR{amhptiss}.pdf")
     
-    def anexar_guias(self, arquivo):
+    def anexar_guias(self, arquivo, numero_processo, numero_protocolo):
         tbody_guia_com_anexo = self.driver.find_element(*self.tbody_guia_com_anexo).text
 
         if "Nenhum registro cadastrado." in tbody_guia_com_anexo:
@@ -88,6 +93,39 @@ class EnvioPDF(PageElement):
             self.driver.switch_to.window(self.driver.window_handles[0])
             sleep(1)
             self.driver.find_element(*self.botao_salvar).click()
+            sleep(1)
+            self.driver.find_element(*self.detalhes).click()
+            sleep(2)
+            self.driver.find_element(*self.lupa_conta_fisica).click()
+            sleep(1.5)
+            self.driver.find_element(*self.processar_anexo).click()
+            sleep(1.5)
+            self.driver.find_element(*self.a_numero_protocolo).click()
+            sleep(2)
+            tbody_guia_com_anexo = self.driver.find_element(*self.tbody_guia_com_anexo).text
+
+            if "Nenhum registro cadastrado." not in tbody_guia_com_anexo:
+                tabela = self.driver.find_element(*self.tbody_guia_com_anexo)
+                tabela_html = tabela.get_attribute('outerHTML')
+                df_tabela = pd.read_html(tabela_html, header=0)[0]
+
+                if df_tabela['Guia Prestador'][0] == 'NaN':
+                    erro_matricula = "Sim"
+                
+                else:
+                    erro_matricula = "Não"
+            
+            tbody_guia_sem_anexo = self.driver.find_element(*self.tbody_guia_sem_anexo).text
+
+            if "Nenhum registro cadastrado." not in tbody_guia_sem_anexo:
+                erro_guia_sem_anexo = "Não"
+            
+            else:
+                erro_guia_sem_anexo = "Sim"
+            
+            informacoes = [numero_processo, numero_protocolo, "Enviado", erro_matricula, erro_guia_sem_anexo]
+
+            return informacoes
     
     def zipar_arquivos(self, pasta, nome_arquivo_zip, lista_de_arquivos):
         with zipfile.ZipFile(f"{pasta[0]}/{nome_arquivo_zip}", "w", zipfile.ZIP_DEFLATED) as zipf:
@@ -95,13 +133,25 @@ class EnvioPDF(PageElement):
                 if arquivo.endswith('.pdf') and "PEG" in arquivo and "GUIAPRESTADOR" in arquivo:
                     zipf.write(arquivo, os.path.relpath(arquivo, pasta[0]))
 
+    def ler_planilhas(self, lista_de_planilhas, numero_processo):
+        for planilha in lista_de_planilhas:
+            df_planilha = pd.read_excel(planilha)
+            for index, linha in df_planilha.iterrows():
+                if numero_processo in linha['N° Fatura']:
+                    protocolo = linha['Protocolo']
+                    if protocolo.isdigit():
+                        return protocolo
+
 diretorio = askdirectory()
+planilhas = askopenfilenames()
+planilhas = [planilha for planilha in planilhas if planilha.endswith('.xlsx')]
 lista_de_pastas = [[f"{diretorio}/{pasta}", pasta] for pasta in os.listdir(diretorio) if pasta.isdigit()]
 teste = EnvioPDF()
+lista_de_dados = []
 
 for pasta in lista_de_pastas:
     numero_processo = pasta[1]
-    protocolo = ... #acrescentar alguma lógica aqui para pegar esse número de peg
+    protocolo = teste.ler_planilhas(planilhas, numero_processo) #acrescentar alguma lógica aqui para pegar esse número de peg
     lista_de_arquivos = [f"{pasta[0]}/{arquivo}" for arquivo in os.listdir(pasta[0]) if arquivo.endswith('.pdf')]
 
     for arquivo in lista_de_arquivos:
@@ -115,7 +165,14 @@ for pasta in lista_de_pastas:
 
     sz = (os.path.getsize(f"{pasta[0]}\\{nome_arquivo_zip}") / 1024) / 1024
 
+    arquivo_zipado = f"{pasta[0]}\\{nome_arquivo_zip}"
+
     if sz >= 25.00:
+        informacoes = [numero_processo, protocolo, "Não Enviado, arquivo maior que 25MB"]
         continue
 
-    print('')
+    informacoes = teste.anexar_guias(arquivo_zipado, numero_processo, protocolo)
+    lista_de_dados.append(informacoes)
+
+cabecalho = ["Número Processo", "Número Protocolo", "Envio", "Erro na Matricula", "Guias Não Anexadas"]
+df = pd.DataFrame(lista_de_dados, columns=cabecalho)
