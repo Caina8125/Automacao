@@ -33,7 +33,7 @@ class Login(PageElement):
 
 class Caminho(PageElement):
     demonstrativos = (By.XPATH, '//*[@id="sidebar_demonstrativos"]')
-    demonst_analise_de_conta = (By.XPATH, '//*[@id="ctl00_SidebarMenu"]/li[5]/ul/li[1]/a')
+    demonst_analise_de_conta = (By.XPATH, '/html/body/form/div[3]/div[3]/div[1]/div/ul/li[5]/ul/li[3]/a')
 
     def exe_caminho(self):
         self.driver.implicitly_wait(30)
