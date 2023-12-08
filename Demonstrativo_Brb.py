@@ -193,6 +193,7 @@ def demonstrativo_brb():
             "download.default_directory": r"\\10.0.0.239\automacao_financeiro\BRB",
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
+            "safebrowsing.enabled": 'false',
             "plugins.always_open_pdf_externally": True
     })
         chrome_options.add_argument("--start-maximized")
