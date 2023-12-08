@@ -31,14 +31,16 @@ class EnviarXML(PageElement):
     
     def enviar_arquivo(self, lista_de_arquivos):
         lista_processos = []
+        self.driver.implicitly_wait(30)
         try:
             for arquivo in lista_de_arquivos:
                 string_vet = arquivo.split("_")
                 numero_processo = string_vet[0].replace("0000000000000", '').replace(pasta, '').replace('\\', '')
-                lista_processos.append(numero_processo)
+                time.sleep(2)
                 self.driver.find_element(*self.input_file).send_keys(arquivo)
                 time.sleep(2)
                 self.driver.find_element(*self.salvar_novo).click()
+                lista_processos.append(numero_processo)
                 time.sleep(3)
             time.sleep(10)
             return lista_processos
