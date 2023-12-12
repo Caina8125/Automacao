@@ -191,11 +191,12 @@ def demonstrativo_postal():
                                                 "download.prompt_for_download": False,
                                                 "download.directory_upgrade": True,
                                                 "plugins.always_open_pdf_externally": True,
-                                                "safebrowsing.enabled": False,
+                                                "safebrowsing.enabled": 'false',
                                                 "safebrowsing.disable_download_protection,": True,
                                                 "safebrowsing_for_trusted_sources_enabled": False,
                                                 })
         
+        # chrome_options.add_argument('--disable-features=VizDisplayCompositor')
         chrome_options.add_argument("--start-maximized")
         chrome_options.add_argument('--ignore-certificate-errors')
         chrome_options.add_argument('--ignore-ssl-errors')

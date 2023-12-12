@@ -33,7 +33,7 @@ class Login(PageElement):
 
 class Caminho(PageElement):
     demonstrativos = (By.XPATH, '//*[@id="sidebar_demonstrativos"]')
-    demonst_analise_de_conta = (By.XPATH, '//*[@id="ctl00_SidebarMenu"]/li[5]/ul/li[1]/a')
+    demonst_analise_de_conta = (By.XPATH, '/html/body/form/div[3]/div[3]/div[1]/div/ul/li[5]/ul/li[3]/a')
 
     def exe_caminho(self):
         self.driver.implicitly_wait(30)
@@ -196,7 +196,7 @@ def demonstrativo_stf():
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
             "plugins.always_open_pdf_externally": True,
-            "safebrowsing.enabled": False,
+            "safebrowsing.enabled": 'false',
             "safebrowsing.disable_download_protection,": True,
             "safebrowsing_for_trusted_sources_enabled": False,
             "printing.print_preview_sticky_settings.appState": json.dumps(settings),
@@ -224,7 +224,7 @@ def demonstrativo_stf():
 
         login_page.exe_login(
             usuario = "00735860000173",
-            senha = "amhp#DF0073"
+            senha = "#DF0073amhp"
         )
         Caminho(driver, url).exe_caminho()
         BaixarDemonstrativos(driver, url).baixar_demonstrativos(planilha)

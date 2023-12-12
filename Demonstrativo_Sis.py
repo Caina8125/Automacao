@@ -207,7 +207,7 @@ def demonstrativo_sis():
             "download.default_directory": r"\\10.0.0.239\automacao_financeiro\SIS\Renomear",
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
-            "safebrowsing.enabled": False,
+            "safebrowsing.enabled": 'false',
             "safebrowsing.disable_download_protection,": True,
             "safebrowsing_for_trusted_sources_enabled": False,
             "plugins.always_open_pdf_externally": True,

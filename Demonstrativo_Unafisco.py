@@ -145,7 +145,7 @@ def demonstrativo_unafisco():
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
             "plugins.always_open_pdf_externally": True,
-            "safebrowsing.enabled": False,
+            "safebrowsing.enabled": 'false',
             "safebrowsing.disable_download_protection,": True,
             "safebrowsing_for_trusted_sources_enabled": False,
     })
