@@ -46,6 +46,7 @@ class EnvioPDF(PageElement):
     input_pesquisar = (By.XPATH, '//*[@id="tsk_toolbar"]/div/div/div/div/div/div/div/div[2]/div/table/tbody/tr/td/form/div[1]/input[1]')
     lupa_pesquisa = (By.XPATH, '//*[@id="tsk_toolbar"]/div/div/div/div/div/div/div/div[2]/div/table/tbody/tr/td/form/div[1]/input[2]')
     lupa_ver_fatura = (By.XPATH, '//*[@id="FormMain"]/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a/img')
+    tabela_guia_com_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table')
     tbody_guia_com_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody')
     tbody_guia_sem_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[4]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody')
     botao_novo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[1]/div[2]/a')
@@ -71,9 +72,11 @@ class EnvioPDF(PageElement):
         sleep(2)
         self.driver.find_element(*self.lupa_pesquisa).click()
         sleep(2)
+        self.driver.find_element(*self.lupa_ver_fatura).click()
+        sleep(2)
 
     def renomear_arquivo(self, pasta, arquivo, protocolo, amhptiss):
-        os.rename(arquivo, f"{pasta}\\PEG{protocolo}_GUIAPRESTADOR{amhptiss}.pdf")
+        os.rename(arquivo, f"{pasta[0]}\\PEG{protocolo}_GUIAPRESTADOR{amhptiss}.pdf")
     
     def anexar_guias(self, arquivo, numero_processo, numero_protocolo):
         tbody_guia_com_anexo = self.driver.find_element(*self.tbody_guia_com_anexo).text
@@ -105,11 +108,12 @@ class EnvioPDF(PageElement):
             tbody_guia_com_anexo = self.driver.find_element(*self.tbody_guia_com_anexo).text
 
             if "Nenhum registro cadastrado." not in tbody_guia_com_anexo:
-                tabela = self.driver.find_element(*self.tbody_guia_com_anexo)
+                tabela = self.driver.find_element(*self.tabela_guia_com_anexo)
                 tabela_html = tabela.get_attribute('outerHTML')
                 df_tabela = pd.read_html(tabela_html, header=0)[0]
+                guia_prestador = df_tabela['Guia Prestador'][0]
 
-                if df_tabela['Guia Prestador'][0] == 'NaN':
+                if guia_prestador == 'NaN':
                     erro_matricula = "Sim"
                 
                 else:
@@ -117,7 +121,7 @@ class EnvioPDF(PageElement):
             
             tbody_guia_sem_anexo = self.driver.find_element(*self.tbody_guia_sem_anexo).text
 
-            if "Nenhum registro cadastrado." not in tbody_guia_sem_anexo:
+            if "Nenhum registro cadastrado." in tbody_guia_sem_anexo:
                 erro_guia_sem_anexo = "Não"
             
             else:
@@ -137,8 +141,8 @@ class EnvioPDF(PageElement):
         for planilha in lista_de_planilhas:
             df_planilha = pd.read_excel(planilha)
             for index, linha in df_planilha.iterrows():
-                if numero_processo in f"{linha['N° Fatura']}":
-                    protocolo = linha['Protocolo']
+                if numero_processo in f"{linha['N° Fatura']}".replace(".0", ''):
+                    protocolo = f"{linha['N° Protocolo']}".replace(".0", '')
                     if protocolo.isdigit():
                         return protocolo
 
@@ -146,22 +150,45 @@ diretorio = askdirectory()
 planilhas = askopenfilenames()
 planilhas = [planilha for planilha in planilhas if planilha.endswith('.xlsx')]
 lista_de_pastas = [[f"{diretorio}/{pasta}", pasta] for pasta in os.listdir(diretorio) if pasta.isdigit()]
-teste = EnvioPDF()
+
+url = 'https://www3.bcb.gov.br/pasbcmapa/login.aspx'
+
+options = {
+            'proxy' : {
+                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+            }
+        }
+
+chrome_options = Options()
+chrome_options.add_argument("--start-maximized")
+chrome_options.add_argument('--ignore-certificate-errors')
+chrome_options.add_argument('--ignore-ssl-errors')
+
+try:
+    servico = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+except:
+    driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
+
+envio_bacen = EnvioPDF(driver=driver, url=url)
+envio_bacen.open()
+LoginLayoutAntigo(driver=driver, url=url).login(usuario = "00735860000173", senha = "Amhpdf!2023")
 lista_de_dados = []
 
 for pasta in lista_de_pastas:
     numero_processo = pasta[1]
-    protocolo = teste.ler_planilhas(planilhas, numero_processo) #acrescentar alguma lógica aqui para pegar esse número de peg
+    protocolo = envio_bacen.ler_planilhas(planilhas, numero_processo) #acrescentar alguma lógica aqui para pegar esse número de peg
     lista_de_arquivos = [f"{pasta[0]}/{arquivo}" for arquivo in os.listdir(pasta[0]) if arquivo.endswith('.pdf')]
 
     for arquivo in lista_de_arquivos:
-        if "_Guia" in arquivo:
-            n_amhptiss = arquivo.replace(f'{pasta}/', '').replace('_Guia.pdf', '')
-            teste.renomear_arquivo(pasta, arquivo, protocolo, n_amhptiss)
-            lista_de_arquivos = [f"{pasta}/{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith('.pdf')]
+        if "PEG" not in arquivo or "GUIAPRESTADOR" not in arquivo:
+            n_amhptiss = arquivo.replace(f'{pasta[0]}/', '').replace('_Guia.pdf', '').replace(".pdf", '')
+            envio_bacen.renomear_arquivo(pasta, arquivo, protocolo, n_amhptiss)
+            lista_de_arquivos = [f"{pasta[0]}/{arquivo}" for arquivo in os.listdir(pasta[0]) if arquivo.endswith('.pdf')]
             
     nome_arquivo_zip = f'{numero_processo}.zip'
-    teste.zipar_arquivos(pasta, nome_arquivo_zip, lista_de_arquivos)
+    envio_bacen.zipar_arquivos(pasta, nome_arquivo_zip, lista_de_arquivos)
 
     sz = (os.path.getsize(f"{pasta[0]}\\{nome_arquivo_zip}") / 1024) / 1024
 
@@ -171,8 +198,24 @@ for pasta in lista_de_pastas:
         informacoes = [numero_processo, protocolo, "Não Enviado, arquivo .zip maior que 25MB"]
         continue
 
-    informacoes = teste.anexar_guias(arquivo_zipado, numero_processo, protocolo)
+    envio_bacen.exe_caminho()
+    envio_bacen.pesquisar_protocolo(protocolo)
+    informacoes = envio_bacen.anexar_guias(arquivo_zipado, numero_processo, protocolo)
     lista_de_dados.append(informacoes)
 
 cabecalho = ["Número Processo", "Número Protocolo", "Envio", "Erro na Matricula", "Guias Não Anexadas"]
 df = pd.DataFrame(lista_de_dados, columns=cabecalho)
+
+# def teste_rapido():
+#     pastas_com_arquivos_para_renomear = askdirectory()
+#     caminho_pastas = [f"{pastas_com_arquivos_para_renomear}\\{pasta}" for pasta in os.listdir(pastas_com_arquivos_para_renomear) if pasta.isdigit()]
+#     for pasta in caminho_pastas:
+#         path_arquivos = [f"{pasta}\\{arquivo}" for arquivo in os.listdir(pasta)]
+#         protocolo = input("Coloque o numero do protocolo")
+#         for path in path_arquivos:
+#             print(path)
+#             vetor_nome = path.split("_")
+#             novo_nome = f"{pasta}\\PEG{protocolo}_{vetor_nome[1]}"
+#             os.rename(path, novo_nome)
+
+# teste_rapido()
