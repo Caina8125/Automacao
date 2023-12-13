@@ -22,6 +22,7 @@ class EnviarXML(PageElement):
     opcao_enviar_arquivo = (By.XPATH, '/html/body/form/div[3]/div[3]/div[1]/div/ul/li[10]/ul/li[1]/a')
     input_file = (By.XPATH, "/html/body/input")
     salvar_novo = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div/div/div/div[2]/div/div[2]/div[1]/a[2]')
+    body = (By.XPATH, '/html/body')
 
     def caminho(self):
         self.driver.find_element(*self.opcao_envio_de_xml).click()
@@ -38,6 +39,12 @@ class EnviarXML(PageElement):
                 numero_processo = string_vet[0].replace("0000000000000", '').replace(pasta, '').replace('\\', '')
                 time.sleep(2)
                 self.driver.find_element(*self.input_file).send_keys(arquivo)
+                content = self.driver.find_element(*self.body).text
+
+                while "Aguarde" in content:
+                    time.sleep(2)
+                    content = self.driver.find_element(*self.body).text
+                    
                 time.sleep(2)
                 self.driver.find_element(*self.salvar_novo).click()
                 lista_processos.append(numero_processo)

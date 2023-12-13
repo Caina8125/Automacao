@@ -137,7 +137,7 @@ class EnvioPDF(PageElement):
         for planilha in lista_de_planilhas:
             df_planilha = pd.read_excel(planilha)
             for index, linha in df_planilha.iterrows():
-                if numero_processo in linha['N° Fatura']:
+                if numero_processo in f"{linha['N° Fatura']}":
                     protocolo = linha['Protocolo']
                     if protocolo.isdigit():
                         return protocolo
@@ -168,7 +168,7 @@ for pasta in lista_de_pastas:
     arquivo_zipado = f"{pasta[0]}\\{nome_arquivo_zip}"
 
     if sz >= 25.00:
-        informacoes = [numero_processo, protocolo, "Não Enviado, arquivo maior que 25MB"]
+        informacoes = [numero_processo, protocolo, "Não Enviado, arquivo .zip maior que 25MB"]
         continue
 
     informacoes = teste.anexar_guias(arquivo_zipado, numero_processo, protocolo)
