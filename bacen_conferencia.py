@@ -44,11 +44,14 @@ class ConferirFatura(PageElement):
     input_pesquisar = (By.XPATH, '//*[@id="tsk_toolbar"]/div/div/div/div/div/div/div/div[2]/div/table/tbody/tr/td/form/div[1]/input[1]')
     lupa_pesquisa = (By.XPATH, '//*[@id="tsk_toolbar"]/div/div/div/div/div/div/div/div[2]/div/table/tbody/tr/td/form/div[1]/input[2]')
     lupa_ver_fatura = (By.XPATH, '//*[@id="FormMain"]/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a/img')
-    tbody = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody')
+    tbody_com_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody')
+    tbody_sem_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[4]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody')
     detalhes = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[3]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[12]/td/div/div[2]/a')
+    detalhes_sem_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[4]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[12]/td/div/div[2]/a')
     cem_guias = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[22]/td/div/div[2]/a[2]')
     quarenta_guias = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[22]/td/div/div[2]/a[1]')
     tabela = (By.XPATH, '//*[@id="FormMain"]/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table')
+    protocolo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/div/div/div/div/div/div/div/div/div[1]/a[2]')
 
     def remover_pontos(self, valor):
         return valor.replace('.0', '')
@@ -73,6 +76,7 @@ class ConferirFatura(PageElement):
         count = 0
 
         for i in range(count, quantidade):
+            lista_de_nao_encontradas = []
             df = pd.read_excel(planilha, sheet_name=count)
             numero_fatura = df.loc[13, 'Unnamed: 13']
             numero_protocolo = busca_de_protocolo.buscar_protocolo(numero_fatura)
@@ -95,50 +99,79 @@ class ConferirFatura(PageElement):
             body = self.driver.find_element(*self.body).text
 
             if "Nenhum registro foi encontrado." in body:
-                self.write_file(numero_fatura, "Não há nenhum registro dessa fatura no portal.")
+                self.write_file(numero_fatura, "Não há nenhum registro dessa fatura em Aguardando o Físico.")
                 count += 1
                 self.driver.switch_to.window(self.driver.window_handles[-1])
                 continue
 
             self.driver.find_element(*self.lupa_ver_fatura).click()
             sleep(2)
-            conteudo_tabela = self.driver.find_element(*self.tbody).text
+            conteudo_tabela_com_anexo = self.driver.find_element(*self.tbody_com_anexo).text
             sleep(2)
 
-            if "Nenhum registro cadastrado." in conteudo_tabela:
-                self.write_file(numero_fatura, "Não haviam envios de arquivos nesta fatura.")
-                count += 1
-                self.driver.switch_to.window(self.driver.window_handles[-1])
-                continue
-
-            self.driver.find_element(*self.detalhes).click()
-            sleep(2)
-            try:
-                self.driver.implicitly_wait(4)
-                self.driver.find_element(*self.cem_guias).click()
+            if not "Nenhum registro cadastrado." in conteudo_tabela_com_anexo:
+                self.driver.find_element(*self.detalhes).click()
                 sleep(2)
-            except:
                 try:
                     self.driver.implicitly_wait(4)
-                    self.driver.find_element(*self.quarenta_guias).click()
+                    self.driver.find_element(*self.cem_guias).click()
                     sleep(2)
                 except:
-                    pass
-            self.driver.implicitly_wait(30)
-            tabela = self.driver.find_element(*self.tabela)
-            tabela_html = tabela.get_attribute('outerHTML')
-            df_fatura = pd.read_html(tabela_html, header=0)[0]
-            df_fatura['Guia Prestador'] = (df_fatura['Guia Prestador'].astype(str)).apply(self.remover_pontos)
-            lista_de_numeros_portal = df_fatura['Guia Prestador'].values.tolist()
-            df = pd.read_excel(planilha, sheet_name=count, header=18)
-            df = df.iloc[:-3]
-            lista_de_nao_encontradas = []
+                    try:
+                        self.driver.implicitly_wait(4)
+                        self.driver.find_element(*self.quarenta_guias).click()
+                        sleep(2)
+                    except:
+                        pass
+                self.driver.implicitly_wait(30)
+                tabela = self.driver.find_element(*self.tabela)
+                tabela_html = tabela.get_attribute('outerHTML')
+                df_fatura = pd.read_html(tabela_html, header=0)[0]
+                df_fatura['Guia Prestador'] = (df_fatura['Guia Prestador'].astype(str)).apply(self.remover_pontos)
+                lista_de_numeros_portal = df_fatura['Guia Prestador'].values.tolist()
+                df = pd.read_excel(planilha, sheet_name=count, header=18)
+                df = df.iloc[:-3]
 
-            for index, linha in df.iterrows():
-                numero_guia = f"{linha['Nº Guia']}".replace('.0', '')
-                if numero_guia not in lista_de_numeros_portal:
-                    lista_de_nao_encontradas.append(numero_guia)
-                
+                for index, linha in df.iterrows():
+                    numero_guia = f"{linha['Nº Guia']}".replace('.0', '')
+                    if numero_guia not in lista_de_numeros_portal:
+                        lista_de_nao_encontradas.append(numero_guia)
+
+                self.driver.find_element(*self.protocolo).click()
+                sleep(2)
+            
+            conteudo_tabela_sem_anexo = self.driver.find_element(*self.tbody_sem_anexo).text
+
+            if not "Nenhum registro cadastrado." in conteudo_tabela_sem_anexo:
+                self.driver.find_element(*self.detalhes_sem_anexo).click()
+                sleep(2)
+                try:
+                    self.driver.implicitly_wait(4)
+                    self.driver.find_element(*self.cem_guias).click()
+                    sleep(2)
+                except:
+                    try:
+                        self.driver.implicitly_wait(4)
+                        self.driver.find_element(*self.quarenta_guias).click()
+                        sleep(2)
+                    except:
+                        pass
+                self.driver.implicitly_wait(30)
+                tabela = self.driver.find_element(*self.tabela)
+                tabela_html = tabela.get_attribute('outerHTML')
+                df_fatura = pd.read_html(tabela_html, header=0)[0]
+                df_fatura['Guia Prestador'] = (df_fatura['Guia Prestador'].astype(str)).apply(self.remover_pontos)
+                lista_de_numeros_portal = df_fatura['Guia Prestador'].values.tolist()
+                df = pd.read_excel(planilha, sheet_name=count, header=18)
+                df = df.iloc[:-3]
+
+                for index, linha in df.iterrows():
+                    numero_guia = f"{linha['Nº Guia']}".replace('.0', '')
+                    if numero_guia not in lista_de_numeros_portal:
+                        lista_de_nao_encontradas.append(numero_guia)
+
+                self.driver.find_element(*self.protocolo).click()
+
             if len(lista_de_nao_encontradas) == 0:
                 self.write_file(numero_fatura, "Todas as guias do relatório desta fatura se encontram no portal.")
                 count += 1
