@@ -19,11 +19,12 @@ def Gerar_Relat_Normal():
 
     for convenio in convenios:
         dados             = df[df["Convênio"] == convenio]
-        qtd_dados         = len(dados)
+        lista_quantidades = dados["Quantidade"].values.tolist()
+        quantidade        = sum(lista_quantidades)
         book              = openpyxl.load_workbook(r"\\10.0.0.239\automacao_faturamento\Brindes\Template.xlsx")
         sheet             = book.active
         sheet['B7'].value = convenio
-        sheet['B8'].value = qtd_dados
+        sheet['B8'].value = quantidade
         sheet['F7'].value = total_normal
         sheet['F8'].value = total_diretoria
         sheet['F9'].value = total_fora
@@ -32,7 +33,6 @@ def Gerar_Relat_Normal():
         writer.sheets     = dict((ws.title, ws) for ws in book.worksheets)
         dados.to_excel(writer, "Relatório_Brindes", startrow=13, startcol=0, header=False, index=False)
         writer.save()
-        print()
 
 
 # Gerar_Relat_Normal()
