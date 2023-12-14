@@ -10,6 +10,7 @@ from abc import ABC
 import time
 import tkinter
 import Pidgin
+import os
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -32,7 +33,7 @@ class Login(PageElement):
         time.sleep(4)
 
 class Caminho(PageElement):
-    faturas = (By.XPATH, '//*[@id="menuPrincipal"]/div/div[10]/a')
+    faturas = (By.XPATH, '/html/body/header/div[4]/div/div/div/div[10]/a')
     relatorio_de_faturas = (By.XPATH, '/html/body/header/div[4]/div/div/div/div[10]/div[1]/div[2]/div/div[2]/div/div/div/div/a')
     continuar = (By.XPATH, '/html/body/div[3]/div[3]/div/button[2]/span')
 
@@ -48,10 +49,13 @@ class Caminho(PageElement):
             self.driver.find_element(*self.continuar).click()
 
         time.sleep(2)
-        self.driver.find_element(*self.faturas).click()
-        time.sleep(2)
-        self.driver.find_element(*self.relatorio_de_faturas).click()
-        time.sleep(2)
+        # self.driver.find_element(*self.faturas).click()
+        # print("faturas clicado")
+        # time.sleep(2)
+        # self.driver.find_element(*self.relatorio_de_faturas).click()
+        # print("relatorios clicado")
+        # time.sleep(2)
+        self.driver.get("https://novowebplanunafisco.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
 
 class BaixarDemonstrativo(PageElement):
     lote = (By.XPATH, '//*[@id="txtLote"]')
@@ -61,6 +65,8 @@ class BaixarDemonstrativo(PageElement):
     exportar_todos = (By.XPATH, '//*[@id="escolha-protocolo-modal"]/div/div/div[3]/button[2]')
     salvar = (By.XPATH, '//*[@id="btn-salxar-xml-servico"]')
     fechar = (By.XPATH, '//*[@id="operation-modal"]/div/div/div[3]/button[2]')
+    detalhes_da_fatura = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[1]/div/div[2]/a[1]/i')
+    relatorio_de_servico = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[3]/div[2]/div[1]/div[2]/input[4]')
 
 
     def baixar_demonstrativo(self, planilha):
@@ -102,16 +108,48 @@ class BaixarDemonstrativo(PageElement):
                     time.sleep(1.5)
                     self.driver.find_element(*self.salvar).click()
                     time.sleep(4)
+                    self.driver.find_element(*self.fechar).click()
+                    time.sleep(1.5)
+                    self.driver.find_element(*self.detalhes_da_fatura).click()
+                    time.sleep(1.5)
+                    codigo = self.driver.find_element(By.XPATH, '//*[@id="div-Servicos"]/div[1]/div[4]/div/div/div[1]/div/div[1]/div[1]/div[2]/span').text
 
-                    print(f"Download da fatura {numero_fatura} concluído com sucesso")                 
+                    for j in range(0, 10):
+                        try:
+                            self.driver.find_element(*self.relatorio_de_servico).click()
+                            break
+                        except:
+                            time.sleep(2)
+                            continue
+
+                    novo_nome = r"\\10.0.0.239\automacao_financeiro\UNAFISCO" + f"\\{numero_fatura}.pdf"
+                    lista_faturas_com_erro = []
+                    download_feito = False
+                    endereco = r"\\10.0.0.239\automacao_financeiro\UNAFISCO"
+
+                    for i in range(10):
+
+                        try:
+                            os.rename(f"{endereco}\\RelatorioServicos_{codigo}.pdf", novo_nome)
+                            download_feito = True
+                            break
+
+                        except:
+                            print("Download ainda não foi feito")
+
+                            if i == 9:
+                                erro_portal = True
+                                self.driver.quit()
+
+                            time.sleep(2)
+                    count += 1
+                    print(f"Download do XML da fatura {numero_fatura} concluído com sucesso")
 
                     df.loc[index, 'Concluído'] = 'Sim'
 
                     print('---------------------------------------------------------------')
-
-                    self.driver.find_element(*self.fechar).click()
-                    time.sleep(1)
                     self.driver.find_element(*self.lote).clear()
+                    time.sleep(2)
             
                 tkinter.messagebox.showinfo( 'Demonstrativos Unafisco' , f"Downloads concluídos: {count} de {quantidade_de_faturas}." )
 

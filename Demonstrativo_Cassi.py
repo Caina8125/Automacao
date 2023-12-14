@@ -2,7 +2,6 @@ import tkinter.messagebox
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
-from openpyxl import load_workbook
 from abc import ABC
 import pandas as pd
 import time
@@ -11,9 +10,9 @@ from selenium.webdriver.chrome.options import Options
 from seleniumwire import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
-import json
-from sys import exit
+from datetime import datetime
 import Pidgin
+from xml.dom import minidom
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -54,6 +53,7 @@ class BaixarDemonstrativo(PageElement):
     consultar = (By.XPATH, '/html/body/div[1]/div[5]/section/div/form/fieldset/div[4]/div/button')
     xpath_tabela = (By.XPATH, '/html/body/div[1]/div[5]/section/div/fieldset/div/table')
     download_xml = (By.XPATH, '//*[@id="formExportar"]/button[2]')
+    download_pdf = (By.XPATH, '//*[@id="formExportar"]/button[1]')
     voltar = (By.XPATH, '//*[@id="btnVoltar"]')
     xpath_corpo_da_pagina = (By.XPATH, '/html/body')
 
@@ -89,6 +89,53 @@ class BaixarDemonstrativo(PageElement):
                     self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/fieldset/div/table/tbody/tr[{i}]/td[3]/form/input[3]').click()
                     time.sleep(2)
                     self.driver.find_element(*self.download_xml).click()
+                    time.sleep(2)
+                    count = 0
+
+                    while count < 20:
+                        try:
+                            with open(f"\\\\10.0.0.239\\automacao_financeiro\\CASSI\\{numero_do_protocolo_df}.xml", "r", encoding="utf-8") as f:
+                                valor_total_glosa = 0.00
+                                xml = minidom.parse(f)
+                                glosa = xml.getElementsByTagName("ans:valorGlosaGeral")
+
+                                for tag in glosa:
+                                    valor_total_glosa = tag.firstChild.data
+                            break
+
+                        except:
+                            count += 1
+
+                            if count == 18:
+                                time.sleep(10)
+
+                            else:
+                                time.sleep(2)
+
+                    f.close()    
+                    
+                    if valor_total_glosa != "0":
+                        self.driver.find_element(*self.download_pdf).click()
+                        data_atual = datetime.now().strftime('%d_%m_%Y')
+                        endereco = r"\\10.0.0.239\automacao_financeiro\CASSI"
+                        novo_nome = f"{endereco}\\{numero_do_protocolo_df}.pdf"
+                        contador = 0
+
+                        while contador < 20:
+                            try:
+                                os.rename(f"{endereco}\\Demonstrativo de Analise de Conta {data_atual}.pdf", novo_nome)
+                                break
+                            
+                            except:
+                                print("Download ainda não foi feito")
+                                contador += 1
+
+                                if contador == 18:
+                                    time.sleep(10)
+                                
+                                else:
+                                    time.sleep(2)
+
                     time.sleep(2)
                     self.driver.find_element(*self.voltar).click()
                     time.sleep(2)
@@ -149,9 +196,6 @@ def demonstrativo_cassi(data_inicial, data_final):
         )
         caminho(driver, url).exe_caminho()
         BaixarDemonstrativo(driver, url).baixar_demontrativo(data_inicial, data_final)
-    
-    except FileNotFoundError as err:
-        tkinter.messagebox.showerror('Automação', f'Nenhuma planilha foi selecionada!')
     
     except Exception as err:
         tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
