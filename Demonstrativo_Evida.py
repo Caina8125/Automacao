@@ -35,6 +35,8 @@ class Login(PageElement):
 class Caminho(PageElement):
     faturas = (By.XPATH, '//*[@id="menuPrincipal"]/div/div[11]/a')
     relatorio_de_faturas = (By.XPATH, '/html/body/header/div[4]/div/div/div/div[11]/div[1]/div[2]/div/div[2]/div/div/div/div[1]/a')
+    iframe = (By.XPATH, '/html/body/div[6]/iframe[4]')
+    fechar_chat = (By.XPATH, '/html/body/div/div/div/div[2]')
 
     def exe_caminho(self):
         try:
@@ -52,6 +54,11 @@ class Caminho(PageElement):
         time.sleep(2)
         self.driver.find_element(*self.relatorio_de_faturas).click()
         time.sleep(2)
+        id = self.driver.find_element(*self.iframe).get_attribute("id")
+        self.driver.switch_to.frame(id)
+        self.driver.find_element(*self.fechar_chat).click()
+        time.sleep(1)
+        self.driver.switch_to.default_content()
 
 class BaixarDemonstrativo(PageElement):
     lote = (By.XPATH, '//*[@id="txtLote"]')
