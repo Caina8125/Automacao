@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from abc import ABC
 import time
+from openpyxl import load_workbook
 import Pidgin
 import tkinter
 import os
@@ -54,33 +55,247 @@ class Caminho(PageElement):
         time.sleep(2)
 
 class Recurso(PageElement):
+    body = (By.XPATH, '/html/body')
     codigo = (By.XPATH, '/html/body/main/div/div[1]/div[2]/div/div/div[2]/div[1]/div[1]/input-text[1]/div/div/input')
     pesquisar = (By.XPATH, '//*[@id="filtro"]/div[2]/div[2]/button')
     recurso_de_glosa = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[1]/div/div[2]/a[5]/i')
+    #-----------------------------------------------------------------------------------------------------------------------------
+    table = (By.ID, 'recursoGlosaTabelaServicos')
+    text_area_justificativa = (By.ID, 'txtJustificativa')
+    #----------------------------------------------------------------------------------------------------------------------------------
+    button_ok = ()
+    salvar_parcialmente = ()
+    i_close = ()
+    proxima_pagina = ()
+    label_registros = ()
+    primeira_pagina = ()
+    fechar = ()
+    ul = ()
+    #-----------------------------------------------------------------------------------------------------------------------------------------------
+    close_warning = (By.XPATH, '/html/body/ul/li/div/div/span/h4/i')
+    recurso_de_glosa_menu = (By.XPATH, '//*[@id="menuPrincipal"]/div/div[9]/a')
+    fatura_input = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/input-number/div/div/input')
+    pesquisar_recurso = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[2]/button[1]')
+    recurso_de_glosa_2 = (By.XPATH, '/html/body/main/div[1]/div[2]/div/table/tbody/tr/td[11]/i')
+
+    def inicializar_atributos(self, recurso_iniciado):
+        if recurso_iniciado == False:
+            self.button_ok = (By.XPATH, '/html/body/main/div/div[3]/div/div/div[3]/button[1]')
+            self.salvar_parcialmente = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[2]/button')
+            self.i_close = (By.XPATH, '/html/body/ul/li/div/div/span/h4/i')
+            # self.proxima_pagina = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[6]/a/span')
+            self.label_registros = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/label')
+            self.primeira_pagina = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[1]/a/span')
+            self.fechar = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[3]/button')
+            self.ul = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul')
+        else:
+            self.button_ok = (By.XPATH, '/html/body/main/div[1]/div[4]/div/div/div[3]/button[1]')
+            self.salvar_parcialmente = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[2]/button')
+            self.i_close = (By.XPATH, '/html/body/ul/li/div/div/span/h4/i')
+            # self.proxima_pagina = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[6]/a/span')
+            self.label_registros = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/label')
+            self.primeira_pagina = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[1]/a/span')
+            self.fechar = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[3]/button')
+            self.ul = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul')
+
+    def get_values(self, i, recurso_iniciado):
+        if recurso_iniciado == False:
+            try:
+                for j in range(10):
+                    nro_guia_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[2]/span').text
+                    codigo_proc_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[4]/span').text.replace('.', '').replace('-', '')
+                    valor_glosa_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[6]/span').text
+                    valor_recursado_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[8]/span').text
+                    break
+            except:
+                time.sleep(2)
+
+        else:
+            for j in range(10):
+                try:
+                    nro_guia_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[2]/span').text
+                    codigo_proc_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[4]/span').text.replace('.', '').replace('-', '')
+                    valor_glosa_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[6]/span').text
+                    valor_recursado_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[8]/span').text
+                    break
+                except:
+                    time.sleep(2)
+        return (nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal)
+    
+    def xpath_preencher_valores(self, i, recurso_iniciado):
+        if recurso_iniciado == False:
+            input_valor_recursado = (By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[7]/input')
+            preencher_justificativa = (By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[9]/a/i')
+        else:
+            input_valor_recursado = (By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[7]/input')
+            preencher_justificativa = (By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[9]/a/i')
+        return (input_valor_recursado, preencher_justificativa)
 
     def fazer_recurso(self, pasta):
-        lista_de_planilhas = [f"{pasta}//{arquivo}" for arquivo in pasta if arquivo.endswith(".xlsx")]
+        count = 0
+        while count < 10:
+            try:
+                lista_de_planilhas = [f"{pasta}//{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith(".xlsx")]
 
-        for planilha in lista_de_planilhas:
-            df = pd.read_excel(planilha)
-            protocolo = f"{df['Protocolo Glosa'][0]}".replace(".0", "")
-            self.driver.find_element(*self.codigo).send_keys(protocolo)
-            time.sleep(2)
-            self.driver.find_element(*self.pesquisar).click()
-            time.sleep(2)
-            self.driver.find_element(*self.recurso_de_glosa).click()
-            time.sleep(2)
+                for planilha in lista_de_planilhas:
+                    if "Enviado" in planilha or "Sem_Pagamento" in planilha:
+                        continue
+                    df = pd.read_excel(planilha)
+                    protocolo = f"{df['Protocolo Glosa'][0]}".replace(".0", "")
+                    self.driver.find_element(*self.codigo).send_keys(protocolo)
+                    time.sleep(2)
+                    self.driver.find_element(*self.pesquisar).click()
+                    time.sleep(2)
+                    self.driver.find_element(*self.recurso_de_glosa).click()
+                    time.sleep(2)
+                    content = self.driver.find_element(*self.body).text
+                    recurso_iniciado = False
 
-            for index, linha in df.iterrows():
-                numero_guia = f'{linha["Nro. Guia"]}'.replace('.0', '')
-                codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
+                    if 'Não existe informação de pagamento para a fatura recursada.' in content:
+                        planilha_anterior = planilha
+                        sem_extensao = planilha.replace('.xlsx', '')
+                        novo_nome = sem_extensao + '_Sem_Pagamento.xlsx'
+                        try:
+                            time.sleep(2)
+                            os.rename(planilha_anterior, novo_nome)
+                        except PermissionError as err:
+                            print(err)
+                            continue
 
+                    if 'A fatura não possui itens para gerar o lote de recurso de glosa ou já existem lotes gerados para a mesma.' in content:
+                        recurso_iniciado = True
+                        self.driver.find_element(*self.close_warning).click()
+                        time.sleep(2)
+                        self.driver.find_element(*self.recurso_de_glosa_menu).click()
+                        time.sleep(2)
+                        self.driver.find_element(*self.fatura_input).send_keys(protocolo)
+                        time.sleep(2)
+                        self.driver.find_element(*self.pesquisar_recurso).click()
+                        time.sleep(2)
+                        self.driver.find_element(*self.recurso_de_glosa_2).click()
+
+                    self.inicializar_atributos(recurso_iniciado)
+                    guias_abertas = False
                 
+                    for index, linha in df.iterrows():
+                        if f"{linha['Recursado no Portal']}" == "Sim" or f"{linha['Recursado no Portal']}" == "Não":
+                            continue
+                        numero_guia = f'{linha["Nro. Guia"]}'.replace('.0', '')
+                        codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
+                        valor_glosa = f'{linha["Valor Glosa"]}'.replace('-', '').replace('.', ',')
+                        valor_recurso = f'{linha["Valor Recursado"]}'
+                        justificativa = f'{linha["Recurso Glosa"]}'.replace('\t', ' ')
+                        recurso = True
 
-def demonstrativo_evida():
+                        while recurso:
+                            if guias_abertas == False:
+                                table = self.driver.find_element(*self.table).get_attribute('outerHTML')
+                                df_tabela = pd.read_html(table)[0]
+                                time.sleep(1)
+
+                                for i in range(1, len(df_tabela) + 1):
+                                    try:
+                                        self.driver.implicitly_wait(0.5)
+                                        if recurso_iniciado == False:
+                                            self.driver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[1]/i').click()
+                                        else:
+                                            self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[1]/i').click()
+                                    except Exception as e:
+                                        continue
+
+                                self.driver.implicitly_wait(15)
+                                guias_abertas = True
+                                vet_texto_label = self.driver.find_element(*self.label_registros).text.split(' ')
+                                total_registros = int(vet_texto_label[9])
+                                extensao_maxima_da_pagina = int(vet_texto_label[4])
+
+                            for i in range(1, len(df_tabela) + 1):
+                                nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal = self.get_values(i, recurso_iniciado)
+                                validacao_normal = numero_guia in nro_guia_portal and codigo_procedimento in codigo_proc_portal and valor_glosa in valor_glosa_portal and valor_recursado_portal == "R$0,00"
+                                validacao_taxa = numero_guia in nro_guia_portal and codigo_procedimento.startswith('6') and "Taxa" in codigo_proc_portal and valor_glosa in valor_glosa_portal and valor_recursado_portal == "R$0,00"
+
+                                if validacao_normal or validacao_taxa:
+                                    input_valor_recursado, preencher_justificativa = self.xpath_preencher_valores(i, recurso_iniciado)
+                                    self.driver.find_element(*input_valor_recursado).send_keys(valor_recurso)
+                                    time.sleep(2)
+                                    self.driver.find_element(*preencher_justificativa).click()
+                                    time.sleep(2)
+                                    for i in range(0, 10):
+                                        try:
+                                            self.driver.find_element(*self.text_area_justificativa).send_keys(justificativa)
+                                            break
+                                        except:
+                                            time.sleep(2)
+                                            continue
+                                    time.sleep(2)
+                                    self.driver.find_element(*self.button_ok).click()
+                                    time.sleep(2)
+                                    self.driver.find_element(*self.salvar_parcialmente).click()
+                                    time.sleep(2)
+                                    self.driver.find_element(*self.i_close).click()
+                                    dados = {"Recursado no Portal" : ['Sim']}
+                                    df_dados = pd.DataFrame(dados)
+                                    book = load_workbook(planilha)
+                                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                                    writer.book = book
+                                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                                    df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
+                                    writer.save()
+                                    recurso = False
+                                    break
+                            
+                            if recurso == True:
+                                if extensao_maxima_da_pagina == total_registros:
+                                    self.driver.find_element(*self.primeira_pagina).click()
+                                    time.sleep(2)
+                                    dados = {"Recursado no Portal" : ['Não']}
+                                    df_dados = pd.DataFrame(dados)
+                                    book = load_workbook(planilha)
+                                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                                    writer.book = book
+                                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                                    df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
+                                    writer.save()
+                                    guias_abertas = False
+                                    break
+                                else:
+                                    texto = self.driver.find_element(*self.ul).text
+                                    vet_ul = texto.split('\n')
+                                    if recurso_iniciado:
+                                        proxima_pagina = (By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[{len(vet_ul) - 1}]/a/span')
+                                    else:
+                                        proxima_pagina = (By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[{len(vet_ul) - 1}]/a/span')
+                                    self.driver.find_element(*proxima_pagina).click()
+                                    time.sleep(2)
+                                    guias_abertas = False
+
+                    self.driver.find_element(*self.fechar).click()
+                    time.sleep(2)
+                    self.driver.get("https://novowebplanevida.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
+                    time.sleep(2)
+                    try:
+                        writer.close()
+                    except:
+                        pass
+                    planilha_anterior = planilha
+                    sem_extensao = planilha.replace('.xlsx', '')
+                    novo_nome = sem_extensao + '_Enviado.xlsx'
+                    try:
+                        time.sleep(2)
+                        os.rename(planilha_anterior, novo_nome)
+                    except PermissionError as err:
+                        print(err)
+                break
+            except Exception as e:
+                self.driver.get("https://novowebplanevida.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
+                count += 1
+                print(e)
+
+
+def recursar_evida():
     try:
         url = 'https://novowebplanevida.facilinformatica.com.br/GuiasTISS/Logon'
-        planilha = filedialog.askopenfilename()
+        pasta = filedialog.askdirectory()
 
         options = {
             'proxy' : {
@@ -97,13 +312,17 @@ def demonstrativo_evida():
         except:
             driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
         
-        global usuario, senha, login_page, caminho
+        global usuario, senha, login_page
         usuario = "00735860000173"
         senha = "00735860000173"
 
         login_page = Login(driver, url)
         login_page.open()
         login_page.exe_login(usuario, senha)
+        Caminho(driver, url).exe_caminho()
+        Recurso(driver, url).fazer_recurso(pasta)
     
-    except:
-        ...
+    except Exception as e:
+        print(e)
+
+recursar_evida()
