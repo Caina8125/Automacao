@@ -9,6 +9,7 @@ from Buscar_fatura import iniciar
 from Atualiza_Local import *
 from Anexar_Honorario import anexar_guias
 from VerificarSituacao_BRB import verificacao_brb
+from recursar_evida import recursar_evida
 from Recursar_SemDuplicado import recursar_sem_duplicado
 from Recurso_Postal import recursar_postal
 from Recursar_Caixa import recursar_caixa
@@ -121,6 +122,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos TJDFT", 
                                                                    "Financeiro - Demonstrativos Unafisco", 
                                                                    "Glosa - Gerador de Planilha GDF",
+                                                                   "Glosa - Recursar E-VIDA",
                                                                    "Glosa - Recursar GEAP Duplicado",
                                                                    "Glosa - Recursar GEAP Sem Duplicado",
                                                                    "Glosa - Recursar Postal",
@@ -380,6 +382,11 @@ class Application:
                 recursar_duplicado()
                 self.reiniciar()
             
+            case "Glosa - Recursar E-VIDA":
+                self.gif()
+                recursar_evida()
+                self.reiniciar()
+
             case "Glosa - Recursar GEAP Sem Duplicado":
                 self.gif()
                 recursar_sem_duplicado()

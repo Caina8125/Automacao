@@ -268,9 +268,14 @@ class Recurso(PageElement):
                                     self.driver.find_element(*proxima_pagina).click()
                                     time.sleep(2)
                                     guias_abertas = False
+                    contador = 0
+                    while contador >= 15:
+                        try:
+                            self.driver.find_element(*self.fechar).click()
+                        except:
+                            time.sleep(2)
 
-                    self.driver.find_element(*self.fechar).click()
-                    time.sleep(2)
+                    time.sleep(2)        
                     self.driver.get("https://novowebplanevida.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
                     time.sleep(2)
                     try:
@@ -290,10 +295,16 @@ class Recurso(PageElement):
                 self.driver.get("https://novowebplanevida.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
                 count += 1
                 print(e)
-
+                content = self.driver.find_element(*self.body).text
+                if 'LOGON' in content:
+                    login_page.exe_login(usuario, senha)
+                    Caminho(driver, url).exe_caminho()
+                    time.sleep(2)
+                    self.driver.get("https://novowebplanevida.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
 
 def recursar_evida():
     try:
+        global driver, url
         url = 'https://novowebplanevida.facilinformatica.com.br/GuiasTISS/Logon'
         pasta = filedialog.askdirectory()
 
@@ -324,5 +335,3 @@ def recursar_evida():
     
     except Exception as e:
         print(e)
-
-recursar_evida()
