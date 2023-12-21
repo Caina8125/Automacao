@@ -13,8 +13,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from seleniumwire import webdriver
 
-
-
 class PageElement(ABC):
     def __init__(self, driver, url=''):
         self.driver = driver
@@ -23,13 +21,13 @@ class PageElement(ABC):
         self.driver.get(self.url)
 
 class Login(PageElement):
-    acessar = (By.XPATH, '//*[@id="login_user"]/div[1]/a')
+    acessar_portal = (By.XPATH, '/html/body/div[3]/div[3]/div[1]/form/div[1]/div[1]/div/a')
     usuario = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[1]/div/div[1]/div/input')
     senha = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[2]/div/div[1]/div[1]/input')
     entrar = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/button/div[2]/div/div')
 
     def exe_login(self, senha, cpf):
-        self.driver.find_element(*self.acessar).click()
+        self.driver.find_element(*self.acessar_portal).click()
         time.sleep(2)
         self.driver.find_element(*self.usuario).send_keys(cpf)
         time.sleep(2)
@@ -145,9 +143,7 @@ class capturar_protocolo(PageElement):
     
     
 
-#-------------------------------------------------------------------------------------------------------------------------
-
-    
+#-------------------------------------------------------------------------------------------------------------------------   
 
 def iniciar():
     try:
