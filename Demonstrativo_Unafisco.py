@@ -46,6 +46,7 @@ class Caminho(PageElement):
             time.sleep(3)
             login_page.exe_login(usuario, senha)
             self.driver.implicitly_wait(10)
+            time.sleep(3)
             self.driver.find_element(*self.continuar).click()
 
         time.sleep(2)
