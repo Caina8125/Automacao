@@ -9,6 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from abc import ABC
 import time
 from openpyxl import load_workbook
+import tkinter.messagebox
 import Pidgin
 import tkinter
 import os
@@ -188,7 +189,8 @@ class Recurso(PageElement):
 
                     self.inicializar_atributos(recurso_iniciado)
                     guias_abertas = False
-                
+
+                    pagina = 1
                     for index, linha in df.iterrows():
                         if f"{linha['Recursado no Portal']}" == "Sim" or f"{linha['Recursado no Portal']}" == "Não":
                             continue
@@ -198,7 +200,9 @@ class Recurso(PageElement):
                         valor_glosa = f'{linha["Valor Glosa"]}'.replace('-', '').replace('.', ',')
                         valor_recurso = f'{linha["Valor Recursado"]}'
                         justificativa = f'{linha["Recurso Glosa"]}'.replace('\t', ' ')
+                        pagina_iniciada = pagina
                         recurso = True
+                        print(f'Paciente {nome_paciente}, N°Guia {numero_guia}, Código procedimento {codigo_procedimento}, Valor glosa: {valor_glosa}')
 
                         while recurso:
                             if guias_abertas == False:
@@ -234,6 +238,7 @@ class Recurso(PageElement):
                                     numero_alterado = numero_guia
                                     if numero_anterior != numero_alterado:
                                         df['Nro. Guia'] = df['Nro. Guia'].replace(int(numero_anterior), int(numero_alterado))
+                                        print(f'Paciente {nome_paciente}, N°Guia {numero_guia}, Código procedimento {codigo_procedimento}, Valor glosa: {valor_glosa}')
                                     self.driver.switch_to.window(self.driver.window_handles[0])
                                     
                                 validacao_normal = numero_guia in nro_guia_portal and codigo_procedimento in codigo_proc_portal and valor_glosa in valor_glosa_portal and valor_recursado_portal == "R$0,00"
@@ -266,29 +271,34 @@ class Recurso(PageElement):
                                     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                                     df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
                                     writer.save()
-                                    recurso = False                              
+                                    recurso = False
+                                    break                         
                             
                             if recurso == True:
                                 if extensao_maxima_da_pagina == total_registros:
                                     self.driver.find_element(*self.primeira_pagina).click()
-                                    time.sleep(2)
-                                    dados = {"Recursado no Portal" : ['Não']}
-                                    df_dados = pd.DataFrame(dados)
-                                    book = load_workbook(planilha)
-                                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
-                                    writer.book = book
-                                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                                    df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
-                                    writer.save()
                                     guias_abertas = False
-                                    break
+                                    pagina = 1
+                                    time.sleep(2)
+                                    if pagina == pagina_iniciada:
+                                        dados = {"Recursado no Portal" : ['Não']}
+                                        df_dados = pd.DataFrame(dados)
+                                        book = load_workbook(planilha)
+                                        writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                                        writer.book = book
+                                        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                                        df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
+                                        writer.save()
+                                        break
                                 else:
                                     texto = self.driver.find_element(*self.ul).text
                                     vet_ul = texto.split('\n')
                                     if recurso_iniciado:
                                         proxima_pagina = (By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[{len(vet_ul) - 1}]/a/span')
+                                        pagina += 1
                                     else:
                                         proxima_pagina = (By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[{len(vet_ul) - 1}]/a/span')
+                                        pagina += 1
                                     self.driver.find_element(*proxima_pagina).click()
                                     time.sleep(2)
                                     guias_abertas = False
@@ -374,11 +384,13 @@ def recursar_evida():
             'proxy' : {
                 'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
                 'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
-            }
+            },
+            'verify_ssl': False
         }
 
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
         try:
             servico = Service(ChromeDriverManager().install())
             driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
@@ -394,6 +406,8 @@ def recursar_evida():
         login_page.exe_login(usuario, senha)
         Caminho(driver, url).exe_caminho()
         Recurso(driver, url).fazer_recurso(pasta)
+        driver.quit()
     
     except Exception as e:
-        print(e)
+        tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada \n {e.__class__.__name__}: {e}' )
+        driver.quit()
