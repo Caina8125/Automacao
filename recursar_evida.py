@@ -77,6 +77,9 @@ class Recurso(PageElement):
     fatura_input = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/input-number/div/div/input')
     pesquisar_recurso = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[2]/button[1]')
     recurso_de_glosa_2 = (By.XPATH, '/html/body/main/div[1]/div[2]/div/table/tbody/tr/td[11]/i')
+    alerta = (By.XPATH, '/html/body/ul/li/div/div[2]/button[2]')
+    guia_op = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[2]/input-text-search/div/div/div/input') 
+    buscar = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[2]/input-text-search/div/div/div/span/span')
 
     def inicializar_atributos(self, recurso_iniciado):
         if recurso_iniciado == False:
@@ -106,6 +109,7 @@ class Recurso(PageElement):
                     codigo_proc_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[4]/span').text.replace('.', '').replace('-', '')
                     valor_glosa_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[6]/span').text
                     valor_recursado_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[8]/span').text
+                    nome_paciente_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[3]/span').text
                     break
             except:
                 time.sleep(2)
@@ -117,10 +121,11 @@ class Recurso(PageElement):
                     codigo_proc_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[4]/span').text.replace('.', '').replace('-', '')
                     valor_glosa_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[6]/span').text
                     valor_recursado_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[8]/span').text
+                    nome_paciente_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[3]/span').text
                     break
                 except:
                     time.sleep(2)
-        return (nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal)
+        return (nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal, nome_paciente_portal)
     
     def xpath_preencher_valores(self, i, recurso_iniciado):
         if recurso_iniciado == False:
@@ -132,6 +137,13 @@ class Recurso(PageElement):
         return (input_valor_recursado, preencher_justificativa)
 
     def fazer_recurso(self, pasta):
+        self.driver.execute_script("window.open('');")
+        self.driver.switch_to.window(self.driver.window_handles[-1])
+        self.driver.get('https://novowebplanevida.facilinformatica.com.br/GuiasTISS/LocalizarProcedimentos')
+        time.sleep(2)
+        self.driver.find_element(*self.alerta).click()
+        self.driver.switch_to.window(self.driver.window_handles[0])
+
         count = 0
         while count < 10:
             try:
@@ -180,7 +192,8 @@ class Recurso(PageElement):
                     for index, linha in df.iterrows():
                         if f"{linha['Recursado no Portal']}" == "Sim" or f"{linha['Recursado no Portal']}" == "Não":
                             continue
-                        numero_guia = f'{linha["Nro. Guia"]}'.replace('.0', '')
+                        nome_paciente = f'{linha["Paciente"]}'
+                        numero_guia = f'{df["Nro. Guia"][index]}'.replace('.0', '')
                         codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
                         valor_glosa = f'{linha["Valor Glosa"]}'.replace('-', '').replace('.', ',')
                         valor_recurso = f'{linha["Valor Recursado"]}'
@@ -210,7 +223,19 @@ class Recurso(PageElement):
                                 extensao_maxima_da_pagina = int(vet_texto_label[4])
 
                             for i in range(1, len(df_tabela) + 1):
-                                nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal = self.get_values(i, recurso_iniciado)
+                                nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal, nome_paciente_portal = self.get_values(i, recurso_iniciado)
+                                validacao_numero_guia_alterado = nome_paciente in nome_paciente_portal and numero_guia not in nro_guia_portal and valor_glosa in valor_glosa_portal and valor_recursado_portal == "R$0,00" and (codigo_procedimento in codigo_proc_portal or (codigo_procedimento.startswith('6') and "Taxa" in codigo_proc_portal))
+                        
+                                if validacao_numero_guia_alterado:
+                                    self.driver.switch_to.window(self.driver.window_handles[-1])
+                                    time.sleep(2)
+                                    numero_anterior = numero_guia
+                                    numero_guia = self.confere_numero_alterado(numero_guia, nro_guia_portal)
+                                    numero_alterado = numero_guia
+                                    if numero_anterior != numero_alterado:
+                                        df['Nro. Guia'] = df['Nro. Guia'].replace(int(numero_anterior), int(numero_alterado))
+                                    self.driver.switch_to.window(self.driver.window_handles[0])
+                                    
                                 validacao_normal = numero_guia in nro_guia_portal and codigo_procedimento in codigo_proc_portal and valor_glosa in valor_glosa_portal and valor_recursado_portal == "R$0,00"
                                 validacao_taxa = numero_guia in nro_guia_portal and codigo_procedimento.startswith('6') and "Taxa" in codigo_proc_portal and valor_glosa in valor_glosa_portal and valor_recursado_portal == "R$0,00"
 
@@ -241,8 +266,7 @@ class Recurso(PageElement):
                                     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                                     df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
                                     writer.save()
-                                    recurso = False
-                                    break
+                                    recurso = False                              
                             
                             if recurso == True:
                                 if extensao_maxima_da_pagina == total_registros:
@@ -301,6 +325,44 @@ class Recurso(PageElement):
                     Caminho(driver, url).exe_caminho()
                     time.sleep(2)
                     self.driver.get("https://novowebplanevida.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
+
+    def confere_numero_alterado(self, numero_guia, nro_guia_portal):
+        count = 0
+        while count < 10:
+            try:
+                pesquisa = False
+                while pesquisa == False:
+                    try:
+                        self.driver.find_element(*self.guia_op).clear()
+                        time.sleep(1)
+                        self.driver.find_element(*self.guia_op).send_keys(nro_guia_portal)
+                        time.sleep(1)
+                        self.driver.find_element(*self.buscar).click()
+                        time.sleep(1)
+                        pesquisa = True
+                    except:
+                        pass
+
+                    user = False
+                    while user == False:
+                        try:
+                            self.driver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
+                            self.driver.find_element(By.XPATH, '//*[@id="menu_78B1E34CFC8E414D8EB4F83B534E4FB4"]').click()
+                            user = True
+                        except:
+                            pass
+                senha = self.driver.find_element(By.XPATH, '/html/body/main/div[1]/div[2]/div/div[2]/div/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div[2]/div[1]/div[3]/span').text
+                if numero_guia in senha:
+                    return nro_guia_portal
+                
+                else:
+                    return numero_guia
+
+            except:
+                self.driver.refresh()
+                count += 1
+                if count == 10:
+                    return numero_guia
 
 def recursar_evida():
     try:
