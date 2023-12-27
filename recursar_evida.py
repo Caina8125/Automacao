@@ -227,8 +227,16 @@ class Recurso(PageElement):
                                 extensao_maxima_da_pagina = int(vet_texto_label[4])
 
                             for i in range(1, len(df_tabela) + 1):
+                                validacao_paciente = nome_paciente in nome_paciente_portal
+                                validacao_numero_guia = numero_guia in nro_guia_portal
+                                validacao_valor_glosa = valor_glosa in valor_glosa_portal
+                                validacao_valor_recursado = valor_recursado_portal == "R$0,00"
+                                validacao_codigo = codigo_procedimento in codigo_proc_portal
+                                validacao_codigo_taxa = codigo_procedimento.startswith('6') and "Taxa" in codigo_proc_portal
+
                                 nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal, nome_paciente_portal = self.get_values(i, recurso_iniciado)
-                                validacao_numero_guia_alterado = nome_paciente in nome_paciente_portal and numero_guia not in nro_guia_portal and valor_glosa in valor_glosa_portal and valor_recursado_portal == "R$0,00" and (codigo_procedimento in codigo_proc_portal or (codigo_procedimento.startswith('6') and "Taxa" in codigo_proc_portal))
+                                
+                                validacao_numero_guia_alterado = validacao_paciente and not validacao_numero_guia and validacao_valor_glosa and validacao_valor_recursado and (validacao_codigo or validacao_codigo_taxa)
                         
                                 if validacao_numero_guia_alterado:
                                     self.driver.switch_to.window(self.driver.window_handles[-1])
@@ -241,8 +249,8 @@ class Recurso(PageElement):
                                         print(f'Paciente {nome_paciente}, N°Guia {numero_guia}, Código procedimento {codigo_procedimento}, Valor glosa: {valor_glosa}')
                                     self.driver.switch_to.window(self.driver.window_handles[0])
                                     
-                                validacao_normal = numero_guia in nro_guia_portal and codigo_procedimento in codigo_proc_portal and valor_glosa in valor_glosa_portal and valor_recursado_portal == "R$0,00"
-                                validacao_taxa = numero_guia in nro_guia_portal and codigo_procedimento.startswith('6') and "Taxa" in codigo_proc_portal and valor_glosa in valor_glosa_portal and valor_recursado_portal == "R$0,00"
+                                validacao_normal = validacao_numero_guia and validacao_codigo and validacao_valor_glosa and validacao_valor_recursado
+                                validacao_taxa = validacao_numero_guia and validacao_codigo_taxa and validacao_valor_glosa and validacao_valor_recursado
 
                                 if validacao_normal or validacao_taxa:
                                     input_valor_recursado, preencher_justificativa = self.xpath_preencher_valores(i, recurso_iniciado)

@@ -247,7 +247,7 @@ class Application:
                 self.reiniciar()
 
             case "Faturamento - Enviar PDF Bacen":
-                ...
+                self.reiniciar()
 
             case "Faturamento - Enviar PDF BRB":
                 self.gif()
