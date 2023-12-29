@@ -9,6 +9,8 @@ from Buscar_fatura import iniciar
 from Atualiza_Local import *
 from Anexar_Honorario import anexar_guias
 from VerificarSituacao_BRB import verificacao_brb
+from recursar_brb import recursar_brb
+from recursar_fascal import recursar_fascal
 from recursar_evida import recursar_evida
 from Recursar_SemDuplicado import recursar_sem_duplicado
 from Recurso_Postal import recursar_postal
@@ -122,7 +124,9 @@ class Application:
                                                                    "Financeiro - Demonstrativos TJDFT", 
                                                                    "Financeiro - Demonstrativos Unafisco", 
                                                                    "Glosa - Gerador de Planilha GDF",
+                                                                   "Glosa - Recursar BRB",
                                                                    "Glosa - Recursar E-VIDA",
+                                                                   "Glosa - Recursar Fascal",
                                                                    "Glosa - Recursar GEAP Duplicado",
                                                                    "Glosa - Recursar GEAP Sem Duplicado",
                                                                    "Glosa - Recursar Postal",
@@ -377,6 +381,11 @@ class Application:
                 gerar_planilha()
                 self.reiniciar()
 
+            case "Glosa - Recursar BRB":
+                self.gif()
+                recursar_brb()
+                self.reiniciar()
+
             case "Glosa - Recursar GEAP Duplicado":
                 self.gif()
                 recursar_duplicado()
@@ -385,6 +394,11 @@ class Application:
             case "Glosa - Recursar E-VIDA":
                 self.gif()
                 recursar_evida()
+                self.reiniciar()
+
+            case "Glosa - Recursar Fascal":
+                self.gif()
+                recursar_fascal()
                 self.reiniciar()
 
             case "Glosa - Recursar GEAP Sem Duplicado":
