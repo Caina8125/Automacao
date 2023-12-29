@@ -433,4 +433,3 @@ def recursar_fascal():
     except Exception as e:
         tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada \n {e.__class__.__name__}: {e}' )
         driver.quit()
-recursar_fascal()
