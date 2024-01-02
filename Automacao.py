@@ -22,6 +22,7 @@ from VerificarSituacao_Fascal import verificacao_fascal
 from VerificarSituacao_Gama import verificar_gama
 from Demonstrativo_Brb import demonstrativo_brb
 from Demonstrativo_Caixa import demonstrativo_caixa
+from Demonstrativo_Cassi import demonstrativo_cassi
 from Demonstrativo_Camara import demonstrativo_camara
 from Demonstrativo_Camed import demonstrativo_camed
 from Demonstrativo_Casembrapa import demonstrativo_casembrapa
@@ -125,6 +126,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos Unafisco", 
                                                                    "Glosa - Gerador de Planilha GDF",
                                                                    "Glosa - Recursar BRB",
+                                                                   "Glosa - Recursar Cassi",
                                                                    "Glosa - Recursar E-VIDA",
                                                                    "Glosa - Recursar Fascal",
                                                                    "Glosa - Recursar GEAP Duplicado",
@@ -382,6 +384,11 @@ class Application:
                 self.reiniciar()
 
             case "Glosa - Recursar BRB":
+                self.gif()
+                recursar_brb()
+                self.reiniciar()
+
+            case "Glosa - Recursar Cassi":
                 self.gif()
                 recursar_brb()
                 self.reiniciar()
