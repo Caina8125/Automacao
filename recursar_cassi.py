@@ -1,7 +1,7 @@
 import tkinter.messagebox
 from tkinter import filedialog
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
+from openpyxl import load_workbook
 from selenium import webdriver
 from abc import ABC
 import pandas as pd
@@ -95,6 +95,8 @@ class Recursar(PageElement):
 
                 time.sleep(2)
                 for index, linha in df.iterrows():
+                    if f"{linha['Recursado no Portal']}" == "Sim":
+                        continue
                     numero_controle = f"{linha['Controle Inicial']}".replace('.0', '')
                     procedimento = f"{linha['Procedimento']}".replace('.0', '')
                     valor_glosado = f"{linha['Valor Glosa']}".replace('-', '').replace('.', ',')
@@ -121,15 +123,31 @@ class Recursar(PageElement):
                                 time.sleep(2)
                                 self.driver.find_element(*self.valor_recursando_input).send_keys(valor_recursar)
                                 time.sleep(2)
-                                self.driver.find_element(*self.mostrar_textarea_just).click()
-                                time.sleep(2)
-                                self.driver.find_element(*self.textarea_justificativa).send_keys(justificativa)
-                                time.sleep(2)
-                                self.driver.find_element(*self.fechar_justificativa).click()
-                                time.sleep(2)
+                                nome_classe = 'panel-title'
+                                elementos = self.driver.find_elements(By.CLASS_NAME, nome_classe)
+                                qtd_elementos = len(elementos)
+                                for i in range(1, qtd_elementos + 1):
+                                    if qtd_elementos == 1:
+                                        self.driver.find_element(By.XPATH, '/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[6]/div[2]/div/div/div[1]/h4/a').click()
+                                    else:
+                                        self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[6]/div[2]/div/div[{i}]/div[1]/h4/a').click()
+                                    time.sleep(2)
+                                    self.driver.find_element(*self.textarea_justificativa).send_keys(justificativa)
+                                    time.sleep(2)
+                                    self.driver.find_element(*self.fechar_justificativa).click()
+                                    time.sleep(2)
                                 self.driver.find_element(*self.salvar_recurso).click()
                                 time.sleep(2)
                                 self.driver.find_element(*self.fechar_recurso).click()
+                                dados = {"Recursado no Portal" : ['Sim']}
+                                df_dados = pd.DataFrame(dados)
+                                book = load_workbook(planilha)
+                                writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                                writer.book = book
+                                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                                df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
+                                writer.save()
+                                writer.close()
                                 break
                             else:
                                 count += 1
