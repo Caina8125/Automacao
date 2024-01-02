@@ -10,6 +10,7 @@ from Atualiza_Local import *
 from Anexar_Honorario import anexar_guias
 from VerificarSituacao_BRB import verificacao_brb
 from recursar_brb import recursar_brb
+from recursar_cassi import recursar_cassi
 from recursar_fascal import recursar_fascal
 from recursar_evida import recursar_evida
 from Recursar_SemDuplicado import recursar_sem_duplicado
@@ -390,7 +391,7 @@ class Application:
 
             case "Glosa - Recursar Cassi":
                 self.gif()
-                recursar_brb()
+                recursar_cassi()
                 self.reiniciar()
 
             case "Glosa - Recursar GEAP Duplicado":
