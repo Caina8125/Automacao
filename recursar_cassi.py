@@ -163,9 +163,9 @@ def recursar_cassi():
         }
         try:
             servico = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=servico, options=chrome_options)
+            driver = webdriver.Chrome(service=servico, options=chrome_options, seleniumwire_options=options)
         except:
-            driver = webdriver.Chrome(options=chrome_options)
+            driver = webdriver.Chrome(options=chrome_options, seleniumwire_options=options)
 
         login_page = Login(driver, url)
         login_page.open()
