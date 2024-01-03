@@ -48,7 +48,7 @@ class caminho(PageElement):
 
 class Recursar(PageElement):
     protocolo_input = (By.XPATH, '//*[@id="ProtocoloPagamento"]')
-    consultar = (By.XPATH, '/html/body/div[1]/div[5]/section/div/form/fieldset/div[4]/div/button')
+    consultar = (By.ID, 'btnConsultar')
     voltar = (By.XPATH, '//*[@id="btnVoltar"]')
     xpath_corpo_da_pagina = (By.XPATH, '/html/body')
     demonstrativo_de_analise = (By.XPATH, '/html/body/div[1]/div[5]/section/div/fieldset/div/table/tbody/tr/td[3]/form/input[3]')
@@ -65,59 +65,99 @@ class Recursar(PageElement):
     ok = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[6]/div/div/div[3]/button')
     solicitar = (By.XPATH, '/html/body/div[1]/div[5]/section/nav/div/div[2]/ul[1]/li[3]/a')
     editar_recurso = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[10]/div/table/tbody/tr/td[10]/a[1]')
+    proxima_pagina = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[10]/div/center/table/tbody/tr/td[3]/form/a')
+    table = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table')
+    protocolo_de_revisao_input = (By.XPATH, '/html/body/div[1]/div[5]/section/div/form/fieldset/div[2]/div[4]/input')
+    resposta_recurso = (By.XPATH, '/html/body/div[1]/div[5]/section/div/fieldset/div/table/tbody/tr/td[4]/form/input[4]')
+    contestar = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[1]/div[1]/div/div[2]/button[1]')
+    acao = (By.ID, '#dropDownContestar')
+    contestar_opt = (By.ID, 'btnContestarRecurso')
+    div_lista_guias = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[7]/div[2]/div/div/fieldset/div[2]')
 
     def recurso(self, pasta):
         lista_de_planilhas = [f"{pasta}/{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith('.xlsx')]
-
-        for planilha in lista_de_planilhas:
-            df = pd.read_excel(planilha)
-            protocolo = f"{df['Protocolo Aceite'][0]}"
-            self.driver.find_element(*self.protocolo_input).send_keys(protocolo)
-            time.sleep(2)
-            self.driver.find_element(*self.consultar).click()
-            time.sleep(2)
-            corpo_pagina = self.driver.find_element(*self.xpath_corpo_da_pagina).text
-            time.sleep(1)
-
-            if not "Não foram encontrados resultados para a pesquisa" in corpo_pagina:
-                self.driver.find_element(*self.demonstrativo_de_analise).click()
-                time.sleep(2)
-                self.driver.find_element(*self.recursar).click()
-                time.sleep(2)
-                corpo_pagina = self.driver.find_element(*self.xpath_corpo_da_pagina).text
-                if 'Ação não permitida. Já existe um recurso/revisão em digitação para este protocolo.' in corpo_pagina:
-                    self.driver.find_element(*self.ok).click()
-                    time.sleep(2)
-                    self.driver.find_element(*self.solicitar).click()
-                    time.sleep(2)
-                    self.driver.find_element(*self.editar_recurso).click()
-                    time.sleep(2)
-
-                time.sleep(2)
-                for index, linha in df.iterrows():
-                    if f"{linha['Recursado no Portal']}" == "Sim":
+        for i in range(0,10):
+            try:
+                for planilha in lista_de_planilhas:
+                    df = pd.read_excel(planilha)
+                    protocolo = f"{df['Protocolo Aceite'][0]}".replace('.0', '')
+                    if "Enviado" in planilha:
                         continue
-                    numero_controle = f"{linha['Controle Inicial']}".replace('.0', '')
-                    procedimento = f"{linha['Procedimento']}".replace('.0', '')
-                    valor_glosado = f"{linha['Valor Glosa']}".replace('-', '').replace('.', ',')
-                    valor_recursar = f"{linha['Valor Recursado']}"
-                    justificativa = f"{linha['Recurso Glosa']}"
-                    self.driver.find_element(*self.guia_input).clear()
-                    time.sleep(1)
-                    self.driver.find_element(*self.guia_input).send_keys(numero_controle)
-                    time.sleep(2)
-                    self.driver.find_element(*self.pesquisar).click()
-                    time.sleep(2)
-                    self.driver.find_element(*self.guia_click).click()
-                    time.sleep(2)
-                    count = 1
-                    while count != 0:
-                        try:
-                            codigo_portal = self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table/tbody/tr[{count}]/td[1]').text
-                            valor_glosa_portal = self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table/tbody/tr[{count}]/td[5]').text
-                            span_class = self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table/tbody/tr[{count}]/td[7]/span').get_attribute("class")
+                    if "P" in protocolo:
+                        self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoRecursoGlosa/Index')
+                        time.sleep(2)
+                        self.driver.find_element(*self.protocolo_de_revisao_input).send_keys(protocolo)
+                        time.sleep(2)
+                        self.driver.find_element(*self.consultar).click()
+                        time.sleep(2)
+                        self.driver.find_element(*self.resposta_recurso).click()
+                        time.sleep(2)
+                        self.driver.find_element(*self.contestar).click()
+                        time.sleep(2)
+                        self.driver.find_element(*self.acao).click()
+                        time.sleep(2)
+                        self.driver.find_element(*self.contestar_opt).click()
+                    else:    
+                        self.driver.find_element(*self.protocolo_input).send_keys(protocolo)
+                        time.sleep(2)
+                        self.driver.find_element(*self.consultar).click()
+                        time.sleep(2)
+                        corpo_pagina = self.driver.find_element(*self.xpath_corpo_da_pagina).text
+                        time.sleep(1)
+
+                        if not "Não foram encontrados resultados para a pesquisa" in corpo_pagina:
+                            self.driver.find_element(*self.demonstrativo_de_analise).click()
+                            time.sleep(2)
+                            self.driver.find_element(*self.recursar).click()
+                            time.sleep(2)
+                            corpo_pagina = self.driver.find_element(*self.xpath_corpo_da_pagina).text
+                            if 'Ação não permitida. Já existe um recurso/revisão em digitação para este protocolo.' in corpo_pagina:
+                                self.driver.find_element(*self.ok).click()
+                                time.sleep(2)
+                                self.driver.find_element(*self.solicitar).click()
+                                time.sleep(2)
+                                protocolo_encontrado = False
+                                while protocolo_encontrado == False:
+                                    for i in range(1, 11):
+                                        protocolo_portal = self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[10]/div/table/tbody/tr[{i}]/td[4]').text
+                                        if protocolo == protocolo_portal:
+                                            self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[10]/div/table/tbody/tr[{i}]/td[10]/a[1]').click()
+                                            protocolo_encontrado = True
+                                            break
+                                    if protocolo_encontrado == False:
+                                        self.driver.find_element(*self.proxima_pagina).click()
+                                time.sleep(2)
+
+                        else:
+                            continue
+
+                    for index, linha in df.iterrows():
+                        if f"{linha['Recursado no Portal']}" == "Sim":
+                            continue
+                        numero_controle = f"{linha['Controle Inicial']}".replace('.0', '')
+                        procedimento = f"{linha['Procedimento']}".replace('.0', '')
+                        valor_glosado = f"{linha['Valor Glosa']}".replace('.', '')
+                        valor_recursar = f"{linha['Valor Recursado']}"
+                        justificativa = f"{linha['Recurso Glosa']}"
+                        self.driver.find_element(*self.guia_input).clear()
+                        time.sleep(1)
+                        self.driver.find_element(*self.guia_input).send_keys(numero_controle)
+                        time.sleep(2)
+                        self.driver.find_element(*self.pesquisar).click()
+                        time.sleep(2)
+                        content = self.driver.find_element(*self.div_lista_guias).text
+                        if numero_controle not in content:
+                            continue
+                        self.driver.find_element(*self.guia_click).click()
+                        time.sleep(2)
+                        table = self.driver.find_element(*self.table).get_attribute('outerHTML')
+                        df_tabela = pd.read_html(table)[0]
+                        for j in range(1, len(df_tabela) + 1):
+                            codigo_portal = self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table/tbody/tr[{j}]/td[1]').text
+                            valor_glosa_portal = self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table/tbody/tr[{j}]/td[5]').text
+                            span_class = self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table/tbody/tr[{j}]/td[7]/span').get_attribute("class")
                             if procedimento == codigo_portal and valor_glosado == valor_glosa_portal and 'parcial' in span_class:
-                                self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table/tbody/tr[{count}]/td[7]/a[2]').click()
+                                self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table/tbody/tr[{j}]/td[7]/a[2]').click()
                                 time.sleep(2)
                                 self.driver.find_element(*self.valor_recursando_input).clear()
                                 time.sleep(2)
@@ -149,19 +189,14 @@ class Recursar(PageElement):
                                 writer.save()
                                 writer.close()
                                 break
-                            else:
-                                count += 1
-                        except:
-                            break
 
-                self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoAnaliseContas/Index')
+                    self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoAnaliseContas/Index')
 
-            else:
-                tkinter.messagebox.showinfo( 'Demonstrativo Cassi' , 'Não foram encontrados resultados para a pesquisa' )
-
-        tkinter.messagebox.showinfo( 'Recurso CASSI' , f"Recurso concluído!" )
-        self.driver.quit()
-
+                tkinter.messagebox.showinfo( 'Recurso CASSI' , f"Recurso concluído!" )
+                self.driver.quit()
+                break
+            except:
+                continue
 #---------------------------------------------------------------------------------------------------------------
 def recursar_cassi():
     try:
