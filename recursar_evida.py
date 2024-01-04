@@ -227,6 +227,7 @@ class Recurso(PageElement):
                                 extensao_maxima_da_pagina = int(vet_texto_label[4])
 
                             for i in range(1, len(df_tabela) + 1):
+                                nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal, nome_paciente_portal = self.get_values(i, recurso_iniciado)
                                 validacao_paciente = nome_paciente in nome_paciente_portal
                                 validacao_numero_guia = numero_guia in nro_guia_portal
                                 validacao_valor_glosa = valor_glosa in valor_glosa_portal
@@ -234,7 +235,6 @@ class Recurso(PageElement):
                                 validacao_codigo = codigo_procedimento in codigo_proc_portal
                                 validacao_codigo_taxa = codigo_procedimento.startswith('6') and "Taxa" in codigo_proc_portal
 
-                                nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal, nome_paciente_portal = self.get_values(i, recurso_iniciado)
                                 
                                 validacao_numero_guia_alterado = validacao_paciente and not validacao_numero_guia and validacao_valor_glosa and validacao_valor_recursado and (validacao_codigo or validacao_codigo_taxa)
                         
