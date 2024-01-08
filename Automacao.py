@@ -36,6 +36,7 @@ from Demonstrativo_Gama import demonstrativo_gama
 from Demonstrativo_Mpu import demonstrativo_mpu
 from Demonstrativo_Pmdf import demonstrativo_pmdf
 from Demonstrativo_Postal import demonstrativo_postal
+from Demonstrativo_Real_Grandeza import demonstrativo_real
 from Demonstrativo_Serpro import demonstrativo_serpro
 from Demonstrativo_Sis import demonstrativo_sis
 from Demonstrativo_Stf import demonstrativo_stf
@@ -119,6 +120,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos MPU", 
                                                                    "Financeiro - Demonstrativos PMDF", 
                                                                    "Financeiro - Demonstrativos Postal", 
+                                                                   "Financeiro - Demonstrativos Real Grandeza", 
                                                                    "Financeiro - Demonstrativos Saúde Caixa", 
                                                                    "Financeiro - Demonstrativos Serpro", 
                                                                    "Financeiro - Demonstrativos SIS", 
@@ -347,6 +349,11 @@ class Application:
             case "Financeiro - Demonstrativos Postal":
                 self.gif()
                 demonstrativo_postal()
+                self.reiniciar()
+
+            case "Financeiro - Demonstrativos Real Grandeza":
+                self.gif()
+                demonstrativo_real()
                 self.reiniciar()
 
             case "Financeiro - Demonstrativos Saúde Caixa":
