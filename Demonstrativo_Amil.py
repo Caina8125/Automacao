@@ -44,7 +44,7 @@ class BaixarDemonstrativo(PageElement):
     portal_prestador = (By.XPATH, '/html/body/div[2]/h1/a')
     consultas_e_relatorios = (By.XPATH, '/html/body/div[2]/div/h2[3]/a')
     dem_tiss_3 = (By.XPATH, '/html/body/div[2]/div/div[3]/h3[2]/a')
-    mes_anterior = (By.XPATH, '/html/body/fieldset[2]/center/table/tbody/tr/td/table/tbody/tr/td/form[1]/table/tbody/tr[3]/td[1]/b/a') #voltar para 2
+    mes_anterior = (By.XPATH, '/html/body/fieldset[2]/center/table/tbody/tr/td/table/tbody/tr/td/form[1]/table/tbody/tr[2]/td[1]/b/a')
     table = (By.XPATH, '/html/body/form[1]/table/tbody/tr[5]/td/table')
     imprimir = (By.XPATH, '/html/body/div/span[2]/img')
     xml = (By.XPATH, '/html/body/div/span[3]/img')

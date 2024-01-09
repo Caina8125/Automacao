@@ -21,6 +21,7 @@ from Recursar_SIS import recursar_sis
 from GEAP_Conferencia import conferencia
 from VerificarSituacao_Fascal import verificacao_fascal
 from VerificarSituacao_Gama import verificar_gama
+from Demonstrativo_Amil import demonstrativo_amil
 from Demonstrativo_Brb import demonstrativo_brb
 from Demonstrativo_Caixa import demonstrativo_caixa
 from Demonstrativo_Cassi import demonstrativo_cassi
@@ -107,6 +108,7 @@ class Application:
                                                                    "Faturamento - Verificar Situação Fascal",
                                                                    "Faturamento - Verificar Situação Gama",
                                                                    "Financeiro - Buscar Faturas GEAP", 
+                                                                   "Financeiro - Demonstrativos Amil", 
                                                                    "Financeiro - Demonstrativos BRB", 
                                                                    "Financeiro - Demonstrativos Câmara dos Deputados", 
                                                                    "Financeiro - Demonstrativos Camed", 
@@ -286,6 +288,11 @@ class Application:
             case "Financeiro - Buscar Faturas GEAP":
                 self.gif()
                 iniciar()
+                self.reiniciar()
+
+            case "Financeiro - Demonstrativos Amil":
+                self.gif()
+                demonstrativo_amil()
                 self.reiniciar()
 
             case "Financeiro - Demonstrativos BRB":
