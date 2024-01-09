@@ -121,7 +121,7 @@ class BaixarDemonstrativo(PageElement):
                     download_feito = False
                     endereco = r"\\10.0.0.239\automacao_financeiro\CODEVASF"
 
-                    for i in range(10):
+                    for j in range(10):
 
                         try:
                             os.rename(f"{endereco}\\Imprimir.pdf", novo_nome)
@@ -131,7 +131,7 @@ class BaixarDemonstrativo(PageElement):
                         except:
                             print("Download ainda não foi feito")
 
-                            if i == 9:
+                            if j == 9:
                                 erro_portal = True
                                 self.driver.quit()
 
