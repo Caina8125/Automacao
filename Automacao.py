@@ -34,6 +34,7 @@ from Demonstrativo_Evida import demonstrativo_evida
 from Demonstrativo_Fapes import demonstrativo_fapes
 from Demonstrativo_Fascal import demonstrativo_fascal
 from Demonstrativo_Gama import demonstrativo_gama
+from Demonstrativo_Life_Empresarial import demonstrativo_life
 from Demonstrativo_Mpu import demonstrativo_mpu
 from Demonstrativo_Pmdf import demonstrativo_pmdf
 from Demonstrativo_Postal import demonstrativo_postal
@@ -119,6 +120,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos Fapes", 
                                                                    "Financeiro - Demonstrativos Fascal", 
                                                                    "Financeiro - Demonstrativos Gama", 
+                                                                   "Financeiro - Demonstrativos Life Empresarial", 
                                                                    "Financeiro - Demonstrativos MPU", 
                                                                    "Financeiro - Demonstrativos PMDF", 
                                                                    "Financeiro - Demonstrativos Postal", 
@@ -341,6 +343,11 @@ class Application:
             case "Financeiro - Demonstrativos Gama":
                 self.gif()
                 demonstrativo_gama()
+                self.reiniciar()
+
+            case "Financeiro - Demonstrativos Life Empresarial":
+                self.gif()
+                demonstrativo_life()
                 self.reiniciar()
 
             case "Financeiro - Demonstrativos MPU":
