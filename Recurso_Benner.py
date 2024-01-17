@@ -1429,7 +1429,7 @@ def recursar_benner():
         print('Protocolo Acionado')
         inserir.Protocolo()
         print('Todos os procedimentos foram recursados com sucesso.')
-        tkinter.messagebox.showinfo( 'Automação Postal Recurso de Glosa' , 'Recursos do Postal Concluídos 😎✌' )
+        tkinter.messagebox.showinfo( 'Automação Recurso de Glosa' , 'Recursos Concluídos 😎✌' )
     
     except Exception as e:
         tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma exceção não tratada \n {e.__class__.__name__} - {e}'  )
