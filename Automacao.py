@@ -17,6 +17,9 @@ from Recursar_SemDuplicado import recursar_sem_duplicado
 from Recursar_Caixa import recursar_caixa
 from Recurso_Benner import recursar_benner
 from Recursar_SIS import recursar_sis
+from Recursar_Stf import recursar_stf
+from recursar_real_grandeza import recursar_real
+from recursar_stm import recursar_stm
 from GEAP_Conferencia import conferencia
 from VerificarSituacao_Fascal import verificacao_fascal
 from VerificarSituacao_Gama import verificar_gama
@@ -140,9 +143,11 @@ class Application:
                                                                    "Glosa - Recursar Fascal",
                                                                    "Glosa - Recursar GEAP Duplicado",
                                                                    "Glosa - Recursar GEAP Sem Duplicado",
+                                                                   "Glosa - Recursar Real Grandeza",
                                                                    "Glosa - Recursar Saúde Caixa",
-                                                                   "Glosa - Recursar Serpro",
                                                                    "Glosa - Recursar SIS",
+                                                                   "Glosa - Recursar STF",
+                                                                   "Glosa - Recursar STM",
                                                                    "Relatório - Brindes",
                                                                    "Tesouraria - Nota Fiscal"
                                                                     ], width=50)
@@ -441,6 +446,11 @@ class Application:
                 recursar_fascal()
                 self.reiniciar()
 
+            case "Glosa - Recursar Real Grandeza":
+                self.gif()
+                recursar_real()
+                self.reiniciar()
+
             case "Glosa - Recursar GEAP Sem Duplicado":
                 self.gif()
                 recursar_sem_duplicado()
@@ -454,6 +464,16 @@ class Application:
             case "Glosa - Recursar SIS":
                 self.gif()
                 recursar_sis()
+                self.reiniciar()
+
+            case "Glosa - Recursar STF":
+                self.gif()
+                recursar_stf()
+                self.reiniciar()
+
+            case "Glosa - Recursar STM":
+                self.gif()
+                recursar_stm()
                 self.reiniciar()
             
             case "Relatório - Brindes":
