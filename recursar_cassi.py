@@ -134,6 +134,7 @@ class Recursar(PageElement):
                     for index, linha in df.iterrows():
                         if f"{linha['Recursado no Portal']}" == "Sim":
                             continue
+                        self.driver.implicitly_wait(30)
                         numero_controle = f"{linha['Controle Inicial']}".replace('.0', '')
                         procedimento = f"{linha['Procedimento']}".replace('.0', '')
                         valor_glosado = f"{linha['Valor Glosa']}".replace('.', '')
@@ -179,6 +180,7 @@ class Recursar(PageElement):
                                 self.driver.find_element(*self.salvar_recurso).click()
                                 time.sleep(2)
                                 self.driver.find_element(*self.fechar_recurso).click()
+                                time.sleep(4)
                                 dados = {"Recursado no Portal" : ['Sim']}
                                 df_dados = pd.DataFrame(dados)
                                 book = load_workbook(planilha)

@@ -38,6 +38,7 @@ class PDFReader():
 
             protocolo: str = result['pages_content_array'][0][0] 
             numero_fatura_pagina1: str = result['pages_content_array'][0][37].split('_')[0].replace('0000000000000','')
+            valor_peg = result['pages_content_array'][0][15]
 
             numero_fatura_pagina2: str = PDFReader.get_numero_nota(result['pages_content_array'][1])
 
