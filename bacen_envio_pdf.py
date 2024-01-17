@@ -205,17 +205,3 @@ for pasta in lista_de_pastas:
 
 cabecalho = ["Número Processo", "Número Protocolo", "Envio", "Erro na Matricula", "Guias Não Anexadas"]
 df = pd.DataFrame(lista_de_dados, columns=cabecalho)
-
-# def teste_rapido():
-#     pastas_com_arquivos_para_renomear = askdirectory()
-#     caminho_pastas = [f"{pastas_com_arquivos_para_renomear}\\{pasta}" for pasta in os.listdir(pastas_com_arquivos_para_renomear) if pasta.isdigit()]
-#     for pasta in caminho_pastas:
-#         path_arquivos = [f"{pasta}\\{arquivo}" for arquivo in os.listdir(pasta)]
-#         protocolo = input("Coloque o numero do protocolo")
-#         for path in path_arquivos:
-#             print(path)
-#             vetor_nome = path.split("_")
-#             novo_nome = f"{pasta}\\PEG{protocolo}_{vetor_nome[1]}"
-#             os.rename(path, novo_nome)
-
-# teste_rapido()

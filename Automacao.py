@@ -14,9 +14,8 @@ from recursar_cassi import recursar_cassi
 from recursar_fascal import recursar_fascal
 from recursar_evida import recursar_evida
 from Recursar_SemDuplicado import recursar_sem_duplicado
-from Recurso_Postal import recursar_postal
 from Recursar_Caixa import recursar_caixa
-from Recurso_Serpro import recursar_serpro
+from Recurso_Benner import recursar_benner
 from Recursar_SIS import recursar_sis
 from GEAP_Conferencia import conferencia
 from VerificarSituacao_Fascal import verificacao_fascal
@@ -47,6 +46,7 @@ from Demonstrativo_Unafisco import demonstrativo_unafisco
 from Gerar_relatorios_Brindes import Gerar_Relat_Normal
 from Nota_Fiscal import subirNF
 from gerador_de_planilha import gerar_planilha
+from leitor_de_pdf_gama import pdf_reader
 from Enviar_Pdf_Brb import enviar_pdf
 from bacen_conferencia import conferir_bacen
 from bacen_envio_xml import fazer_envio_xml
@@ -105,6 +105,7 @@ class Application:
                                                                    "Faturamento - Enviar PDF Bacen",
                                                                    "Faturamento - Enviar PDF BRB",
                                                                    "Faturamento - Enviar XML Bacen",
+                                                                   "Faturamento - Leitor de PDF GAMA",
                                                                    "Faturamento - Verificar Situação BRB",
                                                                    "Faturamento - Verificar Situação Fascal",
                                                                    "Faturamento - Verificar Situação Gama",
@@ -138,7 +139,7 @@ class Application:
                                                                    "Glosa - Recursar Fascal",
                                                                    "Glosa - Recursar GEAP Duplicado",
                                                                    "Glosa - Recursar GEAP Sem Duplicado",
-                                                                   "Glosa - Recursar Postal",
+                                                                   "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)",
                                                                    "Glosa - Recursar Saúde Caixa",
                                                                    "Glosa - Recursar Serpro",
                                                                    "Glosa - Recursar SIS",
@@ -270,6 +271,11 @@ class Application:
             case "Faturamento - Enviar XML Bacen":
                 self.gif()
                 fazer_envio_xml()
+                self.reiniciar()
+
+            case "Faturamento - Leitor de PDF GAMA":
+                self.gif()
+                pdf_reader()
                 self.reiniciar()
 
             case "Faturamento - Verificar Situação BRB":
@@ -405,6 +411,11 @@ class Application:
                 gerar_planilha()
                 self.reiniciar()
 
+            case "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)":
+                self.gif()
+                recursar_benner()
+                self.reiniciar()
+
             case "Glosa - Recursar BRB":
                 self.gif()
                 recursar_brb()
@@ -435,19 +446,9 @@ class Application:
                 recursar_sem_duplicado()
                 self.reiniciar()
 
-            case "Glosa - Recursar Postal":
-                self.gif()
-                recursar_postal()
-                self.reiniciar()
-
             case "Glosa - Recursar Saúde Caixa":
                 self.gif()
                 recursar_caixa()
-                self.reiniciar()
-
-            case "Glosa - Recursar Serpro":
-                self.gif()
-                recursar_serpro()
                 self.reiniciar()
 
             case "Glosa - Recursar SIS":
@@ -562,6 +563,7 @@ if(local == atualiza):
     print("Software atualizado")
     root = tk.Tk()
     Application(root)
+    root.iconbitmap('Robo.ico')
     root.title('AMHP - Automações')
     root.geometry("530x330")
     root.configure(background="white")
