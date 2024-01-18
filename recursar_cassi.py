@@ -56,12 +56,12 @@ class Recursar(PageElement):
     guia_input = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[7]/div[2]/div/div/fieldset/div[1]/div/input')
     pesquisar = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[7]/div[2]/div/div/fieldset/div[1]/div/div/a')
     guia_click = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[7]/div[2]/div/div/fieldset/div[2]/table/tbody/tr/td[1]')
-    valor_recursando_input = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[4]/div[2]/div[3]/div/div/input')
+    valor_recursando_input = (By.ID, 'txtValorRecusado')
     mostrar_textarea_just = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[6]/div[2]/div/div/div[1]/h4/a')
     textarea_justificativa = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[5]/div/div/div/div/textarea')
     fechar_justificativa = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[5]/div/div/div/div/div/button')
     salvar_recurso = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[8]/div/button[1]')
-    fechar_recurso = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[8]/div/button[2]')
+    fechar_recurso = (By.ID, 'btnFecharJustificativaEvento')
     ok = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[6]/div/div/div[3]/button')
     solicitar = (By.XPATH, '/html/body/div[1]/div[5]/section/nav/div/div[2]/ul[1]/li[3]/a')
     editar_recurso = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[10]/div/table/tbody/tr/td[10]/a[1]')
@@ -73,6 +73,7 @@ class Recursar(PageElement):
     acao = (By.ID, '#dropDownContestar')
     contestar_opt = (By.ID, 'btnContestarRecurso')
     div_lista_guias = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[7]/div[2]/div/div/fieldset/div[2]')
+    protocolo_contestacao = (By.XPATH, '/html/body/div[1]/div[5]/section/div/div[7]/div[1]/div/table/tbody/tr/td[1]')
 
     def recurso(self, pasta):
         lista_de_planilhas = [f"{pasta}/{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith('.xlsx')]
@@ -81,9 +82,10 @@ class Recursar(PageElement):
                 for planilha in lista_de_planilhas:
                     df = pd.read_excel(planilha)
                     protocolo = f"{df['Protocolo Aceite'][0]}".replace('.0', '')
+                    protocolo_pagamento = f"{df['Protocolo Pagamento'][0]}".replace('.0', '')
                     if "Enviado" in planilha:
                         continue
-                    if "P" in protocolo:
+                    if "P" in protocolo and not protocolo_pagamento.isdigit():    
                         self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoRecursoGlosa/Index')
                         time.sleep(2)
                         self.driver.find_element(*self.protocolo_de_revisao_input).send_keys(protocolo)
@@ -97,6 +99,18 @@ class Recursar(PageElement):
                         self.driver.find_element(*self.acao).click()
                         time.sleep(2)
                         self.driver.find_element(*self.contestar_opt).click()
+                        time.sleep(2)
+                        protocolo_contestacao = self.driver.find_element(*self.protocolo_contestacao).text
+                        time.sleep(2)
+                        dados = {"Protocolo": [protocolo_contestacao]}
+                        df_dados = pd.DataFrame(dados)
+                        book = load_workbook(planilha)
+                        writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                        writer.book = book
+                        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                        df_dados.to_excel(writer, 'Recurso', startrow=1, startcol=1, header=False, index=False)
+                        writer.save()
+                        writer.close()
                     else:    
                         self.driver.find_element(*self.protocolo_input).send_keys(protocolo)
                         time.sleep(2)
@@ -106,13 +120,19 @@ class Recursar(PageElement):
                         time.sleep(1)
 
                         if not "Não foram encontrados resultados para a pesquisa" in corpo_pagina:
-                            self.driver.find_element(*self.demonstrativo_de_analise).click()
-                            time.sleep(2)
-                            self.driver.find_element(*self.recursar).click()
-                            time.sleep(2)
-                            corpo_pagina = self.driver.find_element(*self.xpath_corpo_da_pagina).text
-                            if 'Ação não permitida. Já existe um recurso/revisão em digitação para este protocolo.' in corpo_pagina:
-                                self.driver.find_element(*self.ok).click()
+                            if not 'Campo "Protocolo de Pagamento": Informe apenas números' in corpo_pagina:
+                                self.driver.find_element(*self.demonstrativo_de_analise).click()
+                                time.sleep(2)
+                                self.driver.find_element(*self.recursar).click()
+                                time.sleep(2)
+                                corpo_pagina = self.driver.find_element(*self.xpath_corpo_da_pagina).text
+                            if 'Ação não permitida. Já existe um recurso/revisão em digitação para este protocolo.' in corpo_pagina or protocolo_pagamento.isdigit():
+                                self.driver.implicitly_wait(5)
+                                try:
+                                    self.driver.find_element(*self.ok).click()
+                                except:
+                                    pass
+                                self.driver.implicitly_wait(30)
                                 time.sleep(2)
                                 self.driver.find_element(*self.solicitar).click()
                                 time.sleep(2)
@@ -120,7 +140,7 @@ class Recursar(PageElement):
                                 while protocolo_encontrado == False:
                                     for i in range(1, 11):
                                         protocolo_portal = self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[10]/div/table/tbody/tr[{i}]/td[4]').text
-                                        if protocolo == protocolo_portal:
+                                        if protocolo == protocolo_portal or protocolo_pagamento == protocolo_portal:
                                             self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[10]/div/table/tbody/tr[{i}]/td[10]/a[1]').click()
                                             protocolo_encontrado = True
                                             break
@@ -140,11 +160,15 @@ class Recursar(PageElement):
                         valor_glosado = f"{linha['Valor Glosa']}".replace('.', '')
                         valor_recursar = f"{linha['Valor Recursado']}"
                         justificativa = f"{linha['Recurso Glosa']}"
+                        print(f'Controle: {numero_controle}\nProcedimento: {procedimento}\nValor Glosado: {valor_glosado}')
                         self.driver.find_element(*self.guia_input).clear()
+                        print('Numero de guia limpado')
                         time.sleep(1)
                         self.driver.find_element(*self.guia_input).send_keys(numero_controle)
+                        print('Numero de guia digitado')
                         time.sleep(2)
                         self.driver.find_element(*self.pesquisar).click()
+                        print('Guia pesquisada')
                         time.sleep(2)
                         content = self.driver.find_element(*self.div_lista_guias).text
                         if numero_controle not in content:
@@ -159,27 +183,81 @@ class Recursar(PageElement):
                             span_class = self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table/tbody/tr[{j}]/td[7]/span').get_attribute("class")
                             if procedimento == codigo_portal and valor_glosado == valor_glosa_portal and 'parcial' in span_class:
                                 self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[7]/div[3]/div[1]/div[2]/fieldset/div/table/tbody/tr[{j}]/td[7]/a[2]').click()
+                                print('Entrou na guia')
                                 time.sleep(2)
-                                self.driver.find_element(*self.valor_recursando_input).clear()
+                                for tentativa in range(0,10):
+                                    try:
+                                        self.driver.find_element(*self.valor_recursando_input).clear()
+                                        time.sleep(2)
+                                        print('valor limpado')
+                                        break
+                                    except:
+                                        time.sleep(2)
+                                        print('Erro ao limpar valor')
                                 time.sleep(2)
                                 self.driver.find_element(*self.valor_recursando_input).send_keys(valor_recursar)
+                                print('Valor injetado')
                                 time.sleep(2)
                                 nome_classe = 'panel-title'
-                                elementos = self.driver.find_elements(By.CLASS_NAME, nome_classe)
+                                for number in range(0, 10):
+                                    try:
+                                        elementos = self.driver.find_elements(By.CLASS_NAME, nome_classe)
+                                        print('justificativas encontradas')
+                                        break
+                                    except:
+                                        print('Não encontrou o(s) elemento(s) da justificativa')
+                                        time.sleep(2)
                                 qtd_elementos = len(elementos)
                                 for i in range(1, qtd_elementos + 1):
                                     if qtd_elementos == 1:
-                                        self.driver.find_element(By.XPATH, '/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[6]/div[2]/div/div/div[1]/h4/a').click()
+                                        for k in range(0, 10):
+                                            try:
+                                                self.driver.find_element(By.XPATH, '/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[6]/div[2]/div/div/div[1]/h4/a').click()
+                                                print('Justificativa clicada')
+                                                time.sleep(2)
+                                                break
+                                            except:
+                                                print('Erro justificativa')
+                                                time.sleep(2)
                                     else:
-                                        self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[6]/div[2]/div/div[{i}]/div[1]/h4/a').click()
+                                        for k in range(0, 10):
+                                            try:
+                                                self.driver.find_element(By.XPATH, f'/html/body/div[1]/div[5]/section/div/div[3]/div/div/div[2]/div[1]/div[6]/div[2]/div/div[{i}]/div[1]/h4/a').click()
+                                                print('Justificativa clicada')
+                                                time.sleep(2)
+                                                break
+                                            except:
+                                                print('Erro justificativa')
+                                                time.sleep(2)
                                     time.sleep(2)
                                     self.driver.find_element(*self.textarea_justificativa).send_keys(justificativa)
+                                    print('Justificativa lançada')
                                     time.sleep(2)
-                                    self.driver.find_element(*self.fechar_justificativa).click()
+                                    content = self.driver.find_element(*self.xpath_corpo_da_pagina).text
+                                    contador = 0
+                                    while 'GLOSA TISS' in content:
+                                        self.driver.find_element(*self.fechar_justificativa).click()
+                                        time.sleep(2)
+                                        content = self.driver.find_element(*self.xpath_corpo_da_pagina).text
+                                        contador += 1
+                                        if contador == 15:
+                                            break
+                                    print('Fechar justificativa clicado')
                                     time.sleep(2)
+
                                 self.driver.find_element(*self.salvar_recurso).click()
+                                print('Recurso salvo')
                                 time.sleep(2)
-                                self.driver.find_element(*self.fechar_recurso).click()
+                                content = self.driver.find_element(*self.xpath_corpo_da_pagina).text
+                                contador = 0
+                                while 'Justificar Evento' in content:
+                                    self.driver.find_element(*self.fechar_recurso).click()
+                                    time.sleep(2)
+                                    content = self.driver.find_element(*self.xpath_corpo_da_pagina).text
+                                    contador += 1
+                                    if contador == 15:
+                                        break
+                                print('Recurso Fechado')
                                 time.sleep(4)
                                 dados = {"Recursado no Portal" : ['Sim']}
                                 df_dados = pd.DataFrame(dados)
@@ -187,9 +265,11 @@ class Recursar(PageElement):
                                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                                 writer.book = book
                                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                                df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
+                                df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=21, header=False, index=False)
                                 writer.save()
+                                print('Salvo na planilha')
                                 writer.close()
+                                print('-----------------------------------------------------------------------------------------------------')
                                 break
 
                     self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoAnaliseContas/Index')
@@ -197,7 +277,9 @@ class Recursar(PageElement):
                 tkinter.messagebox.showinfo( 'Recurso CASSI' , f"Recurso concluído!" )
                 self.driver.quit()
                 break
-            except:
+            except Exception as e:
+                print(e)
+                self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoAnaliseContas/Index')
                 continue
 #---------------------------------------------------------------------------------------------------------------
 def recursar_cassi():
@@ -235,3 +317,5 @@ def recursar_cassi():
     except Exception as err:
         tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
         Pidgin.financeiroDemo(f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+
+recursar_cassi()
