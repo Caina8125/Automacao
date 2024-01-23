@@ -199,10 +199,8 @@ class EnviarPdf(PageElement):
                         pass
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def enviar_pdf():
+def enviar_pdf(user, password):
     global pasta, login_page
-    login_usuario = 'lucas.paz'
-    senha_usuario = 'RDRsoda90901@'
 
     pasta = filedialog.askdirectory()
 
@@ -210,8 +208,8 @@ def enviar_pdf():
 
     options = {
     'proxy': {
-            'http': f'http://{login_usuario}:{senha_usuario}@10.0.0.230:3128',
-            'https': f'https://{login_usuario}:{senha_usuario}@10.0.0.230:3128'
+            'http': f'http://{user}:{password}@10.0.0.230:3128',
+            'https': f'https://{user}:{password}@10.0.0.230:3128'
         }
     }
 
@@ -227,10 +225,10 @@ def enviar_pdf():
     login_page.open()
     driver.maximize_window()
     time.sleep(4)
-    pyautogui.write(login_usuario)
+    pyautogui.write(user)
     pyautogui.press("TAB")
     time.sleep(1)
-    pyautogui.write(senha_usuario)
+    pyautogui.write(password)
     pyautogui.press("enter")
     time.sleep(4)
 

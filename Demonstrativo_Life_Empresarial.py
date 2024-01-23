@@ -143,7 +143,7 @@ class BaixarDemonstrativo(PageElement):
 
             break
 
-def demonstrativo_life():
+def demonstrativo_life(user, password):
     try:
         planilha = filedialog.askopenfilename()
         url = 'https://portal.lifeempresarial.com.br/PlanodeSaude/'
@@ -159,8 +159,8 @@ def demonstrativo_life():
 
         options = {
             'proxy' : {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
 

@@ -403,7 +403,7 @@ class Recurso(PageElement):
                 if count == 10:
                     return numero_guia
 
-def recursar_stm():
+def recursar_stm(user, password):
     try:
         global driver, url
         url = 'https://facpres.stm.jus.br/GuiasTISS/Logon'
@@ -411,8 +411,8 @@ def recursar_stm():
 
         options = {
             'proxy' : {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             },
             'verify_ssl': False
         }

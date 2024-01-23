@@ -295,7 +295,7 @@ class Nf(PageElement):
 
 #---------------------------------------------------------------------------------------------------------------------------------------------
 
-def subirNF():
+def subirNF(user, password):
     try:
         global planilha
         global driver
@@ -312,9 +312,9 @@ def subirNF():
         driver.maximize_window()
         driver.get(url)
 
-        pyautogui.write('lucas.timoteo')
+        pyautogui.write(user)
         pyautogui.press("TAB")
-        pyautogui.write('Caina8125')
+        pyautogui.write(password)
         pyautogui.press("enter")
 
         driver.get(refresh)

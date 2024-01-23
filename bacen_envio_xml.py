@@ -70,7 +70,7 @@ class EnviarXML(PageElement):
         df.to_excel(f'Bacen\\Envio_xml_{data_e_hora_em_texto}_{segundo}.xlsx', index=False)
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def fazer_envio_xml():
+def fazer_envio_xml(user, password):
     messagebox.showwarning("Automação Bacen", "Selecione uma pasta!")
     global pasta
     pasta = askdirectory()
@@ -85,8 +85,8 @@ def fazer_envio_xml():
 
     options = {
     'proxy': {
-            'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-            'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+            'http': f'http://{user}:{password}@10.0.0.230:3128',
+            'https': f'http://{user}:{password}@10.0.0.230:3128'
         }
     }
     try:

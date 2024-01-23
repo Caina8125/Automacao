@@ -174,7 +174,7 @@ class caminho(PageElement):
             pass
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def demonstrativo_camara():
+def demonstrativo_camara(user, password):
 
     try:
         global planilha
@@ -203,8 +203,8 @@ def demonstrativo_camara():
 
         proxy = {
         'proxy': {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
 

@@ -285,7 +285,7 @@ class Recurso(PageElement):
             self.driver.find_element(*self.pesq_recurso).clear()
         self.driver.quit()
 #---------------------------------------------------------------------------------------------------------------------------------
-def recursar_caixa():
+def recursar_caixa(user, password):
     global pasta
     pasta = filedialog.askdirectory()
 
@@ -299,8 +299,8 @@ def recursar_caixa():
 
     options = {
     'proxy': {
-            'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-            'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+            'http': f'http://{user}:{password}@10.0.0.230:3128',
+            'https': f'http://{user}:{password}@10.0.0.230:3128'
         }
     }
     try:

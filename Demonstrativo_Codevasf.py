@@ -172,7 +172,7 @@ class BaixarDemonstrativo(PageElement):
 
 #_________________________________________________________________________________________________________
 
-def demonstrativo_codevasf():
+def demonstrativo_codevasf(user, password):
     try:
         planilha = filedialog.askopenfilename()
         url = 'https://portal.salutis.com.br/index.asp?operadora=codevasf'
@@ -189,8 +189,8 @@ def demonstrativo_codevasf():
 
         options = {
             'proxy' : {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
 

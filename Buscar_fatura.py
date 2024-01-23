@@ -25,8 +25,14 @@ class Login(PageElement):
     usuario = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[1]/div/div[1]/div/input')
     senha = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[2]/div/div[1]/div[1]/input')
     entrar = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/button/div[2]/div/div')
+    fechar = (By.XPATH, '/html/body/div[4]/div[2]/div/div[3]/button')
 
     def exe_login(self, senha, cpf):
+        try:
+            self.driver.find_element(*self.fechar).click()
+        except:
+            pass
+        time.sleep(2)
         self.driver.find_element(*self.acessar_portal).click()
         time.sleep(2)
         self.driver.find_element(*self.usuario).send_keys(cpf)
@@ -145,7 +151,7 @@ class capturar_protocolo(PageElement):
 
 #-------------------------------------------------------------------------------------------------------------------------   
 
-def iniciar():
+def iniciar(user, password):
     try:
         global planilha
         global url
@@ -155,8 +161,8 @@ def iniciar():
 
         options = {
             'proxy' : {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
 
