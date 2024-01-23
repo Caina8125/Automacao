@@ -146,7 +146,7 @@ class BaixarDemonstrativo(PageElement):
             self.driver.quit()
 
 #---------------------------------------------------------------------------------------------------------------
-def demonstrativo_cassi(data_inicial, data_final):
+def demonstrativo_cassi(data_inicial, data_final, user, password):
     try:
 
         global url
@@ -177,8 +177,8 @@ def demonstrativo_cassi(data_inicial, data_final):
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
         try:

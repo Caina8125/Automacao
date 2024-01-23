@@ -185,7 +185,7 @@ class FazerPesquisa(PageElement):
             self.driver.get('https://wwwt.connectmed.com.br/conectividade/prestador/consulta/statusAutorizacao.htm')
 #-------------------------------------------------------------------------------------------------
 
-def verificar_gama():
+def verificar_gama(user, password):
     try:
         processar_planilha()
         remove()
@@ -204,8 +204,8 @@ def verificar_gama():
 
     options = {
     'proxy': {
-            'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-            'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+            'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
         }
     }
     try:

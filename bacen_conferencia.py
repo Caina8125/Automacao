@@ -182,7 +182,7 @@ class ConferirFatura(PageElement):
             count += 1
             self.driver.switch_to.window(self.driver.window_handles[-1])
 
-def conferir_bacen():
+def conferir_bacen(user, password):
     planilha = askopenfilename()
     url = 'https://www3.bcb.gov.br/pasbcmapa/login.aspx'
     global driver
@@ -194,8 +194,8 @@ def conferir_bacen():
 
     options = {
     'proxy': {
-            'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-            'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+            'http': f'http://{user}:{password}@10.0.0.230:3128',
+            'https': f'http://{user}:{password}@10.0.0.230:3128'
         }
     }
     try:

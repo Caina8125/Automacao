@@ -124,7 +124,7 @@ class BaixarDemonstrativo(PageElement):
                 time.sleep(2)
                 self.driver.switch_to.frame('principal')
 
-def demonstrativo_amil():
+def demonstrativo_amil(user, password):
     try:
         url = 'https://credenciado.amil.com.br/institucional/comunicados/53050'
         settings = {
@@ -139,8 +139,8 @@ def demonstrativo_amil():
 
         options = {
             'proxy' : {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
 

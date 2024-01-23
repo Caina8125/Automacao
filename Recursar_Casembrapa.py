@@ -167,7 +167,7 @@ class Recursar(PageElement):
 
             
 
-def iniciar():
+def iniciar(user, password):
     global url
     planilha = filedialog.askopenfilename()
     url = 'http://170.84.17.131:22101/sistema'
@@ -184,8 +184,8 @@ def iniciar():
 
     options = {
         'proxy' : {
-            'http': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128',
-            'https': 'http://lucas.paz:Gsw2022&@10.0.0.230:3128'
+            'http': f'http://{user}:{password}@10.0.0.230:3128',
+            'https': f'http://{user}:{password}@10.0.0.230:3128'
         }
     }
 

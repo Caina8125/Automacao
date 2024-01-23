@@ -1385,7 +1385,7 @@ class inserir_dados(PageElement):
             self.driver.get('https://portalconectasaude.com.br/Pagamentos/PesquisaLote/PesquisaComValorGlosado')
         self.driver.quit()
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def recursar_postal():
+def recursar_postal(user, password):
     try:
         url = 'https://portalconectasaude.com.br/Account/Login'
 
@@ -1399,8 +1399,8 @@ def recursar_postal():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-            'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
         try:

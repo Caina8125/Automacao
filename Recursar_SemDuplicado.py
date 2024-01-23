@@ -360,7 +360,7 @@ class injetar_dados(PageElement):
 
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
-def recursar_sem_duplicado():
+def recursar_sem_duplicado(user, password):
     try:
         global planilha
         planilha = filedialog.askopenfilename()
@@ -375,8 +375,8 @@ def recursar_sem_duplicado():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
 

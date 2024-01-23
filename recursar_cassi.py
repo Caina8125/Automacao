@@ -282,7 +282,7 @@ class Recursar(PageElement):
                 self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoAnaliseContas/Index')
                 continue
 #---------------------------------------------------------------------------------------------------------------
-def recursar_cassi():
+def recursar_cassi(user, password):
     try:
         pasta = filedialog.askdirectory()
         global url
@@ -294,8 +294,8 @@ def recursar_cassi():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
         try:

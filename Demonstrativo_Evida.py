@@ -182,15 +182,15 @@ class BaixarDemonstrativo(PageElement):
                 
 #--------------------------------------------------------------------------------------------------------------------
 
-def demonstrativo_evida():
+def demonstrativo_evida(user, password):
     try:
         url = 'https://novowebplanevida.facilinformatica.com.br/GuiasTISS/Logon'
         planilha = filedialog.askopenfilename()
 
         options = {
             'proxy' : {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
 

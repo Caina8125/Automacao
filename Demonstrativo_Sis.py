@@ -184,7 +184,7 @@ class BaixarDemonstrativos(PageElement):
 
 #-------------------------------------------------------------------------------------------------------------------------
 
-def demonstrativo_sis():
+def demonstrativo_sis(user, password):
     try:
         planilha = filedialog.askopenfilename()
 
@@ -221,8 +221,8 @@ def demonstrativo_sis():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
         try:

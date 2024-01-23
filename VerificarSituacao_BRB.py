@@ -291,7 +291,7 @@ class injetar_dados(PageElement):
 
 #-------------------------------------------------------------------------
 
-def verificacao_brb():
+def verificacao_brb(user, password):
     try:
         try:
             processar_planilha()
@@ -309,8 +309,8 @@ def verificacao_brb():
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-            'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
         try:
