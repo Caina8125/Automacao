@@ -418,6 +418,9 @@ class Application:
 
             case "Glosa - Recursar GEAP Duplicado":
                 self.inserir_login(recursar_duplicado)
+
+            case "Glosa - Recursar GEAP Sem Duplicado":
+                self.inserir_login(recursar_sem_duplicado)
             
             case "Glosa - Recursar E-VIDA":
                 self.inserir_login(recursar_evida)
@@ -426,44 +429,27 @@ class Application:
                 self.inserir_login(recursar_fascal)
 
             case "Glosa - Recursar Real Grandeza":
-                self.gif()
-                recursar_real()
-                self.reiniciar()
-
-            case "Glosa - Recursar GEAP Sem Duplicado":
-                self.gif()
-                recursar_sem_duplicado()
-                self.reiniciar()
+                self.inserir_login(recursar_real)
 
             case "Glosa - Recursar Saúde Caixa":
-                self.gif()
-                recursar_caixa()
-                self.reiniciar()
+                self.inserir_login(recursar_caixa)
 
             case "Glosa - Recursar SIS":
-                self.gif()
-                recursar_sis()
-                self.reiniciar()
+                self.inserir_login(recursar_sis)
 
             case "Glosa - Recursar STF":
-                self.gif()
-                recursar_stf()
-                self.reiniciar()
+                self.inserir_login(recursar_stf)
 
             case "Glosa - Recursar STM":
-                self.gif()
-                recursar_stm()
-                self.reiniciar()
-            
+                self.inserir_login(recursar_stm)
+
             case "Relatório - Brindes":
                 self.gif()
                 Gerar_Relat_Normal()
                 self.reiniciar()
 
             case "Tesouraria - Nota Fiscal":
-                self.gif()
-                subirNF()
-                self.reiniciar()
+                self.inserir_login(subirNF)
             case _:
                 self.botao_iniciar()
 
