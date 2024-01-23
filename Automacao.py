@@ -4,6 +4,7 @@ from tkinter import ttk
 import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
+from user_authentication import UserLogin
 from Recursar_Duplicado import *
 from Buscar_fatura import iniciar
 from Atualiza_Local import *
@@ -87,6 +88,7 @@ class Application:
         self.sextoContainer["pady"] = 10
         self.sextoContainer.pack()
 
+
         self.cabecalho = Label(self.primeiroContainer, bg="#274360")
         self.cabecalho["padx"] = 340
         self.cabecalho["pady"] = 12
@@ -154,9 +156,7 @@ class Application:
         self.comboBox["background"] = 'white'
         self.comboBox.pack(side=LEFT)
 
-        self.buttonIniciar = Button(self.sextoContainer, bg="#274360",foreground="white",width=10, command=lambda: threading.Thread(target=self.chamarAutomacao).start())
-        self.buttonIniciar["text"] = "Iniciar"
-        self.buttonIniciar.pack(side=LEFT)
+        self.botao_iniciar()
 
     def gif(self):
         
@@ -168,7 +168,8 @@ class Application:
         self.lbl.load('loader2.gif')
 
     def ocultar(self):
-        self.buttonIniciar.pack_forget()
+        self.buttonIniciar.grid_forget()
+        self.texto.pack_forget()
 
     def ocultar_data(self):
         try:
@@ -179,13 +180,26 @@ class Application:
         except:
             pass
 
+    def ocultar_login(self):
+        try:
+            self.label_user.grid_forget()
+            self.insert_user.grid_forget()
+            self.label_password.grid_forget()
+            self.insert_password.grid_forget()
+            self.botao_ok.pack_forget()
+            self.voltar.pack_forget()
+        except:
+            pass
+
     def desocultar(self):
         self.lbl.pack_forget()
 
     def botao_iniciar(self):
-        self.buttonIniciar = Button(self.sextoContainer, bg="#274360",foreground="white",width=10, command=lambda: threading.Thread(target=self.chamarAutomacao).start())
+        self.buttonIniciar = Button(self.quintoContainer, bg="#274360",foreground="white",width=10, command=lambda: threading.Thread(target=self.chamarAutomacao).start())
         self.buttonIniciar["text"] = "Iniciar"
-        self.buttonIniciar.pack(side=LEFT)
+        self.buttonIniciar.grid(row=1, column=0, padx=10, pady=20)
+        self.texto = Label(self.sextoContainer, text="As automações no navegador necessitam de\nautenticação no proxy. Caso deseje usar uma\ndelas, por favor, digite seu usuário e senha da rede.",font=self.fontePadrao, background="white")
+        self.texto.pack()
 
     def obter_datas(self):           
         global data_inicial, data_final, validacao
@@ -203,6 +217,18 @@ class Application:
             tkinter.messagebox.showerror( 'Data inválida!' , 'Digíte uma data válida')
             self.inserir_data()
 
+    def run_funtions(self, funcao1, user, password):
+        funcao1(user, password)
+        self.reiniciar()
+
+    def exec_automacao(self, funcao):
+        user = self.insert_user.get()
+        password = self.insert_password.get()
+        user_login = UserLogin(user, password)
+        self.ocultar_login()
+        self.gif()
+        threading.Thread(target=lambda: self.run_funtions(funcao, user_login.user, user_login.password)).start()
+
     def inserir_data(self):
         self.inserir_data_inicial = tk.Entry(self.quintoContainer)
         self.inserir_data_inicial.insert(0, "Digite a data inicial")
@@ -213,21 +239,43 @@ class Application:
 
         self.botao_ok = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", command=lambda: threading.Thread(target=self.obter_datas).start())
 
-        self.voltar = Button(self.sextoContainer, bg="#274360", foreground="white", text="Voltar", command=lambda: threading.Thread(target=self.voltar_inicio).start())
+        self.voltar = Button(self.sextoContainer, bg="#274360", foreground="white", text="Voltar", command=lambda: threading.Thread(target=self.voltar_inicio(self.ocultar_data)).start())
 
         self.inserir_data_inicial.pack(side=LEFT)
-        self.inserir_data_inicial.bind("<FocusIn>", self.limpar_placeholder1)
+        self.inserir_data_inicial.bind("<FocusIn>", self.limpar_placeholder_data1)
         self.inserir_data_final.pack(side=LEFT)
-        self.inserir_data_final.bind("<FocusIn>", self.limpar_placeholder2)
+        self.inserir_data_final.bind("<FocusIn>", self.limpar_placeholder_data2)
         self.botao_ok.pack(side=LEFT, padx=10)
         self.voltar.pack(side=RIGHT)
 
-    def limpar_placeholder1(self, event):
+    def inserir_login(self, event):
+        self.label_user = tk.Label(self.quintoContainer, text="Usuário:")
+        self.label_user.grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
+        self.insert_user = tk.Entry(self.quintoContainer)
+        self.insert_user.grid(row=0, column=1, padx=10, pady=10)
+        
+        self.label_password = tk.Label(self.quintoContainer, text="Senha:")
+        self.label_password.grid(row=1, column=0, padx=10, pady=10, sticky=tk.W)
+        self.insert_password = tk.Entry(self.quintoContainer, show='*')
+        self.insert_password.grid(row=1, column=1, padx=10, pady=10)
+
+        self.botao_ok = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", command=lambda: threading.Thread(target=self.exec_automacao(event)).start())
+
+        self.voltar = Button(self.sextoContainer, bg="#274360", foreground="white", text="Voltar", command=lambda: threading.Thread(target=self.voltar_inicio(self.ocultar_login)).start())
+
+        # self.insert_user.pack()
+        # self.insert_user.bind("<FocusIn>", self.limpar_placeholder_user)
+        # self.insert_password.pack()
+        # self.insert_password.bind("<FocusIn>", self.limpar_placeholder_password)
+        self.botao_ok.pack(side=LEFT, padx=10)
+        self.voltar.pack(side=RIGHT)
+
+    def limpar_placeholder_data1(self, event):
         if self.inserir_data_inicial.get() == "Digite a data inicial":
             self.inserir_data_inicial.delete(0, "end")
             self.inserir_data_inicial.config(fg="black")
 
-    def limpar_placeholder2(self, event):
+    def limpar_placeholder_data2(self, event):
         if self.inserir_data_final.get() == "Digite a data final":
             self.inserir_data_final.delete(0, "end")
             self.inserir_data_final.config(fg="black")
@@ -417,9 +465,11 @@ class Application:
                 self.reiniciar()
 
             case "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)":
-                self.gif()
-                recursar_benner()
-                self.reiniciar()
+                abobrinha = None
+                if isinstance(abobrinha, UserLogin):
+                    ...
+                else:
+                    self.inserir_login(recursar_benner)
 
             case "Glosa - Recursar BRB":
                 self.gif()
@@ -488,8 +538,8 @@ class Application:
             case _:
                 self.botao_iniciar()
 
-    def voltar_inicio(self, master=None):
-        self.ocultar_data()
+    def voltar_inicio(self, funcao, master=None):
+        funcao()
         self.voltar.pack_forget()
         self.quintoContainer.pack_forget()
         self.sextoContainer.pack_forget()
@@ -585,7 +635,7 @@ if(local == atualiza):
     Application(root)
     root.iconbitmap('Robo.ico')
     root.title('AMHP - Automações')
-    root.geometry("530x330")
+    root.geometry("500x400")
     root.configure(background="white")
     root.resizable(width=False, height=False)
     root.eval('tk::PlaceWindow . center')

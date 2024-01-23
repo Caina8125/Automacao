@@ -1,6 +1,8 @@
 from tkinter import filedialog
+from user_authentication import UserLogin
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchWindowException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium import webdriver
@@ -1387,7 +1389,7 @@ class inserir_dados(PageElement):
             self.driver.get('https://portalconectasaude.com.br/Pagamentos/PesquisaLote/PesquisaComValorGlosado')
         self.driver.quit()
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def recursar_benner():
+def recursar_benner(user, password):
     try:
         url = 'https://portalconectasaude.com.br/Account/Login'
 
@@ -1398,11 +1400,12 @@ def recursar_benner():
         chrome_options.add_argument("--start-maximized")
         chrome_options.add_argument('--ignore-certificate-errors')
         chrome_options.add_argument('--ignore-ssl-errors')
+        
 
         options = {
         'proxy': {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-            'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+            'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
         try:
@@ -1431,6 +1434,9 @@ def recursar_benner():
         print('Todos os procedimentos foram recursados com sucesso.')
         tkinter.messagebox.showinfo( 'Automação Recurso de Glosa' , 'Recursos Concluídos 😎✌' )
     
+    except NoSuchWindowException as e:
+        tkinter.messagebox.showwarning( 'Automação' , f'A janela do navegador foi fechada!'  )
+
     except Exception as e:
-        tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma exceção não tratada \n {e.__class__.__name__} - {e}'  )
+        tkinter.messagebox.showinfo( 'Erro Automação' , f'Ocorreu uma exceção não tratada \n {e.__class__.__name__} - {e}'  )
         driver.quit()
