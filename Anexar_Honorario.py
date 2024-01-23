@@ -2,46 +2,80 @@ import pandas as pd
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import NoSuchWindowException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
+from seleniumwire import webdriver
 from openpyxl import load_workbook
 from abc import ABC
 import time
+from tkinter.messagebox import showerror, showinfo
 from tkinter import filedialog
 from selenium.webdriver.chrome.options import Options
-from seleniumwire import webdriver
-import tkinter
+import requests
 
 class PageElement(ABC):
     def __init__(self,driver,url=''):
-        self.driver = driver
+        self.driver: webdriver.Chrome = driver
         self.url = url
     def open(self):
         self.driver.get(self.url)
+    
+class LogarGeap():
+    proxies = {
+    'http': '10.0.0.230:3128',
+    'https': 'lucas.paz:Gsw2022&@10.0.0.230:3128'
+    }
+    login = {
+    "username": "23003723",
+    "password": "amhpdf0073",
+    "nrotpousuario": "1",
+    "grant_type": "password",
+    "CpfMultiusuario": "66661692120"
+}
+    data = []
+    token = ''
+    headers = {}
+    url = 'https://wwwapi.geap.com.br/authentication/api/Token'
+    
+    def logar(self):
+        response_login = requests.post(url=self.url, data=self.login, proxies=self.proxies)
+        self.data = response_login.json()
+
+    def gerar_token(self):
+        self.token = self.data["access_token"]
+        return {'Authorization': f'Bearer {self.token}'}
 
 
 class Login(PageElement):
-    multiusuario = (By.XPATH,"/html/body/div[3]/div[3]/div/form/div[1]/label")
-    login = (By.XPATH,"/html/body/div[3]/div[3]/div/form/div[2]/div[1]/div/input")
-    senha = (By.XPATH,"/html/body/div[3]/div[3]/div/form/div[3]/input")
-    cpf = (By.XPATH,"/html/body/div[3]/div[3]/div/form/div[2]/div[2]/div/input")
-    logar = (By.XPATH,"/html/body/div[3]/div[3]/div/form/div[4]")
+    acessar_portal = (By.XPATH, '/html/body/div[3]/div[3]/div[1]/form/div[1]/div[1]/div/a')
+    usuario = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[1]/div/div[1]/div/input')
+    senha = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[2]/div/div[1]/div[1]/input')
+    entrar = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/button/div[2]/div/div')
+    fechar = (By.XPATH, '/html/body/div[4]/div[2]/div/div[3]/button')
 
-    def exe_login(self, login, senha, cpf):
-        self.driver.find_element(*self.multiusuario).click()
-        self.driver.find_element(*self.login).send_keys(login)
+    def exe_login(self, senha, cpf):
+        time.sleep(4)
+        try:
+            self.driver.find_element(*self.fechar).click()
+        except:
+            pass
+        self.driver.find_element(*self.acessar_portal).click()
+        time.sleep(2)
+        self.driver.find_element(*self.usuario).send_keys(cpf)
+        time.sleep(2)
         self.driver.find_element(*self.senha).send_keys(senha)
-        self.driver.find_element(*self.cpf).send_keys(cpf)
-        self.driver.find_element(*self.logar).click()
+        time.sleep(1)
+        self.driver.find_element(*self.senha).send_keys(senha)
+        time.sleep(2)
+        self.driver.find_element(*self.entrar).click()
 
         
 class caminho(PageElement):
+    versao_anterior = (By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[3]/button/span[2]/span')
     alerta = (By.XPATH,' /html/body/div[2]/div/center/a')
     guia = (By.XPATH,'//*[@id="objTableDetalhe"]/tbody/tr[3]/td[1]/a')
-    envio_xml = (By.XPATH,'//*[@id="main"]/div/div/div[2]/div[2]/article/div[6]/div[4]/div[4]/div[4]/div/div[2]/ul/li[2]/a')
-    sem_erros = (By.XPATH,'//*[@id="StaErro"]/option[2]')
-    listar = (By.XPATH,'//*[@id="MenuOptionReport"]')
+    envio_xml = (By.XPATH,'//*[@id="main"]/div/div/div[2]/div/article/div[6]/div[4]/div[4]/div[4]/div/div[2]/ul/li[2]/a')
 
     def exe_caminho(self):
         time.sleep(4)
@@ -49,53 +83,136 @@ class caminho(PageElement):
             self.driver.find_element(*self.alerta).click()
         except:
             print('Alerta não apareceu')
-
-        self.driver.get("https://www2.geap.com.br/PRESTADOR/portal-tiss.asp#")
+        self.driver.implicitly_wait(15)
+        self.driver.find_element(*self.versao_anterior).click()
         time.sleep(2)
-        self.driver.find_element(*self.envio_xml).click()
-        time.sleep(1)
         self.driver.switch_to.window(self.driver.window_handles[1])
         time.sleep(1)
-        self.driver.find_element(*self.sem_erros).click()
+        self.driver.get('https://www2.geap.org.br/PRESTADOR/portal-tiss.asp')
+        self.driver.find_element(*self.envio_xml).click()
         time.sleep(1)
-        self.driver.find_element(*self.listar).click()
+        # driver.switch_to.window(driver.window_handles[1])
+        self.driver.switch_to.window(self.driver.window_handles[-1])
 
-
-
-class Anexar_Guia(PageElement):
+class Anexar_Guia(PageElement, LogarGeap):
     anexar = (By.XPATH,'//*[@id="fupDoc"]')
     adicionar = (By.XPATH,'//*[@id="btnAdicionar"]')
+    url_guia = 'https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/'
+    quant_guia_consensuada = 0
+    quant_guia_cancelada = 0
+    lista_df = []
+    numero_envio = (By.XPATH, '/html/body/form/table/tbody/tr[5]/td[2]/input')
+    listar = (By.XPATH, '//*[@id="MenuOptionReport"]')
+    body = (By.XPATH, '/html/body')
+    sem_erros = (By.XPATH,'//*[@id="StaErro"]/option[2]')
+    qtd_guias = (By.XPATH, '/html/body/form/table/tbody/tr[5]/td/table/tbody/tr[2]/td[7]/a')
+    total = (By.XPATH, '/html/body/form/table/tbody/tr[5]/td/table/tbody/tr[1]/td/table/tbody/tr/td[6]')
 
-    def injetar_guia(self):
+    def injetar_guia(self, planilha):
         count = 0
         faturas_df = pd.read_excel(planilha)
+        numero_envio_anterior = ''
+
         for index, linha in faturas_df.iterrows():
-            if (f"{linha['Guia Anexada']}") == "Sim" or (f"{linha['Guia Anexada']}") == "Não Anexado":
+            numero_envio = str(linha['Nº Envio']).replace('.0', '')
+
+            if (f"{linha['Guia Anexada']}") == "Sim" or (f"{linha['Guia Anexada']}") == "Não Anexado" or (f"{linha['Guia Anexada']}") == "Consensuada" or (f"{linha['Guia Anexada']}") == "Cancelada":
                 print(f"{linha['Guia Anexada']}")
                 count = count + 1
                 continue
+
+            if numero_envio != numero_envio_anterior:
+                conteudo = self.driver.find_element(*self.body).text
+
+                if 'Relatório' in conteudo:
+                    self.driver.close()
+                    self.driver.switch_to.window(self.driver.window_handles[-1])
+                    self.driver.back()
+
+                self.driver.find_element(*self.numero_envio).clear()
+                self.driver.find_element(*self.numero_envio).send_keys(numero_envio)
+                time.sleep(2)
+                # self.driver.find_element(*self.sem_erros).click()
+                # time.sleep(2)
+                self.driver.find_element(*self.listar).click()
+                content = self.driver.find_element(*self.body).text
+
+                if 'Não existem registros na base da dados para o critério escolhido.' in content:
+                    self.driver.back()
+                    continue
+
+                time.sleep(2)
+                self.driver.find_element(*self.qtd_guias).click()
+
+
+
             else:
                 print('Guia pronta para ser anexada')
+
+            self.driver.switch_to.window(self.driver.window_handles[-1])
             count = count + 1
-            
-            print(f"{linha['Nro Guia GEAP']}")
-            self.driver.get("https://www2.geap.com.br/PRESTADOR/auditoriadigital/rpt/DetalhamentoGuia.aspx?IdGsp=" + f"{linha['Nro Guia GEAP']}")
+            time.sleep(2)
+            numero_geap = f"{linha['Nro Guia GEAP']}".replace('.0', '')
+            table = self.driver.find_element(By.XPATH, '//*[@id="objTableDetalhe"]')
+            tabela_html = table.get_attribute('outerHTML')
+            df_processo = pd.read_html(tabela_html, skiprows=2, header=0)[0]
+            df_processo = df_processo.iloc[:-1]
+            quantidade_de_guias = len(df_processo) + 3
+
+            for i in range(3, quantidade_de_guias):
+                id_portal = self.driver.find_element(By.XPATH, f'/html/body/form/table/tbody/tr[5]/td/table/tbody/tr[{i}]/td[1]/a').text
+
+                if id_portal == numero_geap:
+                    try:
+                        self.driver.find_element(By.XPATH, f'/html/body/form/table/tbody/tr[5]/td/table/tbody/tr[{i}]/td[1]/a').click()
+                    except:
+                        continue
+                    break
+
+                else:
+                    continue
+
             print('Entrando na guia')
             time.sleep(2)
-            self.driver.find_element(*self.anexar).send_keys(linha["Caminho"])
-            time.sleep(1)
-            self.driver.find_element(*self.adicionar).click()
-            time.sleep(2)
-            try:
-                id = self.driver.find_element(By.XPATH,'//*[@id="grvLista"]/tbody/tr[1]/th[1]').text
-            except:
-                dados = ['Não Anexado']
+            content = self.driver.find_element(*self.body).text
+
+            if 'Essa Guia está com erro, não será possível anexar arquivo.' in content:
+                dados = ['Guia com erro']
                 df = pd.DataFrame(dados)
                 book = load_workbook(planilha)
                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                 writer.book = book
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                df.to_excel(writer, 'Planilha1', startrow= count, startcol=3, header=False, index=False)
+                df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
+                writer.save()
+                self.driver.back()
+                continue
+
+            self.driver.find_element(*self.anexar).send_keys(linha["Caminho"])
+            time.sleep(1)
+            self.driver.find_element(*self.adicionar).click()
+            time.sleep(2)
+
+            try:
+                id = self.driver.find_element(By.XPATH,'//*[@id="grvLista"]/tbody/tr[1]/th[1]').text
+
+            except:
+                logar_geap = LogarGeap()
+                logar_geap.logar()
+                headers = logar_geap.gerar_token()
+                response = requests.get(url=f"{self.url_guia}{linha['Nro Guia GEAP']}".replace('.0', ''), headers=headers, proxies=self.proxies)
+                data = response.json()
+                try:
+                    situacao = data["ResultData"]["Situacao"]
+                except:
+                    situacao = "Erro ao enviar"
+                dados = [situacao]
+                df = pd.DataFrame(dados)
+                book = load_workbook(planilha)
+                writer = pd.ExcelWriter(planilha, engine='openpyxl', mode='a')
+                writer.book = book
+                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
                 writer.save()
                 continue
 
@@ -107,8 +224,9 @@ class Anexar_Guia(PageElement):
                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                 writer.book = book
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                df.to_excel(writer, 'Planilha1', startrow= count, startcol=3, header=False, index=False)
+                df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
                 writer.save()
+
             else:
                 print('Erro ao anexar guia')
                 dados = ['Cancelado']
@@ -117,45 +235,44 @@ class Anexar_Guia(PageElement):
                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                 writer.book = book
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                df.to_excel(writer, 'Planilha1', startrow= count, startcol=3, header=False, index=False)
+                df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
                 writer.save()
-        self.driver.quit()
+
+            self.driver.back()
+            self.driver.back()
+            numero_envio_anterior = numero_envio
 
 #------------------------------------------------------------------------------------------------------------------------------------------------
-def anexar_guias():
+def anexar_guias(user, password):
     try:
-        global planilha
-        planilha = filedialog.askopenfilename()
-        
-        global url
-        url = "https://www2.geap.com.br/auth/prestador.asp"
-
         chrome_options = Options()
+
+        options = {
+                'proxy' : {
+                    'http': f'http://{user}:{password}@10.0.0.230:3128',
+                    'https': f'http://{user}:{password}@10.0.0.230:3128'
+                }
+            }
+
         chrome_options.add_argument("--start-maximized")
         chrome_options.add_argument('--ignore-certificate-errors')
         chrome_options.add_argument('--ignore-ssl-errors')
 
-        options = {
-        'proxy': {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
-            }
-        }
+        planilha = filedialog.askopenfilename()
+
+        url = "https://www2.geap.com.br/auth/prestadorVue.asp"
 
         try:
             servico = Service(ChromeDriverManager().install())
             driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+            
         except:
             driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
 
-    try:
         login_page = Login(driver, url)
         login_page.open()
 
         login_page.exe_login(
-            login = "23003723",
             senha = "Amhp2023",
             cpf = "66661692120"
         )
@@ -164,12 +281,17 @@ def anexar_guias():
 
         caminho(driver, url).exe_caminho()
 
-        driver.get()
-
         time.sleep(2)
 
-        Anexar_Guia(driver, url).injetar_guia()
-        tkinter.messagebox.showinfo( 'Automação GEAP Faturamento' , 'Envio de guias na GEAP Concluído 😎✌' )
-    except:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal da GEAP caiu 😢' )
-        driver.quit()
+        Anexar_Guia(driver, url).injetar_guia(planilha)
+        showinfo( 'Automação' , f"Arquivos anexados!" )
+
+    except NoSuchWindowException as err:
+        showerror('Automação', f'A janela do navegador foi fechada!')
+    
+    except FileNotFoundError as err:
+        showerror('Automação', f'Nenhuma planilha foi selecionada!')
+    
+    except Exception as err:
+        showerror("Automação", f"Ocorreu uma exceção não tratada. \n {err.__class__.__name__} - {err}")
+    driver.quit()

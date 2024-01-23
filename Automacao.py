@@ -299,14 +299,10 @@ class Application:
 
         match automacao:
             case "Faturamento - Anexar Honorario Geap":
-                self.gif()
-                anexar_guias()
-                self.reiniciar()
+                self.inserir_login(anexar_guias)
 
             case "Faturamento - Conferência GEAP":
-                self.gif()
-                conferencia()
-                self.reiniciar()
+                self.inserir_login(conferencia)
 
             case "Faturamento - Conferência Bacen":
                 self.gif()
@@ -465,11 +461,11 @@ class Application:
                 self.reiniciar()
 
             case "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)":
-                abobrinha = None
-                if isinstance(abobrinha, UserLogin):
-                    ...
-                else:
-                    self.inserir_login(recursar_benner)
+                # abobrinha = None
+                # if isinstance(abobrinha, UserLogin):
+                #     ...
+                # else:
+                self.inserir_login(recursar_benner)
 
             case "Glosa - Recursar BRB":
                 self.gif()
