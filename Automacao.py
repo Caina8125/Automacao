@@ -209,17 +209,20 @@ class Application:
         self.ocultar_data()
 
         if validacao:
-            self.gif()
-            demonstrativo_cassi(data_inicial, data_final)
-            self.reiniciar()
+            self.inserir_login(demonstrativo_cassi)
 
         else:
             tkinter.messagebox.showerror( 'Data inválida!' , 'Digíte uma data válida')
             self.inserir_data()
 
     def run_funtions(self, funcao1, user, password):
-        funcao1(user, password)
+        if funcao1.__name__ == 'demonstrativo_cassi':
+            funcao1(data_inicial, data_final, user, password)
+        else:
+            funcao1(user, password)
         self.reiniciar()
+
+    # def run_funcion_cassi()
 
     def exec_automacao(self, funcao):
         user = self.insert_user.get()
@@ -305,22 +308,16 @@ class Application:
                 self.inserir_login(conferencia)
 
             case "Faturamento - Conferência Bacen":
-                self.gif()
-                conferir_bacen()
-                self.reiniciar()
+                self.inserir_login(conferir_bacen)
 
             case "Faturamento - Enviar PDF Bacen":
                 self.reiniciar()
 
             case "Faturamento - Enviar PDF BRB":
-                self.gif()
-                enviar_pdf()
-                self.reiniciar()
+                self.inserir_login(enviar_pdf)
 
             case "Faturamento - Enviar XML Bacen":
-                self.gif()
-                fazer_envio_xml()
-                self.reiniciar()
+                self.inserir_login(fazer_envio_xml)
 
             case "Faturamento - Leitor de PDF GAMA":
                 self.gif()
@@ -328,132 +325,82 @@ class Application:
                 self.reiniciar()
 
             case "Faturamento - Verificar Situação BRB":
-                self.gif()
-                verificacao_brb()
-                self.reiniciar()
+                self.inserir_login(verificacao_brb)
 
             case "Faturamento - Verificar Situação Fascal":
-                self.gif()
-                verificacao_fascal()
-                self.reiniciar()
+                self.inserir_login(verificacao_fascal)
 
             case "Faturamento - Verificar Situação Gama":
-                self.gif()
-                verificar_gama()
-                self.reiniciar()
+                self.inserir_login(verificar_gama)
 
             case "Financeiro - Buscar Faturas GEAP":
-                self.gif()
-                iniciar()
-                self.reiniciar()
+                self.inserir_login(iniciar)
 
             case "Financeiro - Demonstrativos Amil":
-                self.gif()
-                demonstrativo_amil()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_amil)
 
             case "Financeiro - Demonstrativos BRB":
-                self.gif()
-                demonstrativo_brb()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_brb)
 
             case "Financeiro - Demonstrativos Câmara dos Deputados":
-                self.gif()
-                demonstrativo_camara()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_camara)
 
             case "Financeiro - Demonstrativos Camed":
-                self.gif()
-                demonstrativo_camed()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_camed)
 
             case "Financeiro - Demonstrativos Casembrapa":
-                self.gif()
-                demonstrativo_casembrapa()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_casembrapa)
 
             case "Financeiro - Demonstrativos Cassi":
                 self.inserir_data()
 
             case "Financeiro - Demonstrativos Codevasf":
-                self.gif()
-                demonstrativo_codevasf()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_codevasf)
 
             case "Financeiro - Demonstrativos E-Vida":
-                self.gif()
-                demonstrativo_evida()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_evida)
 
             case "Financeiro - Demonstrativos Fapes":
-                self.gif()
-                demonstrativo_fapes()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_fapes)
 
             case "Financeiro - Demonstrativos Fascal":
-                self.gif()
-                demonstrativo_fascal()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_fascal)
 
             case "Financeiro - Demonstrativos Gama":
-                self.gif()
-                demonstrativo_gama()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_gama)
 
             case "Financeiro - Demonstrativos Life Empresarial":
-                self.gif()
-                demonstrativo_life()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_life)
 
             case "Financeiro - Demonstrativos MPU":
-                self.gif()
-                demonstrativo_mpu()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_mpu)
 
             case "Financeiro - Demonstrativos PMDF":
-                self.gif()
-                demonstrativo_pmdf()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_pmdf)
 
             case "Financeiro - Demonstrativos Postal":
-                self.gif()
-                demonstrativo_postal()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_postal)
 
             case "Financeiro - Demonstrativos Real Grandeza":
-                self.gif()
-                demonstrativo_real()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_real)
 
             case "Financeiro - Demonstrativos Saúde Caixa":
-                self.gif()
-                demonstrativo_caixa()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_caixa)
 
             case "Financeiro - Demonstrativos Serpro":
-                self.gif()
-                demonstrativo_serpro()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_serpro)
 
             case "Financeiro - Demonstrativos SIS":
-                self.gif()
-                demonstrativo_sis()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_sis)
 
             case "Financeiro - Demonstrativos STF":
-                self.gif()
-                demonstrativo_stf()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_stf)
 
             case "Financeiro - Demonstrativos TJDFT":
-                self.gif()
-                demonstrativo_tjdft()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_tjdft)
 
             case "Financeiro - Demonstrativos Unafisco":
-                self.gif()
-                demonstrativo_unafisco()
-                self.reiniciar()
+                self.inserir_login(demonstrativo_unafisco)
 
             case "Glosa - Gerador de Planilha GDF":
                 self.gif()
@@ -461,36 +408,22 @@ class Application:
                 self.reiniciar()
 
             case "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)":
-                # abobrinha = None
-                # if isinstance(abobrinha, UserLogin):
-                #     ...
-                # else:
                 self.inserir_login(recursar_benner)
 
             case "Glosa - Recursar BRB":
-                self.gif()
-                recursar_brb()
-                self.reiniciar()
+                self.inserir_login(recursar_brb)
 
             case "Glosa - Recursar Cassi":
-                self.gif()
-                recursar_cassi()
-                self.reiniciar()
+                self.inserir_login(recursar_cassi)
 
             case "Glosa - Recursar GEAP Duplicado":
-                self.gif()
-                recursar_duplicado()
-                self.reiniciar()
+                self.inserir_login(recursar_duplicado)
             
             case "Glosa - Recursar E-VIDA":
-                self.gif()
-                recursar_evida()
-                self.reiniciar()
+                self.inserir_login(recursar_evida)
 
             case "Glosa - Recursar Fascal":
-                self.gif()
-                recursar_fascal()
-                self.reiniciar()
+                self.inserir_login(recursar_fascal)
 
             case "Glosa - Recursar Real Grandeza":
                 self.gif()
