@@ -18,19 +18,22 @@ import os
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
-        self.driver = driver
+        self.driver: webdriver.Chrome = driver
         self.url = url
     def open(self):
         self.driver.get(self.url)
 
 class Login(PageElement):
+    body = (By.XPATH, '/html/body')
     medico = (By.XPATH, '//*[@id="tipoAcesso"]/option[9]')
     usuario = (By.XPATH, '//*[@id="login-entry"]')
     senha = (By.XPATH, '//*[@id="password-entry"]')
     entrar = (By.XPATH, '//*[@id="BtnEntrar"]')
     continuar = (By.XPATH, '/html/body/div[3]/div[3]/div/button[2]/span')
+    fechar = (By.XPATH, '/html/body/ul/li/div/div/span/h4/i')
 
     def exe_login(self, usuario, senha):
+        self.driver.implicitly_wait(30)
         self.driver.find_element(*self.medico).click()
         time.sleep(1.5)
         self.driver.find_element(*self.usuario).send_keys(usuario)
@@ -41,6 +44,20 @@ class Login(PageElement):
         time.sleep(1.5)
         self.driver.find_element(*self.continuar).click()
         time.sleep(5)
+        content = self.driver.find_element(*self.body).text
+        if "Sua sessão expirou." in content:
+            self.driver.find_element(*self.fechar).click()
+            time.sleep(1.5)
+            self.driver.find_element(*self.medico).click()
+            time.sleep(1.5)
+            self.driver.find_element(*self.usuario).send_keys(usuario)
+            time.sleep(1.5)
+            self.driver.find_element(*self.senha).send_keys(senha)
+            time.sleep(1.5)
+            self.driver.find_element(*self.entrar).click()
+            time.sleep(1.5)
+            self.driver.find_element(*self.continuar).click()
+            time.sleep(5)
 
 class Caminho(PageElement):
     faturas = (By.XPATH, '//*[@id="menuPrincipal"]/div/div[8]/a')
