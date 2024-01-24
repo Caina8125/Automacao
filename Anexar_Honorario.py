@@ -76,6 +76,7 @@ class caminho(PageElement):
     alerta = (By.XPATH,' /html/body/div[2]/div/center/a')
     guia = (By.XPATH,'//*[@id="objTableDetalhe"]/tbody/tr[3]/td[1]/a')
     envio_xml = (By.XPATH,'//*[@id="main"]/div/div/div[2]/div/article/div[6]/div[4]/div[4]/div[4]/div/div[2]/ul/li[2]/a')
+    portal_tiss = (By.XPATH, '/html/body/main/div/div/div[2]/div[1]/nav/ul/li[14]/a')
 
     def exe_caminho(self):
         time.sleep(4)
@@ -88,7 +89,8 @@ class caminho(PageElement):
         time.sleep(2)
         self.driver.switch_to.window(self.driver.window_handles[1])
         time.sleep(1)
-        self.driver.get('https://www2.geap.org.br/PRESTADOR/portal-tiss.asp')
+        self.driver.find_element(*self.portal_tiss).click()
+        time.sleep(2)
         self.driver.find_element(*self.envio_xml).click()
         time.sleep(1)
         # driver.switch_to.window(driver.window_handles[1])

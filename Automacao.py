@@ -198,7 +198,9 @@ class Application:
         self.buttonIniciar = Button(self.quintoContainer, bg="#274360",foreground="white",width=10, command=lambda: threading.Thread(target=self.chamarAutomacao).start())
         self.buttonIniciar["text"] = "Iniciar"
         self.buttonIniciar.grid(row=1, column=0, padx=10, pady=20)
-        self.texto = Label(self.sextoContainer, text="As automações no navegador necessitam de\nautenticação no proxy. Caso deseje usar uma\ndelas, por favor, digite seu usuário e senha da rede.",font=self.fontePadrao, background="white")
+        self.texto = Label(self.sextoContainer, 
+                           text="As automações no navegador necessitam de\nautenticação no proxy. Caso deseje utilizar\numa delas, digite seu usuário e senha da rede.",
+                           font=self.fontePadrao, background="white")
         self.texto.pack()
 
     def obter_datas(self):           
