@@ -44,11 +44,12 @@ class caminho(PageElement):
     fechar_alerta = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
 
     def exe_caminho(self):
-        time.sleep(1)
-        caminho(driver, url).Alert()
-        self.driver.find_element(*self.demonstrativo).click()
-        time.sleep(1)
-        self.driver.find_element(*self.analise_conta).click()
+        time.sleep(2)
+        # caminho(driver, url).Alert()
+        self.driver.get('https://prosaudeconecta.tjdft.jus.br/Demonstrativos/AnaliseConta/Index')
+        # self.driver.find_element(*self.demonstrativo).click()
+        # time.sleep(1)
+        # self.driver.find_element(*self.analise_conta).click()
         time.sleep(2)
         caminho(driver, url).Alert()
         self.driver.find_element(*self.selecionar_convenio).click()

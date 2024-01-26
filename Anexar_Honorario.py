@@ -76,7 +76,7 @@ class caminho(PageElement):
     alerta = (By.XPATH,' /html/body/div[2]/div/center/a')
     guia = (By.XPATH,'//*[@id="objTableDetalhe"]/tbody/tr[3]/td[1]/a')
     envio_xml = (By.XPATH,'//*[@id="main"]/div/div/div[2]/div/article/div[6]/div[4]/div[4]/div[4]/div/div[2]/ul/li[2]/a')
-    portal_tiss = (By.XPATH, '/html/body/main/div/div/div[2]/div[1]/nav/ul/li[14]/a')
+    portal_tiss = (By.XPATH, '/html/body/div[1]/div/div[2]/div/div[1]/div[1]/div[1]/div/div')
 
     def exe_caminho(self):
         time.sleep(4)
@@ -85,11 +85,11 @@ class caminho(PageElement):
         except:
             print('Alerta não apareceu')
         self.driver.implicitly_wait(15)
-        self.driver.find_element(*self.versao_anterior).click()
+        self.driver.find_element(*self.portal_tiss).click()
+        # self.driver.find_element(*self.versao_anterior).click()
         time.sleep(2)
         self.driver.switch_to.window(self.driver.window_handles[1])
         time.sleep(1)
-        self.driver.find_element(*self.portal_tiss).click()
         time.sleep(2)
         self.driver.find_element(*self.envio_xml).click()
         time.sleep(1)

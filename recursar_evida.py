@@ -200,6 +200,7 @@ class Recurso(PageElement):
                         valor_glosa = f'{linha["Valor Glosa"]}'.replace('-', '').replace('.', ',')
                         valor_recurso = f'{linha["Valor Recursado"]}'
                         justificativa = f'{linha["Recurso Glosa"]}'.replace('\t', ' ')
+                        matricula = f'{linha["Matrícula"]}'
                         pagina_iniciada = pagina
                         recurso = True
                         print(f'Paciente {nome_paciente}, N°Guia {numero_guia}, Código procedimento {codigo_procedimento}, Valor glosa: {valor_glosa}')
@@ -229,30 +230,30 @@ class Recurso(PageElement):
                             for i in range(1, len(df_tabela) + 1):
                                 nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal, nome_paciente_portal = self.get_values(i, recurso_iniciado)
                                 validacao_paciente = nome_paciente in nome_paciente_portal
+                                validacao_matricula = matricula in nome_paciente_portal
                                 validacao_numero_guia = numero_guia in nro_guia_portal
                                 validacao_valor_glosa = valor_glosa in valor_glosa_portal
                                 validacao_valor_recursado = valor_recursado_portal == "R$0,00"
                                 validacao_codigo = codigo_procedimento in codigo_proc_portal
-                                validacao_codigo_taxa = codigo_procedimento.startswith('6') and "Taxa" in codigo_proc_portal
+                                # validacao_codigo_taxa = codigo_procedimento.startswith('6') and "Taxa" in codigo_proc_portal
 
                                 
-                                validacao_numero_guia_alterado = validacao_paciente and not validacao_numero_guia and validacao_valor_glosa and validacao_valor_recursado and (validacao_codigo or validacao_codigo_taxa)
+                                # validacao_numero_guia_alterado = validacao_paciente and not validacao_numero_guia and validacao_valor_glosa and validacao_valor_recursado and (validacao_codigo or validacao_codigo_taxa)
                         
-                                if validacao_numero_guia_alterado:
-                                    self.driver.switch_to.window(self.driver.window_handles[-1])
-                                    time.sleep(2)
-                                    numero_anterior = numero_guia
-                                    numero_guia = self.confere_numero_alterado(numero_guia, nro_guia_portal)
-                                    numero_alterado = numero_guia
-                                    if numero_anterior != numero_alterado:
-                                        df['Nro. Guia'] = df['Nro. Guia'].replace(int(numero_anterior), int(numero_alterado))
-                                        print(f'Paciente {nome_paciente}, N°Guia {numero_guia}, Código procedimento {codigo_procedimento}, Valor glosa: {valor_glosa}')
-                                    self.driver.switch_to.window(self.driver.window_handles[0])
+                                # if validacao_numero_guia_alterado:
+                                #     self.driver.switch_to.window(self.driver.window_handles[-1])
+                                #     time.sleep(2)
+                                #     numero_anterior = numero_guia
+                                #     numero_guia = self.confere_numero_alterado(numero_guia, nro_guia_portal)
+                                #     numero_alterado = numero_guia
+                                #     if numero_anterior != numero_alterado:
+                                #         df['Nro. Guia'] = df['Nro. Guia'].replace(int(numero_anterior), int(numero_alterado))
+                                #         print(f'Paciente {nome_paciente}, N°Guia {numero_guia}, Código procedimento {codigo_procedimento}, Valor glosa: {valor_glosa}')
+                                #     self.driver.switch_to.window(self.driver.window_handles[0])
                                     
-                                validacao_normal = validacao_numero_guia and validacao_codigo and validacao_valor_glosa and validacao_valor_recursado
-                                validacao_taxa = validacao_numero_guia and validacao_codigo_taxa and validacao_valor_glosa and validacao_valor_recursado
+                                validacao_normal = (validacao_numero_guia or validacao_paciente or validacao_matricula) and validacao_codigo and validacao_valor_glosa and validacao_valor_recursado
 
-                                if validacao_normal or validacao_taxa:
+                                if validacao_normal:
                                     input_valor_recursado, preencher_justificativa = self.xpath_preencher_valores(i, recurso_iniciado)
                                     self.driver.find_element(*input_valor_recursado).send_keys(valor_recurso)
                                     time.sleep(2)

@@ -286,22 +286,21 @@ class Recurso(PageElement):
                                     break                         
                             
                             if recurso == True:
-                                if pagina == pagina_iniciada and primeira_de_inicio == False:
-                                    primeira_de_inicio = True
-                                    dados = {"Recursado no Portal" : ['Não']}
-                                    df_dados = pd.DataFrame(dados)
-                                    book = load_workbook(planilha)
-                                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
-                                    writer.book = book
-                                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                                    df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
-                                    writer.save()
-                                    break
                                 if extensao_maxima_da_pagina == total_registros:
                                     self.driver.find_element(*self.primeira_pagina).click()
                                     guias_abertas = False
                                     pagina = 1
                                     time.sleep(2)
+                                    if pagina == pagina_iniciada:
+                                        dados = {"Recursado no Portal" : ['Não']}
+                                        df_dados = pd.DataFrame(dados)
+                                        book = load_workbook(planilha)
+                                        writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                                        writer.book = book
+                                        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                                        df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
+                                        writer.save()
+                                        break
                                 else:
                                     texto = self.driver.find_element(*self.ul).text
                                     vet_ul = texto.split('\n')

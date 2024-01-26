@@ -31,8 +31,11 @@ class Login(PageElement):
 
     def exe_login(self, usuario, senha):
         self.driver.find_element(*self.prestador_pj).click()
+        time.sleep(2)
         self.driver.find_element(*self.usuario).send_keys(usuario)
+        time.sleep(2)
         self.driver.find_element(*self.senha).send_keys(senha)
+        time.sleep(2)
         self.driver.find_element(*self.entrar).click()
         time.sleep(5)
 
@@ -59,9 +62,9 @@ class Caminho(PageElement):
 
 class Recurso(PageElement):
     body = (By.XPATH, '/html/body')
-    codigo = (By.XPATH, '/html/body/main/div/div[1]/div[2]/div/div/div[2]/div[1]/div[1]/input-text[1]/div/div/input')
+    lote = (By.XPATH, '/html/body/main/div/div[1]/div[2]/div/div/div[2]/div[1]/div[1]/input-text[2]/div/div/input')
     pesquisar = (By.XPATH, '//*[@id="filtro"]/div[2]/div[2]/button')
-    recurso_de_glosa = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[1]/div/div[2]/a[5]/i')
+    recurso_de_glosa = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[1]/div/div[2]/a[4]/i')
     #-----------------------------------------------------------------------------------------------------------------------------
     table = (By.ID, 'recursoGlosaTabelaServicos')
     text_area_justificativa = (By.ID, 'txtJustificativa')
@@ -153,8 +156,8 @@ class Recurso(PageElement):
                     if "Enviado" in planilha or "Sem_Pagamento" in planilha:
                         continue
                     df = pd.read_excel(planilha)
-                    protocolo = f"{df['Protocolo Glosa'][0]}".replace(".0", "")
-                    self.driver.find_element(*self.codigo).send_keys(protocolo)
+                    fatura = f"{df['Fatura'][0]}".replace(".0", "")
+                    self.driver.find_element(*self.lote).send_keys(fatura)
                     time.sleep(2)
                     self.driver.find_element(*self.pesquisar).click()
                     time.sleep(2)
@@ -180,7 +183,7 @@ class Recurso(PageElement):
                         time.sleep(2)
                         self.driver.find_element(*self.recurso_de_glosa_menu).click()
                         time.sleep(2)
-                        self.driver.find_element(*self.fatura_input).send_keys(protocolo)
+                        self.driver.find_element(*self.fatura_input).send_keys(fatura)
                         time.sleep(2)
                         self.driver.find_element(*self.pesquisar_recurso).click()
                         time.sleep(2)
@@ -286,22 +289,21 @@ class Recurso(PageElement):
                                     break                         
                             
                             if recurso == True:
-                                if pagina == pagina_iniciada and primeira_de_inicio == False:
-                                    primeira_de_inicio = True
-                                    dados = {"Recursado no Portal" : ['Não']}
-                                    df_dados = pd.DataFrame(dados)
-                                    book = load_workbook(planilha)
-                                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
-                                    writer.book = book
-                                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                                    df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
-                                    writer.save()
-                                    break
                                 if extensao_maxima_da_pagina == total_registros:
                                     self.driver.find_element(*self.primeira_pagina).click()
                                     guias_abertas = False
                                     pagina = 1
                                     time.sleep(2)
+                                    if pagina == pagina_iniciada:
+                                        dados = {"Recursado no Portal" : ['Não']}
+                                        df_dados = pd.DataFrame(dados)
+                                        book = load_workbook(planilha)
+                                        writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                                        writer.book = book
+                                        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                                        df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
+                                        writer.save()
+                                        break
                                 else:
                                     texto = self.driver.find_element(*self.ul).text
                                     vet_ul = texto.split('\n')

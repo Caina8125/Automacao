@@ -60,7 +60,7 @@ class Recurso(PageElement):
         self.driver.find_element(*self.reapresentar_peg).click()
         time.sleep(2)
     
-    def arquivos(self):
+    def arquivos(self, pasta):
         nomesarquivos = os.listdir(pasta)
         for nome in nomesarquivos:
             if ".~lock" in nome:
@@ -71,7 +71,7 @@ class Recurso(PageElement):
     def entrar_protocolo(self, planilha):
         df_protocolo = pd.read_excel(planilha)
         for index, linha in df_protocolo.iterrows():
-            protocolo = f"{linha['Protocolo Aceite']}".replace('.0', '')
+            protocolo = f"{linha['Protocolo Glosa']}".replace('.0', '')
             self.driver.find_element(*self.pesq_recurso).send_keys(protocolo)
             self.driver.find_element(*self.buscar).click()
             time.sleep(5)
@@ -204,10 +204,10 @@ class Recurso(PageElement):
         self.driver.find_element(*self.botao_ok).click()
         time.sleep(1)
 
-    def fazer_recurso(self):
+    def fazer_recurso(self, pasta):
         #try:
         self.caminho()
-        self.arquivos()
+        self.arquivos(pasta)
         renomear = False
         for planilha in self.lista_excel:
             if "Enviado" in planilha:
@@ -225,7 +225,8 @@ class Recurso(PageElement):
                 global quantidade_fatura
                 quantidade_fatura = len(df_fatura)
                 self.driver.find_element(*self.mostrar_guias).click()
-                controle = (f"{linha['Controle Inicial']}").replace(".0", "")
+                controle = f"{linha['Controle Inicial']}".replace(".0", "")
+                nmr_guia = f"{linha['Nro. Guia']}".replace(".0", "")
                 recursado = False
                 for i in range(1, quantidade_fatura + 1):
                     for slot in range(0, 100):
@@ -236,7 +237,7 @@ class Recurso(PageElement):
                             break
                         except:
                             pass
-                    if controle in slot_guia:
+                    if controle in slot_guia or nmr_guia in slot_guia:
                         mostrar_proc = self.driver.find_element(By.XPATH, f'/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/div/div/div/ul/li/ul/li[{i}]/i').click()
                         self.tabela_guia(i)
                         for j in range(1, quant_proc + 1):
@@ -248,7 +249,7 @@ class Recurso(PageElement):
                             valor_planilha = (f"{linha['Valor Glosa']}").replace(',', '')
                             if (f"{linha['Recursado no Portal']}") == "Sim":
                                 continue
-                            if controle == numero_guia and valor_planilha == valor_glosado and procedimento_plan in procedimento:
+                            if (controle == numero_guia or nmr_guia == numero_guia) and valor_planilha == valor_glosado and procedimento_plan in procedimento:
                                 self.injetar_dados(i, j, linha)
                                 dados = {"Recursado no Portal" : ['Sim']}
                                 df = pd.DataFrame(dados)
@@ -286,7 +287,6 @@ class Recurso(PageElement):
         self.driver.quit()
 #---------------------------------------------------------------------------------------------------------------------------------
 def recursar_stf(user, password):
-    global pasta
     pasta = filedialog.askdirectory()
 
     global url
@@ -317,7 +317,7 @@ def recursar_stf(user, password):
             usuario = "00735860000173",
             senha = "#DF0073amhp"
         )
-        Recurso(driver, url).fazer_recurso()
+        Recurso(driver, url).fazer_recurso(pasta)
         tkinter.messagebox.showinfo( 'Automação Recurso de Glosa' , 'Recursos do STF Concluídos' )
     except Exception as e:
         tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada \n {e.__class__.__name__}: {e}' )

@@ -36,6 +36,7 @@ class Login(PageElement):
         self.driver.implicitly_wait(30)
         self.driver.find_element(*self.medico).click()
         time.sleep(1.5)
+        self.driver.find_element(*self.usuario).clear()
         self.driver.find_element(*self.usuario).send_keys(usuario)
         time.sleep(1.5)
         self.driver.find_element(*self.senha).send_keys(senha)
@@ -62,8 +63,19 @@ class Login(PageElement):
 class Caminho(PageElement):
     faturas = (By.XPATH, '//*[@id="menuPrincipal"]/div/div[8]/a')
     relatorio_de_faturas = (By.XPATH, '/html/body/header/div[4]/div/div/div/div[8]/div[1]/div[2]/div/div[2]/div/div/div/div[1]/a')
+    body = (By.XPATH, '/html/body')
+    fechar = (By.XPATH, '/html/body/ul/li/div/div/span/h4/i')
 
     def exe_caminho(self):
+        content = self.driver.find_element(*self.body).text
+        if "Sua sessão expirou." in content:
+            self.driver.find_element(*self.fechar).click()
+            time.sleep(2)
+            login_page.exe_login(usuario, senha)
+
+        if "Guias" not in content:
+            self.driver.back()
+            login_page.exe_login(usuario, senha)
         try:
             self.driver.implicitly_wait(10)
             time.sleep(2)
@@ -84,7 +96,7 @@ class Recurso(PageElement):
     body = (By.XPATH, '/html/body')
     codigo = (By.XPATH, '/html/body/main/div/div[1]/div[2]/div/div/div[2]/div[1]/div[1]/input-text[1]/div/div/input')
     pesquisar = (By.XPATH, '//*[@id="filtro"]/div[2]/div[2]/button')
-    recurso_de_glosa = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[1]/div/div[2]/a[5]/i')
+    recurso_de_glosa = (By.XPATH, '//*[@id="div-Servicos"]/div[1]/div[4]/div/div/div[1]/div/div[2]/a[5]/i')
     #-----------------------------------------------------------------------------------------------------------------------------
     table = (By.ID, 'recursoGlosaTabelaServicos')
     text_area_justificativa = (By.ID, 'txtJustificativa')
@@ -309,22 +321,22 @@ class Recurso(PageElement):
                                     break                         
                             
                             if recurso == True:
-                                if pagina == pagina_iniciada and primeira_de_inicio == False:
-                                    primeira_de_inicio = True
-                                    dados = {"Recursado no Portal" : ['Não']}
-                                    df_dados = pd.DataFrame(dados)
-                                    book = load_workbook(planilha)
-                                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
-                                    writer.book = book
-                                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                                    df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
-                                    writer.save()
-                                    break
                                 if extensao_maxima_da_pagina == total_registros:
                                     self.driver.find_element(*self.primeira_pagina).click()
                                     guias_abertas = False
                                     pagina = 1
                                     time.sleep(2)
+                                    if pagina == pagina_iniciada and primeira_de_inicio == False:
+                                        primeira_de_inicio = True
+                                        dados = {"Recursado no Portal" : ['Não']}
+                                        df_dados = pd.DataFrame(dados)
+                                        book = load_workbook(planilha)
+                                        writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                                        writer.book = book
+                                        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                                        df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
+                                        writer.save()
+                                        break
                                 else:
                                     texto = self.driver.find_element(*self.ul).text
                                     vet_ul = texto.split('\n')
@@ -356,7 +368,7 @@ class Recurso(PageElement):
                             time.sleep(2)
 
                     time.sleep(2)        
-                    self.driver.get("https://portal.saudebrb.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
+                    self.driver.get("https://facpres.stm.jus.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
                     time.sleep(2)
                     try:
                         writer.close()
@@ -372,7 +384,7 @@ class Recurso(PageElement):
                         print(err)
                 break
             except Exception as e:
-                self.driver.get("https://portal.saudebrb.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
+                self.driver.get("https://facpres.stm.jus.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
                 count += 1
                 print(e)
                 content = self.driver.find_element(*self.body).text
@@ -380,7 +392,7 @@ class Recurso(PageElement):
                     login_page.exe_login(usuario, senha)
                     Caminho(driver, url).exe_caminho()
                     time.sleep(2)
-                    self.driver.get("https://portal.saudebrb.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
+                    self.driver.get("https://facpres.stm.jus.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
 
     def confere_numero_alterado(self, numero_guia, nro_guia_portal):
         count = 0
@@ -453,7 +465,7 @@ def recursar_stm(user, password):
         Caminho(driver, url).exe_caminho()
         Recurso(driver, url).fazer_recurso(pasta)
         driver.quit()
-    
+        tkinter.messagebox.showinfo( 'Automação' , f'Protocolos recursados com sucesso!' )
     except Exception as e:
         tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada \n {e.__class__.__name__}: {e}' )
         driver.quit()
