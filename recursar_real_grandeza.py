@@ -335,7 +335,7 @@ class Recurso(PageElement):
                             time.sleep(2)
 
                     time.sleep(2)        
-                    self.driver.get("https://portal.saudebrb.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
+                    self.driver.get("https://novowebplanfrg.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
                     time.sleep(2)
                     try:
                         writer.close()
@@ -351,7 +351,7 @@ class Recurso(PageElement):
                         print(err)
                 break
             except Exception as e:
-                self.driver.get("https://portal.saudebrb.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
+                self.driver.get("https://novowebplanfrg.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
                 count += 1
                 print(e)
                 content = self.driver.find_element(*self.body).text
@@ -359,7 +359,7 @@ class Recurso(PageElement):
                     login_page.exe_login(usuario, senha)
                     Caminho(driver, url).exe_caminho()
                     time.sleep(2)
-                    self.driver.get("https://portal.saudebrb.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
+                    self.driver.get("https://novowebplanfrg.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos")
 
     def confere_numero_alterado(self, numero_guia, nro_guia_portal):
         count = 0
