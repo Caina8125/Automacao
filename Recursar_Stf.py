@@ -282,7 +282,7 @@ class Recurso(PageElement):
             except PermissionError as err:
                 print(err)
 
-            self.driver.get('https://saude.caixa.gov.br/PORTALPRD/saude/a/portal/prestador/recursosglosaprestador.aspx?i=PORTAL_RECURSARGLOSA&m=MENU_RECURSODEGLOSA_AGRUPADO')
+            self.driver.get('https://stfmed.stf.jus.br/PORTAL_STFMED/saude/a/portal/prestador/recursosglosaprestador.aspx?i=PORTAL_RECURSARGLOSA&m=MENU_RECURSODEGLOSA_AGRUPADO')
             self.driver.find_element(*self.pesq_recurso).clear()
         self.driver.quit()
 #---------------------------------------------------------------------------------------------------------------------------------
