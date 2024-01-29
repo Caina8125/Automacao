@@ -324,7 +324,7 @@ def verificacao_brb(user, password):
         login_page.open()
         login_page.logar(
             usuario = '00735860000173_2',
-            senha = '00735860000173'
+            senha = 'FVZWKUZM'
             )
 
         time.sleep(4)
