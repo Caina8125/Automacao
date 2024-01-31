@@ -244,4 +244,4 @@ class Benner(PageElement):
 
         for arquivo in LISTA_DE_ARQUIVOS:
             self.driver.find_element(*self.input_file).send_keys(arquivo)
-            sleep(2)
+            sleep(1)
