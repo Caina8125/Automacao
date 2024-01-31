@@ -8,43 +8,55 @@ from selenium.webdriver.common.by import By
 from datetime import date
 
 class Benner(PageElement):
-    body: tuple = (By.XPATH, '/html/body')
-    email_input: tuple = (By.XPATH, '//*[@id="Email"]')
-    senha_input: tuple = (By.XPATH, '//*[@id="Senha"]')
-    logar: tuple = (By.XPATH, '//*[@id="btnLogin"]')
-    modal: tuple = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div')
-    proximo_botao: tuple = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
-    botao_fechar: tuple = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
-    lote_de_pagamento: tuple = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[23]/a/span[1]')
-    pesquisar_lotes_li: tuple = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[23]/ul/li[3]/a/span[1]')
-    input_n_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[1]/div[2]/form/div[1]/div/bc-pesquisa-numero-lote/div[2]/div[3]/div/input')
-    pesquisar: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[1]/div[2]/form/div[2]/button/span')
-    registros_lotes: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/tbody')
-    check_box: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/tbody[1]/tr[1]/td[2]/input')
-    detalhes_do_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/thead/tr[1]/th/div[1]/div/div/a[3]/span')
-    input_convenio: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/bc-detalhes-lote/div[3]/div/div[2]/div/div/div[2]/div[11]/div/div/input[1]')
-    table_anexos = (By.XPATH, '//*[@id="AnexosDataGrid"]')
-    incluir_anexo: tuple = (By.XPATH, '//*[@id="incluir-anexo"]/span')
-    input_file: tuple = (By.XPATH, '/html/body/input')
-    exames_complementares_opt: tuple = (By.XPATH, '/html/body/div[10]/div/div/div[2]/bc-anexo-dropzone/div/div/div/div[2]/div[7]/select/option[12]')
-    incluir: tuple = (By.XPATH, '/html/body/div[10]/div/div/div[3]/button[2]')
-    fechar_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/bc-detalhes-lote/div[3]/div/div[1]/div[2]/a[1]/span')
-    confirm_fechar_lote: tuple = (By.XPATH, '/html/body/div[8]/div/div/div[3]/button[2]')
-    enviar_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/bc-detalhes-lote/div[3]/div/div[1]/div[2]/a[3]/span')
-    arquivos_invalidos: list = []
     arquivos_anexados: list = []
+    arquivos_invalidos: list = []
+    body: tuple = (By.XPATH, '/html/body')
+    botao_fechar: tuple = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
+    check_box: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/tbody[1]/tr[1]/td[2]/input')
+    confirm_fechar_lote: tuple = (By.XPATH, '/html/body/div[8]/div/div/div[3]/button[2]')
     contador_fatura: int = 0
+    detalhes_do_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/thead/tr[1]/th/div[1]/div/div/a[3]/span')
+    email_input: tuple = (By.XPATH, '//*[@id="Email"]')
+    enviar_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/bc-detalhes-lote/div[3]/div/div[1]/div[2]/a[3]/span')
+    exames_complementares_opt: tuple = (By.XPATH, '/html/body/div[10]/div/div/div[2]/bc-anexo-dropzone/div/div/div/div[2]/div[7]/select/option[12]')
+    fechar_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/bc-detalhes-lote/div[3]/div/div[1]/div[2]/a[1]/span')
+    incluir: tuple = (By.XPATH, '/html/body/div[10]/div/div/div[3]/button[2]')
+    incluir_anexo: tuple = (By.XPATH, '//*[@id="incluir-anexo"]/span')
+    incluir_xml: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div/div[2]/div/div/div[2]/div/bc-incluir-arquivo/div/p/button')
+    input_convenio: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/bc-detalhes-lote/div[3]/div/div[2]/div/div/div[2]/div[11]/div/div/input[1]')
+    input_file: tuple = (By.XPATH, '/html/body/input')
+    input_n_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[1]/div[2]/form/div[1]/div/bc-pesquisa-numero-lote/div[2]/div[3]/div/input')
+    input_xml: tuple = (By.XPATH, '')
+    logar: tuple = (By.XPATH, '//*[@id="btnLogin"]')
+    lote_de_pagamento: tuple = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[23]/a/span[1]')
+    modal: tuple = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div')
     nome_arquivo_reduzido: str = ''
+    pesquisar: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[1]/div[2]/form/div[2]/button/span')
+    pesquisar_lotes_li: tuple = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[23]/ul/li[3]/a/span[1]')
+    proximo_botao: tuple = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
+    registros_lotes: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/tbody')
+    senha_input: tuple = (By.XPATH, '//*[@id="Senha"]')
+    table_anexos = (By.XPATH, '//*[@id="AnexosDataGrid"]')
+    upload_novo: tuple = (By.XPATH, '')
 
     def __init__(self, driver: Chrome, url: str, email: str, senha: str) -> None:
         super().__init__(driver=driver, url=url)
         self.email: str = email
         self.senha: str = senha
-    def get_arquivos_diretorio(cls) -> list:
+
+    def get_arquivos_pdf(cls, diretorio: str) -> list:
         LISTA_DE_ARQUIVOS: list[str] = [
-            f"{cls.diretorio}//{arquivo}" 
-            for arquivo in os.listdir(cls.diretorio)
+            f"{diretorio}//{arquivo}" 
+            for arquivo in os.listdir(diretorio)
             if arquivo.endswith(".xls") or arquivo.endswith(".xlsx")
+            ]
+        return LISTA_DE_ARQUIVOS
+    
+    def get_arquivos_xml(cls, diretorio: str) -> list:
+        LISTA_DE_ARQUIVOS: list[str] = [
+            f"{diretorio}//{arquivo}" 
+            for arquivo in os.listdir(diretorio)
+            if arquivo.endswith(".xml")
             ]
         return LISTA_DE_ARQUIVOS
 
@@ -70,7 +82,7 @@ class Benner(PageElement):
                 break
 
 
-    def caminho(cls) -> None:
+    def caminho_lote_pagamento(cls) -> None:
         cls.driver.find_element(*cls.lote_de_pagamento).click()
         sleep(2)
         cls.driver.find_element(*cls.pesquisar_lotes_li).click()
@@ -158,12 +170,12 @@ class Benner(PageElement):
 
     def exec_anexo_guias(self, diretorio: str, dia_atual: int) -> None:
         try:
-            LISTA_DE_ARQUIVOS: list = self.get_arquivos_diretorio()
+            LISTA_DE_ARQUIVOS: list[str] = self.get_arquivos_pdf(diretorio)
             self.open()
             self.exe_login()
             sleep(2)
             self.pegar_alerta()
-            self.caminho()
+            self.caminho_lote_pagamento()
             sleep(2)
 
             for arquivo in LISTA_DE_ARQUIVOS:
@@ -216,7 +228,6 @@ class Benner(PageElement):
 
                         case "CÂMARA DOS DEPUTADOS | 888888":
                             self.driver.get('https://portalconectasaude.com.br/Pagamentos/PesquisaLote/Index')
-                    
 
         except Exception as err:
             if self.contador_fatura:
@@ -224,3 +235,13 @@ class Benner(PageElement):
 
             else:
                 showerror("Automação", f"Ocorreu uma excessão não tratada\n{err.__class__.__name__}:\n{err}")
+
+    def exec_envio_xml(self, diretorio: str) -> None:
+        self.driver.find_element(*self.upload_novo).click()
+        sleep(2)
+        self.pegar_alerta()
+        LISTA_DE_ARQUIVOS: list[str] = self.get_arquivos_xml(diretorio)
+
+        for arquivo in LISTA_DE_ARQUIVOS:
+            self.driver.find_element(*self.input_file).send_keys(arquivo)
+            sleep(2)
