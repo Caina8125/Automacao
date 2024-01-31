@@ -144,6 +144,7 @@ class Recurso(PageElement):
 
     def fazer_recurso(self, pasta):
         count = 0
+        self.driver.implicitly_wait(30)
         while count < 10:
             try:
                 lista_de_planilhas = [f"{pasta}//{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith(".xlsx")]
@@ -196,7 +197,7 @@ class Recurso(PageElement):
                         nome_paciente = f'{linha["Paciente"]}'
                         numero_guia = f'{linha["Nro. Guia"]}'.replace('.0', '')
                         codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
-                        valor_glosa = f'{linha["Valor Glosa"]}'.replace('-', '').replace('.', ',')
+                        valor_glosa = f'{linha["Valor Glosa"]}'
                         valor_recurso = f'{linha["Valor Recursado"]}'
                         justificativa = f'{linha["Recurso Glosa"]}'.replace('\t', ' ')
                         tabela_convenio = f'{linha["Tabela"]}'

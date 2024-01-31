@@ -7,6 +7,7 @@ from itertools import count, cycle
 from user_authentication import UserLogin
 from Recursar_Duplicado import *
 from Buscar_fatura import iniciar
+from Benner.enviar_pdf_benner import enviar_pdf_benner
 from Atualiza_Local import *
 from Anexar_Honorario import anexar_guias
 from VerificarSituacao_BRB import verificacao_brb
@@ -108,6 +109,7 @@ class Application:
                                                                    "Faturamento - Conferência GEAP",
                                                                    "Faturamento - Conferência Bacen",
                                                                    "Faturamento - Enviar PDF Bacen",
+                                                                   "Faturamento - Enviar PDF Benner",
                                                                    "Faturamento - Enviar PDF BRB",
                                                                    "Faturamento - Enviar XML Bacen",
                                                                    "Faturamento - Leitor de PDF GAMA",
@@ -314,6 +316,9 @@ class Application:
 
             case "Faturamento - Enviar PDF Bacen":
                 self.reiniciar()
+
+            case "Faturamento - Enviar PDF Benner":
+                self.inserir_login(enviar_pdf_benner)
 
             case "Faturamento - Enviar PDF BRB":
                 self.inserir_login(enviar_pdf)

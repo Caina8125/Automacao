@@ -197,7 +197,7 @@ class Recurso(PageElement):
                         nome_paciente = f'{linha["Paciente"]}'
                         numero_guia = f'{df["Nro. Guia"][index]}'.replace('.0', '')
                         codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
-                        valor_glosa = f'{linha["Valor Glosa"]}'.replace('-', '').replace('.', ',')
+                        valor_glosa = f'{linha["Valor Glosa"]}'
                         valor_recurso = f'{linha["Valor Recursado"]}'
                         justificativa = f'{linha["Recurso Glosa"]}'.replace('\t', ' ')
                         matricula = f'{linha["Matrícula"]}'

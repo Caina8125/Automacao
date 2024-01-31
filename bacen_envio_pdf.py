@@ -146,62 +146,63 @@ class EnvioPDF(PageElement):
                     if protocolo.isdigit():
                         return protocolo
 
-diretorio = askdirectory()
-planilhas = askopenfilenames()
-planilhas = [planilha for planilha in planilhas if planilha.endswith('.xlsx')]
-lista_de_pastas = [[f"{diretorio}/{pasta}", pasta] for pasta in os.listdir(diretorio) if pasta.isdigit()]
+def enviar_bacen():
+    diretorio = askdirectory()
+    planilhas = askopenfilenames()
+    planilhas = [planilha for planilha in planilhas if planilha.endswith('.xlsx')]
+    lista_de_pastas = [[f"{diretorio}/{pasta}", pasta] for pasta in os.listdir(diretorio) if pasta.isdigit()]
 
-url = 'https://www3.bcb.gov.br/pasbcmapa/login.aspx'
+    url = 'https://www3.bcb.gov.br/pasbcmapa/login.aspx'
 
-options = {
-            'proxy' : {
-                'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-                'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+    options = {
+                'proxy' : {
+                    'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
+                    'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
+                }
             }
-        }
 
-chrome_options = Options()
-chrome_options.add_argument("--start-maximized")
-chrome_options.add_argument('--ignore-certificate-errors')
-chrome_options.add_argument('--ignore-ssl-errors')
+    chrome_options = Options()
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument('--ignore-ssl-errors')
 
-try:
-    servico = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
-except:
-    driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
+    try:
+        servico = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+    except:
+        driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
-envio_bacen = EnvioPDF(driver=driver, url=url)
-envio_bacen.open()
-LoginLayoutAntigo(driver=driver, url=url).login(usuario = "00735860000173", senha = "Amhpdf!2023")
-lista_de_dados = []
+    envio_bacen = EnvioPDF(driver=driver, url=url)
+    envio_bacen.open()
+    LoginLayoutAntigo(driver=driver, url=url).login(usuario = "00735860000173", senha = "Amhpdf!2023")
+    lista_de_dados = []
 
-for pasta in lista_de_pastas:
-    numero_processo = pasta[1]
-    protocolo = envio_bacen.ler_planilhas(planilhas, numero_processo) #acrescentar alguma lógica aqui para pegar esse número de peg
-    lista_de_arquivos = [f"{pasta[0]}/{arquivo}" for arquivo in os.listdir(pasta[0]) if arquivo.endswith('.pdf')]
+    for pasta in lista_de_pastas:
+        numero_processo = pasta[1]
+        protocolo = envio_bacen.ler_planilhas(planilhas, numero_processo) #acrescentar alguma lógica aqui para pegar esse número de peg
+        lista_de_arquivos = [f"{pasta[0]}/{arquivo}" for arquivo in os.listdir(pasta[0]) if arquivo.endswith('.pdf')]
 
-    for arquivo in lista_de_arquivos:
-        if "PEG" not in arquivo or "GUIAPRESTADOR" not in arquivo:
-            n_amhptiss = arquivo.replace(f'{pasta[0]}/', '').replace('_Guia.pdf', '').replace(".pdf", '')
-            envio_bacen.renomear_arquivo(pasta, arquivo, protocolo, n_amhptiss)
-            lista_de_arquivos = [f"{pasta[0]}/{arquivo}" for arquivo in os.listdir(pasta[0]) if arquivo.endswith('.pdf')]
-            
-    nome_arquivo_zip = f'{numero_processo}.zip'
-    envio_bacen.zipar_arquivos(pasta, nome_arquivo_zip, lista_de_arquivos)
+        for arquivo in lista_de_arquivos:
+            if "PEG" not in arquivo or "GUIAPRESTADOR" not in arquivo:
+                n_amhptiss = arquivo.replace(f'{pasta[0]}/', '').replace('_Guia.pdf', '').replace(".pdf", '')
+                envio_bacen.renomear_arquivo(pasta, arquivo, protocolo, n_amhptiss)
+                lista_de_arquivos = [f"{pasta[0]}/{arquivo}" for arquivo in os.listdir(pasta[0]) if arquivo.endswith('.pdf')]
+                
+        nome_arquivo_zip = f'{numero_processo}.zip'
+        envio_bacen.zipar_arquivos(pasta, nome_arquivo_zip, lista_de_arquivos)
 
-    sz = (os.path.getsize(f"{pasta[0]}\\{nome_arquivo_zip}") / 1024) / 1024
+        sz = (os.path.getsize(f"{pasta[0]}\\{nome_arquivo_zip}") / 1024) / 1024
 
-    arquivo_zipado = f"{pasta[0]}\\{nome_arquivo_zip}"
+        arquivo_zipado = f"{pasta[0]}\\{nome_arquivo_zip}"
 
-    if sz >= 25.00:
-        informacoes = [numero_processo, protocolo, "Não Enviado, arquivo .zip maior que 25MB"]
-        continue
+        if sz >= 25.00:
+            informacoes = [numero_processo, protocolo, "Não Enviado, arquivo .zip maior que 25MB"]
+            continue
 
-    envio_bacen.exe_caminho()
-    envio_bacen.pesquisar_protocolo(protocolo)
-    informacoes = envio_bacen.anexar_guias(arquivo_zipado, numero_processo, protocolo)
-    lista_de_dados.append(informacoes)
+        envio_bacen.exe_caminho()
+        envio_bacen.pesquisar_protocolo(protocolo)
+        informacoes = envio_bacen.anexar_guias(arquivo_zipado, numero_processo, protocolo)
+        lista_de_dados.append(informacoes)
 
-cabecalho = ["Número Processo", "Número Protocolo", "Envio", "Erro na Matricula", "Guias Não Anexadas"]
-df = pd.DataFrame(lista_de_dados, columns=cabecalho)
+    cabecalho = ["Número Processo", "Número Protocolo", "Envio", "Erro na Matricula", "Guias Não Anexadas"]
+    df = pd.DataFrame(lista_de_dados, columns=cabecalho)
