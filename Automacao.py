@@ -8,6 +8,7 @@ from user_authentication import UserLogin
 from Recursar_Duplicado import *
 from Buscar_fatura import iniciar
 from Benner.enviar_pdf_benner import enviar_pdf_benner
+from Benner.enviar_xml_benner import enviar_xml_benner
 from Atualiza_Local import *
 from Anexar_Honorario import anexar_guias
 from VerificarSituacao_BRB import verificacao_brb
@@ -112,6 +113,7 @@ class Application:
                                                                    "Faturamento - Enviar PDF Benner",
                                                                    "Faturamento - Enviar PDF BRB",
                                                                    "Faturamento - Enviar XML Bacen",
+                                                                   "Faturamento - Enviar XML Benner",
                                                                    "Faturamento - Leitor de PDF GAMA",
                                                                    "Faturamento - Verificar Situação BRB",
                                                                    "Faturamento - Verificar Situação Fascal",
@@ -325,6 +327,9 @@ class Application:
 
             case "Faturamento - Enviar XML Bacen":
                 self.inserir_login(fazer_envio_xml)
+
+            case "Faturamento - Enviar XML Benner":
+                self.inserir_login(enviar_xml_benner)
 
             case "Faturamento - Leitor de PDF GAMA":
                 self.gif()

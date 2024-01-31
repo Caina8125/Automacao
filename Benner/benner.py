@@ -37,7 +37,7 @@ class Benner(PageElement):
     registros_lotes: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/tbody')
     senha_input: tuple = (By.XPATH, '//*[@id="Senha"]')
     table_anexos = (By.XPATH, '//*[@id="AnexosDataGrid"]')
-    upload_novo: tuple = (By.XPATH, '')
+    upload_novo: tuple = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[36]/a')
 
     def __init__(self, driver: Chrome, url: str, email: str, senha: str) -> None:
         super().__init__(driver=driver, url=url)
@@ -75,11 +75,11 @@ class Benner(PageElement):
                 cls.driver.find_element(*cls.proximo_botao).click()
                 sleep(0.5)
             except:
-                pass
-            try:
-                cls.driver.find_element(*cls.botao_fechar).click()
-            except:
                 break
+        try:
+            cls.driver.find_element(*cls.botao_fechar).click()
+        except:
+            return
 
 
     def caminho_lote_pagamento(cls) -> None:
@@ -237,11 +237,17 @@ class Benner(PageElement):
                 showerror("Automação", f"Ocorreu uma excessão não tratada\n{err.__class__.__name__}:\n{err}")
 
     def exec_envio_xml(self, diretorio: str) -> None:
-        self.driver.find_element(*self.upload_novo).click()
+        self.open()
+        self.exe_login()
         sleep(2)
+        self.pegar_alerta()
+        self.driver.find_element(*self.upload_novo).click()
+        sleep(4)
         self.pegar_alerta()
         LISTA_DE_ARQUIVOS: list[str] = self.get_arquivos_xml(diretorio)
 
         for arquivo in LISTA_DE_ARQUIVOS:
             self.driver.find_element(*self.input_file).send_keys(arquivo)
             sleep(1)
+
+        self.driver.find_element(*self.incluir_xml).click()
