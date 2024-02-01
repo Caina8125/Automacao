@@ -271,7 +271,10 @@ class Recursar(PageElement):
                                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                                 writer.book = book
                                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                                df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=21, header=False, index=False)
+                                if "P" in protocolo:
+                                    df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=21, header=False, index=False)
+                                else:
+                                    df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
                                 writer.save()
                                 print('Salvo na planilha')
                                 writer.close()
