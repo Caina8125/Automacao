@@ -12,7 +12,6 @@ import time
 from tkinter.messagebox import showerror, showinfo
 from tkinter import filedialog
 from selenium.webdriver.chrome.options import Options
-import requests
 
 class PageElement(ABC):
     def __init__(self,driver,url=''):
@@ -182,6 +181,10 @@ class Anexar_Guia(PageElement):
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                 df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
                 writer.save()
+                self.driver.back()
+                self.driver.back()
+                numero_envio_anterior = numero_envio
+                continue
 
             if id == "Id Arquivo":
                 print('Guia Anexada')                                                                   
