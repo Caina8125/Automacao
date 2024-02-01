@@ -234,7 +234,7 @@ def enviar_pdf(user, password):
 
     login_page.logar(
         usuario = '00735860000173',
-        senha = 'amhpdf0073'
+        senha = 'AMHP7860@'
         )
 
     Caminho(driver,url).exe_caminho()
