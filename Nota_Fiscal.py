@@ -27,16 +27,14 @@ class Login(PageElement):
         self.driver.find_element(*self.logarCertificado).click()
 
 class Caminho(PageElement):
-    declararServico = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[3]/div/span[3]')
-    incluir         = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[3]/ul/li[1]/div')
+    declararServico = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[4]/div/span[3]')
+    incluir         = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[4]/ul/li[1]/div')
     fecharModal     = (By.XPATH, '//*[@id="base-modal"]/div/div/div[1]/button')
     botaoMenu       = (By.XPATH, '//*[@id="menu-toggle"]')
     
 
     def exe_caminho(self):
-        
         time.sleep(2)
-        
         try:
             self.driver.implicitly_wait(60)
             self.driver.find_element(*self.declararServico).click()
@@ -142,6 +140,33 @@ class Nf(PageElement):
         self.driver.find_element(*self.campoVlDoc).click()
         time.sleep(2)
 
+    def inserirNF(self,count,cnpj,nf):
+        self.driver.implicitly_wait(60)
+        self.driver.switch_to.frame('iframe')
+        self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtCPF_CNPJ"]').send_keys(cnpj)
+        self.driver.find_element(*self.inserirNumDoc).click()
+        time.sleep(2)
+        try:
+            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').send_keys(nf)
+        except:
+            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').send_keys(nf)
+        self.driver.find_element(*self.campoVlDoc).click()
+        time.sleep(2)
+
+    def apagarInseridos(self):
+        self.driver.implicitly_wait(60)
+        self.driver.switch_to.frame('iframe')
+        self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtCPF_CNPJ"]').close()
+        # self.driver.find_element(*self.inserirNumDoc).click()
+        time.sleep(2)
+        try:
+            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').close()
+        except:
+            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').close()
+        # self.driver.find_element(*self.campoVlDoc).click()
+        time.sleep(2)
+
+
 
 
     def inserirDadosNf(self):
@@ -155,7 +180,7 @@ class Nf(PageElement):
         i           = 2
         for index, linha in faturas_df.iterrows():
             # Se a NF ja estiver sido enviada, pular para próxima linha
-            if 'Enviado no Portal' in f"{linha['VERIFICA']}":
+            if 'Enviado no Portal' in f"{linha['VERIFICAR']}":
                 count_linha+=1
                 print(count_linha)
                 continue
@@ -179,7 +204,7 @@ class Nf(PageElement):
             # Pegar o mês vigente do portal
             try:
                 self.driver.switch_to.default_content()
-                campoMesPortal = driver.find_element(By.XPATH, '/html/body/form/nav/div/div[2]/ul[2]/li[1]/a/span[1]').text
+                campoMesPortal = driver.find_element(By.XPATH, '//*[@id="lblCompetencia"]').text
             except:
                 try:
                     self.driver.switch_to.default_content()
@@ -203,15 +228,14 @@ class Nf(PageElement):
                 cnpj = "0" + cnpj
 
             # Inserir dados da NF no portal
-            self.inserirDezEmDez(i,cnpj,nf)
-            self.salvarResultadoExcel("Enviado no Portal",count_linha)
+            self.inserirNF(i,cnpj,nf)
             
 
             # Condição para inserir 10 NFs no de uma vez no portal
-            if i < 11:
-                i+=1
-                count_linha+=1
-                continue
+            # if i < 11:
+            #     i+=1
+            #     count_linha+=1
+            #     continue
 
             i=2
 
@@ -221,34 +245,29 @@ class Nf(PageElement):
             # Se a NF tiver sido gravada com suscesso entrar no Try,
             # Se não é pq a NF tem algum erro, entrar no Except
             try:
-                time.sleep(3)
                 try:
+                    self.driver.find_element(*self.botaoNfGravado).click()
+                except:
                     self.driver.find_element(*self.botaoOKErro).click()
                     time.sleep(1)
                     self.driver.find_element(*self.botaoNfGravado).click()
-                except:
-                    time.sleep(2)
-                    self.driver.find_element(*self.botaoNfGravado).click()
                 # self.salvarResultadoExcel("Sucesso")
+                self.salvarResultadoExcel("Enviado no Portal",count_linha)
             except:
                 self.driver.switch_to.frame('iframeModal')
                 erro = self.driver.find_element(By.ID, "TxtErro").text
 
                 Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
-
-                # Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
-
-                Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
-
-                # Pidgin.notaFiscal(f"Erro ao grava NF: {erro}   Número NF: {linha['NFENUMERO']}")
-
+                
                 self.driver.switch_to.default_content()
                 self.driver.switch_to.frame('iframe')
                 self.driver.find_element(*self.fecharModalErro).click()
                 self.driver.find_element(*self.botaoCancelar).click()
+
                 # self.salvarResultadoExcel("Erro NF")
             count_linha += 1
             print(count_linha)
+            # self.apagarInseridos()
             
 
     # Função para salvar o resultado da NF no Excel
