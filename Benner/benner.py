@@ -52,10 +52,10 @@ class Benner(PageElement):
             ]
         return LISTA_DE_ARQUIVOS
     
-    def get_arquivos_xml(cls, diretorio: str) -> list:
+    def get_arquivos_xml(cls, diretorio: tuple[str]) -> list:
         LISTA_DE_ARQUIVOS: list[str] = [
-            f"{diretorio}//{arquivo}" 
-            for arquivo in os.listdir(diretorio)
+            arquivo
+            for arquivo in diretorio
             if arquivo.endswith(".xml")
             ]
         return LISTA_DE_ARQUIVOS
@@ -247,7 +247,15 @@ class Benner(PageElement):
         LISTA_DE_ARQUIVOS: list[str] = self.get_arquivos_xml(diretorio)
 
         for arquivo in LISTA_DE_ARQUIVOS:
+            self.pegar_alerta()
             self.driver.find_element(*self.input_file).send_keys(arquivo)
-            sleep(1)
+            sleep(2)
+            self.driver.find_element(*self.incluir_xml).click()
+            content: str = self.driver.find_element(*self.body).text
 
-        self.driver.find_element(*self.incluir_xml).click()
+            while "Arquivo(s) enviado(s) para processamento..." not in content:
+                content: str = self.driver.find_element(*self.body).text
+                
+            sleep(2)
+
+            self.driver.get('https://portalconectasaude.com.br/Uploads/UploadXML/Novo')
