@@ -210,7 +210,7 @@ def demonstrativo_brb(user, password):
         global usuario, senha, login_page, caminho
 
         usuario = "00735860000173"
-        senha = "amhpdf0073"
+        senha = "AMHP7860@"
 
         login_page = Login(driver, url)
         login_page.open()

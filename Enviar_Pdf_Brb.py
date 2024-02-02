@@ -200,7 +200,7 @@ class EnviarPdf(PageElement):
                         pass
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def enviar_pdf(user, password):
+def enviar_pdf(user: str, password):
     try:
         global pasta, login_page
 
@@ -227,7 +227,7 @@ def enviar_pdf(user, password):
         login_page.open()
         driver.maximize_window()
         time.sleep(4)
-        pyautogui.write(user)
+        pyautogui.write(user.lower())
         pyautogui.press("TAB")
         time.sleep(1)
         pyautogui.write(password)
