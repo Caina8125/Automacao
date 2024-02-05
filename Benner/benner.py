@@ -140,10 +140,10 @@ class Benner(PageElement):
 
         match convenio:
             case "POSTAL SAÚDE | 419133":
-                if SIZE > 15:
+                if SIZE > 20:
                     return False
             case "CÂMARA DOS DEPUTADOS | 888888":
-                if SIZE > 20:
+                if SIZE > 15:
                     return False
         
         return True

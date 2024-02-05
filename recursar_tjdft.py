@@ -1425,7 +1425,7 @@ def recursar_tjdft(user, password):
         tkinter.messagebox.showinfo( 'Automação' , 'Recursos do TJDFT Concluídos' )
     
     except Exception as e:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal do TJDFT caiu' )
+        tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada:\n{e.__class__.__name__} - {e}' )
         driver.quit()
 
 recursar_tjdft("lucas.paz", "WheySesc2024*")

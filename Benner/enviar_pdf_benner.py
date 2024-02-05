@@ -1,5 +1,7 @@
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from seleniumwire.webdriver import Chrome
+from webdriver_manager.chrome import ChromeDriverManager
 from Benner.benner import Benner
 from tkinter.filedialog import askdirectory
 from datetime import date
@@ -23,7 +25,11 @@ def enviar_pdf_benner(user: str, password: str) -> None:
 
     DIRETORIO: str = askdirectory()
 
-    DRIVER = Chrome(seleniumwire_options=PROXY, options=chrome_options)
+    try:
+        servico = Service(ChromeDriverManager().install())
+        DRIVER = Chrome(service=servico, seleniumwire_options=PROXY, options=chrome_options)
+    except:
+        DRIVER = Chrome(seleniumwire_options=PROXY, options = chrome_options)
 
     EMAIL: str = 'negociacao.gerencia@amhp.com.br'
     SENHA: str = 'Amhp@0073'
