@@ -84,133 +84,148 @@ class Anexar_Guia(PageElement):
     total = (By.XPATH, '/html/body/form/table/tbody/tr[5]/td/table/tbody/tr[1]/td/table/tbody/tr/td[6]')
 
     def injetar_guia(self, planilha):
-        count = 0
-        faturas_df = pd.read_excel(planilha)
-        numero_envio_anterior = ''
+        try:
+            count = 0
+            faturas_df = pd.read_excel(planilha)
+            numero_envio_anterior = ''
 
-        for index, linha in faturas_df.iterrows():
-            numero_envio = str(linha['Nº Envio']).replace('.0', '')
+            for index, linha in faturas_df.iterrows():
+                numero_envio = str(linha['Nº Envio']).replace('.0', '')
 
-            if (f"{linha['Guia Anexada']}") == "Sim" or (f"{linha['Guia Anexada']}") == "Não Anexado" or (f"{linha['Guia Anexada']}") == "Consensuada" or (f"{linha['Guia Anexada']}") == "Cancelada":
-                print(f"{linha['Guia Anexada']}")
-                count = count + 1
-                continue
-
-            if numero_envio != numero_envio_anterior:
-                conteudo = self.driver.find_element(*self.body).text
-
-                if 'Relatório' in conteudo:
-                    self.driver.close()
-                    self.driver.switch_to.window(self.driver.window_handles[-1])
-                    self.driver.back()
-
-                self.driver.find_element(*self.numero_envio).clear()
-                self.driver.find_element(*self.numero_envio).send_keys(numero_envio)
-                time.sleep(2)
-                # self.driver.find_element(*self.sem_erros).click()
-                # time.sleep(2)
-                self.driver.find_element(*self.listar).click()
-                content = self.driver.find_element(*self.body).text
-
-                if 'Não existem registros na base da dados para o critério escolhido.' in content:
-                    self.driver.back()
+                if (f"{linha['Guia Anexada']}") == "Sim" or (f"{linha['Guia Anexada']}") == "Não Anexado" or (f"{linha['Guia Anexada']}") == "Consensuada" or (f"{linha['Guia Anexada']}") == "Cancelada":
+                    print(f"{linha['Guia Anexada']}")
+                    count = count + 1
                     continue
 
-                time.sleep(2)
-                self.driver.find_element(*self.qtd_guias).click()
+                if numero_envio != numero_envio_anterior:
+                    conteudo = self.driver.find_element(*self.body).text
 
+                    if 'Relatório' in conteudo:
+                        self.driver.close()
+                        self.driver.switch_to.window(self.driver.window_handles[-1])
+                        self.driver.back()
 
+                    self.driver.find_element(*self.numero_envio).clear()
+                    self.driver.find_element(*self.numero_envio).send_keys(numero_envio)
+                    time.sleep(2)
+                    # self.driver.find_element(*self.sem_erros).click()
+                    # time.sleep(2)
+                    self.driver.find_element(*self.listar).click()
+                    content = self.driver.find_element(*self.body).text
 
-            else:
-                print('Guia pronta para ser anexada')
-
-            self.driver.switch_to.window(self.driver.window_handles[-1])
-            count = count + 1
-            time.sleep(2)
-            numero_geap = f"{linha['Nro Guia GEAP']}".replace('.0', '')
-            table = self.driver.find_element(By.XPATH, '//*[@id="objTableDetalhe"]')
-            tabela_html = table.get_attribute('outerHTML')
-            df_processo = pd.read_html(tabela_html, skiprows=2, header=0)[0]
-            df_processo = df_processo.iloc[:-1]
-            quantidade_de_guias = len(df_processo) + 3
-
-            for i in range(3, quantidade_de_guias):
-                id_portal = self.driver.find_element(By.XPATH, f'/html/body/form/table/tbody/tr[5]/td/table/tbody/tr[{i}]/td[1]/a').text
-
-                if id_portal == numero_geap:
-                    try:
-                        self.driver.find_element(By.XPATH, f'/html/body/form/table/tbody/tr[5]/td/table/tbody/tr[{i}]/td[1]/a').click()
-                    except:
+                    if 'Não existem registros na base da dados para o critério escolhido.' in content:
+                        self.driver.back()
                         continue
-                    break
+
+                    time.sleep(2)
+                    self.driver.find_element(*self.qtd_guias).click()
+
+
 
                 else:
+                    print('Guia pronta para ser anexada')
+
+                self.driver.switch_to.window(self.driver.window_handles[-1])
+                count = count + 1
+                time.sleep(2)
+                numero_geap = f"{linha['Nro Guia GEAP']}".replace('.0', '')
+                table = self.driver.find_element(By.XPATH, '//*[@id="objTableDetalhe"]')
+                tabela_html = table.get_attribute('outerHTML')
+                df_processo = pd.read_html(tabela_html, skiprows=2, header=0)[0]
+                df_processo = df_processo.iloc[:-1]
+                quantidade_de_guias = len(df_processo) + 3
+
+                for i in range(3, quantidade_de_guias):
+                    id_portal = self.driver.find_element(By.XPATH, f'/html/body/form/table/tbody/tr[5]/td/table/tbody/tr[{i}]/td[1]/a').text
+
+                    if id_portal == numero_geap:
+                        try:
+                            self.driver.find_element(By.XPATH, f'/html/body/form/table/tbody/tr[5]/td/table/tbody/tr[{i}]/td[1]/a').click()
+                        except:
+                            continue
+                        break
+
+                    else:
+                        continue
+
+                print('Entrando na guia')
+                time.sleep(2)
+                content = self.driver.find_element(*self.body).text
+
+                if 'Essa Guia está com erro, não será possível anexar arquivo.' in content:
+                    dados = ['Guia com erro']
+                    df = pd.DataFrame(dados)
+                    book = load_workbook(planilha)
+                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                    writer.book = book
+                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                    df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
+                    writer.save()
+                    self.driver.back()
                     continue
 
-            print('Entrando na guia')
-            time.sleep(2)
-            content = self.driver.find_element(*self.body).text
+                self.driver.find_element(*self.anexar).send_keys(linha["Caminho"])
+                time.sleep(1)
+                self.driver.find_element(*self.adicionar).click()
+                time.sleep(2)
 
-            if 'Essa Guia está com erro, não será possível anexar arquivo.' in content:
-                dados = ['Guia com erro']
-                df = pd.DataFrame(dados)
-                book = load_workbook(planilha)
-                writer = pd.ExcelWriter(planilha, engine='openpyxl')
-                writer.book = book
-                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
-                writer.save()
-                self.driver.back()
-                continue
+                try:
+                    id = self.driver.find_element(By.XPATH,'//*[@id="grvLista"]/tbody/tr[1]/th[1]').text
 
-            self.driver.find_element(*self.anexar).send_keys(linha["Caminho"])
-            time.sleep(1)
-            self.driver.find_element(*self.adicionar).click()
-            time.sleep(2)
+                except:
+                    print('Erro ao anexar guia')
+                    dados = ['Não Anexado']
+                    df = pd.DataFrame(dados)
+                    book = load_workbook(planilha)
+                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                    writer.book = book
+                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                    df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
+                    writer.save()
+                    self.driver.back()
+                    self.driver.back()
+                    numero_envio_anterior = numero_envio
+                    continue
 
-            try:
-                id = self.driver.find_element(By.XPATH,'//*[@id="grvLista"]/tbody/tr[1]/th[1]').text
+                if id == "Id Arquivo":
+                    print('Guia Anexada')                                                                   
+                    dados = ['Sim']
+                    df = pd.DataFrame(dados)
+                    book = load_workbook(planilha)
+                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                    writer.book = book
+                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                    df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
+                    writer.save()
 
-            except:
-                print('Erro ao anexar guia')
-                dados = ['Não Anexado']
-                df = pd.DataFrame(dados)
-                book = load_workbook(planilha)
-                writer = pd.ExcelWriter(planilha, engine='openpyxl')
-                writer.book = book
-                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
-                writer.save()
+                else:
+                    print('Erro ao anexar guia')
+                    dados = ['Cancelado']
+                    df = pd.DataFrame(dados)
+                    book = load_workbook(planilha)
+                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                    writer.book = book
+                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                    df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
+                    writer.save()
+
                 self.driver.back()
                 self.driver.back()
                 numero_envio_anterior = numero_envio
-                continue
 
-            if id == "Id Arquivo":
-                print('Guia Anexada')                                                                   
-                dados = ['Sim']
-                df = pd.DataFrame(dados)
-                book = load_workbook(planilha)
-                writer = pd.ExcelWriter(planilha, engine='openpyxl')
-                writer.book = book
-                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
-                writer.save()
+        except:
+            handles = self.driver.window_handles
+            numero_de_guias = len(handles)
 
-            else:
-                print('Erro ao anexar guia')
-                dados = ['Cancelado']
-                df = pd.DataFrame(dados)
-                book = load_workbook(planilha)
-                writer = pd.ExcelWriter(planilha, engine='openpyxl')
-                writer.book = book
-                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
-                writer.save()
+            for g in range(1, numero_de_guias):
+                self.driver.close()
 
-            self.driver.back()
-            self.driver.back()
-            numero_envio_anterior = numero_envio
+            self.driver.get('https://www2.geap.com.br/auth/prestadorVue.asp')   
+            Login.exe_login(
+                senha = "Amhp2023",
+                cpf = "66661692120"
+            )
+            caminho.exe_caminho()
 
 #------------------------------------------------------------------------------------------------------------------------------------------------
 def anexar_guias(user, password):
