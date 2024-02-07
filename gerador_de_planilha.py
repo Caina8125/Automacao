@@ -105,12 +105,12 @@ def gerar_planilha():
             segundo = data_e_hora_atuais.second
             df_nova_planilha.to_excel(f'GDF\\GDF_{data_e_hora_em_texto}_{segundo}.xlsx', index=False)
             if count_nao_encontradas > 0:
-                tkinter.messagebox.showinfo("Gerador de Planilha", f"Planilha gerada! \n Total de linhas não encontradas: {count_nao_encontradas}")
+                tkinter.messagebox.showinfo("Gerador de Planilha", f"Planilha gerada!\nTotal de linhas não encontradas: {count_nao_encontradas}")
             else:
                 tkinter.messagebox.showinfo("Gerador de Planilha", f"Planilha gerada com sucesso!")
 
         else:
-            tkinter.messagebox.showinfo("Gerador de Planilha", f"A Planilha não foi gerada! \n Total de linhas não encontradas: {count_nao_encontradas}")
+            tkinter.messagebox.showinfo("Gerador de Planilha", f"A Planilha não foi gerada!\nTotal de linhas não encontradas: {count_nao_encontradas}")
     
     except Exception as e:
-        tkinter.messagebox.showerror("Gerador de Planilha", f"Ocorreu uma exceção não tratada \n {e.__class__.__name__} - {e}")
+        tkinter.messagebox.showerror("Gerador de Planilha", f"Ocorreu uma exceção não tratada\n{e.__class__.__name__} - {e}")
