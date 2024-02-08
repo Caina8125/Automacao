@@ -98,6 +98,7 @@ class Application:
 
         foto = tk.PhotoImage(file="logo.png")
         
+        
         self.img = tk.Label(self.segundoContainer,image=foto, border=0)
         self.img.foto = foto
         self.img["pady"] = 5

@@ -36,21 +36,39 @@ class Caminho(PageElement):
     def exe_caminho(self):
         time.sleep(2)
         try:
-            self.driver.implicitly_wait(60)
-            self.driver.find_element(*self.declararServico).click()
-            time.sleep(2)
-            self.driver.find_element(*self.incluir).click()
-            time.sleep(3)
-        except:
-            self.driver.find_element(*self.botaoMenu).click()
-            time.sleep(1)
             try:
+                self.driver.implicitly_wait(5)
                 self.driver.find_element(*self.declararServico).click()
                 time.sleep(2)
                 self.driver.find_element(*self.incluir).click()
+                time.sleep(3)
             except:
+                self.driver.find_element(*self.botaoMenu).click()
+                time.sleep(1)
+                try:
+                    self.driver.find_element(*self.declararServico).click()
+                    time.sleep(2)
+                    self.driver.find_element(*self.incluir).click()
+                except:
+                    time.sleep(2)
+                    self.driver.find_element(*self.incluir).click()
+        except:
+            try:
+                self.driver.implicitly_wait(5)
+                self.driver.find_element(*self.declararServico).click()
                 time.sleep(2)
                 self.driver.find_element(*self.incluir).click()
+                time.sleep(3)
+            except:
+                self.driver.find_element(*self.botaoMenu).click()
+                time.sleep(1)
+                try:
+                    self.driver.find_element(*self.declararServico).click()
+                    time.sleep(2)
+                    self.driver.find_element(*self.incluir).click()
+                except:
+                    time.sleep(2)
+                    self.driver.find_element(*self.incluir).click()
 
         self.driver.switch_to.frame('iframe')
         time.sleep(2)
@@ -82,11 +100,11 @@ class Nf(PageElement):
     dezembro        = (By.XPATH, '//*[@id="ddlMes"]/option[13]')
     confirmarMes    = (By.XPATH, '//*[@id="btnAlterarCompetencia"]')
     botaoNfGravado  = (By.XPATH, '/html/body/div[1]/div/div/div[3]/div/button')
-    botaoOKErro     = (By.XPATH, '/html/body/div[3]/div/div/div[3]/div/button')
+    botaoOKErro     = (By.XPATH, '//*[@id="base-modal"]/div/div/div[1]/button')
     
 
     def alterarCompetencia(self):
-        self.driver.implicitly_wait(60)
+        self.driver.implicitly_wait(5)
         driver.get("https://df.issnetonline.com.br/online/Default/alterar_competencia.aspx")
         time.sleep(1)
         self.driver.find_element(*self.selectMes).click()
@@ -100,7 +118,7 @@ class Nf(PageElement):
     # Função para verificar se a DataCompetencia da NF é a mesma Data do Portal, 
     # Se não for essa função vai alterar a data do Portal
     def verificarMesCompetente(self,mesPlanilha): 
-        self.driver.implicitly_wait(60)
+        self.driver.implicitly_wait(5)
         match mesPlanilha:
             case "Janeiro":
                 self.driver.find_element(*self.janeiro).click()
@@ -128,7 +146,7 @@ class Nf(PageElement):
                 self.driver.find_element(*self.dezembro).click()
 
     def inserirDezEmDez(self,count,cnpj,nf):
-        self.driver.implicitly_wait(60)
+        self.driver.implicitly_wait(5)
         self.driver.switch_to.frame('iframe')
         self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{count}_txtCPF_CNPJ"]').send_keys(cnpj)
         self.driver.find_element(*self.inserirNumDoc).click()
@@ -141,28 +159,31 @@ class Nf(PageElement):
         time.sleep(2)
 
     def inserirNF(self,count,cnpj,nf):
-        self.driver.implicitly_wait(60)
+        self.driver.implicitly_wait(5)
         self.driver.switch_to.frame('iframe')
+        self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtCPF_CNPJ"]').clear()
         self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtCPF_CNPJ"]').send_keys(cnpj)
         self.driver.find_element(*self.inserirNumDoc).click()
         time.sleep(2)
         try:
+            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').clear()
             self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').send_keys(nf)
         except:
+            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').clear()
             self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').send_keys(nf)
         self.driver.find_element(*self.campoVlDoc).click()
         time.sleep(2)
 
     def apagarInseridos(self):
-        self.driver.implicitly_wait(60)
+        self.driver.implicitly_wait(5)
         self.driver.switch_to.frame('iframe')
-        self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtCPF_CNPJ"]').close()
+        self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtCPF_CNPJ"]').clear()
         # self.driver.find_element(*self.inserirNumDoc).click()
         time.sleep(2)
         try:
-            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').close()
+            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').clear()
         except:
-            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').close()
+            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl2_txtNum_Doc"]').clear()
         # self.driver.find_element(*self.campoVlDoc).click()
         time.sleep(2)
 
@@ -170,7 +191,7 @@ class Nf(PageElement):
 
 
     def inserirDadosNf(self):
-        self.driver.implicitly_wait(60)
+        self.driver.implicitly_wait(5)
         global mesPorExtenso
         global count_linha
         global i
@@ -240,19 +261,24 @@ class Nf(PageElement):
             i=2
 
             self.driver.find_element(*self.botaoGravar).click()
-            time.sleep(3)
+            # time.sleep(3)
 
             # Se a NF tiver sido gravada com suscesso entrar no Try,
             # Se não é pq a NF tem algum erro, entrar no Except
             try:
                 try:
                     self.driver.find_element(*self.botaoNfGravado).click()
+                    self.salvarResultadoExcel("Enviado no Portal",count_linha)
+                    
                 except:
                     self.driver.find_element(*self.botaoOKErro).click()
                     time.sleep(1)
-                    self.driver.find_element(*self.botaoNfGravado).click()
+                    self.salvarResultadoExcel("Enviado no Portal",count_linha)
+                    self.driver.switch_to.default_content()
+                    Caminho(driver,url).exe_caminho()
+                    # continue
                 # self.salvarResultadoExcel("Sucesso")
-                self.salvarResultadoExcel("Enviado no Portal",count_linha)
+                
             except:
                 self.driver.switch_to.frame('iframeModal')
                 erro = self.driver.find_element(By.ID, "TxtErro").text
@@ -272,7 +298,7 @@ class Nf(PageElement):
 
     # Função para salvar o resultado da NF no Excel
     def salvarResultadoExcel(self,resultado,count_linha):
-        self.driver.implicitly_wait(60) 
+        self.driver.implicitly_wait(5) 
         result        = [resultado]
         df            = pd.DataFrame(result)
         book          = load_workbook(planilha)
@@ -344,6 +370,7 @@ def subirNF(user, password):
         time.sleep(2)
 
         Caminho(driver,url).exe_caminho()
+
         time.sleep(1)
         Nf(driver,url).inserirDadosNf()
         Pidgin.notaFiscal("Todas as Notas Concluídas")
