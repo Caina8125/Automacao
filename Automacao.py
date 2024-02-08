@@ -23,6 +23,7 @@ from Recursar_SIS import recursar_sis
 from Recursar_Stf import recursar_stf
 from recursar_real_grandeza import recursar_real
 from recursar_stm import recursar_stm
+from recursar_tjdft import recursar_tjdft
 from GEAP_Conferencia import conferencia
 from VerificarSituacao_Fascal import verificacao_fascal
 from VerificarSituacao_Gama import verificar_gama
@@ -155,6 +156,7 @@ class Application:
                                                                    "Glosa - Recursar SIS",
                                                                    "Glosa - Recursar STF",
                                                                    "Glosa - Recursar STM",
+                                                                   "Glosa - Recursar TJDFT",
                                                                    "Relatório - Brindes",
                                                                    "Tesouraria - Nota Fiscal"
                                                                     ], width=50)
@@ -455,6 +457,9 @@ class Application:
 
             case "Glosa - Recursar STM":
                 self.inserir_login(recursar_stm)
+
+            case "Glosa - Recursar TJDFT":
+                self.inserir_login(recursar_tjdft)
 
             case "Relatório - Brindes":
                 self.gif()

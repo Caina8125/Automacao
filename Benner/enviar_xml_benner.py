@@ -1,12 +1,14 @@
 from selenium.webdriver.chrome.options import Options
 from Benner.benner import Benner
 from seleniumwire.webdriver import Chrome
-from tkinter.filedialog import askdirectory
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
+from tkinter.filedialog import askopenfilenames
 
 def enviar_xml_benner(user, password) -> None:
-    URL = r'https://portalconectasaude.com.br/Account/Login?ReturnUrl=%2FHome%2FIndex'
+    URL: str = r'https://portalconectasaude.com.br/Account/Login?ReturnUrl=%2FHome%2FIndex'
 
-    DIRETORIO = askdirectory()
+    DIRETORIO: tuple = askopenfilenames()
 
     PROXY: dict = {
     'proxy': {
@@ -25,7 +27,11 @@ def enviar_xml_benner(user, password) -> None:
     EMAIL: str = 'negociacao.gerencia@amhp.com.br'
     SENHA: str = 'Amhp@0073'
 
-    DRIVER: Chrome = Chrome(seleniumwire_options=PROXY, options=chrome_options)
+    try:
+        servico = Service(ChromeDriverManager().install())
+        DRIVER = Chrome(service=servico, seleniumwire_options=PROXY, options=chrome_options)
+    except:
+        DRIVER = Chrome(seleniumwire_options=PROXY, options=chrome_options)
 
     envio_xml_benner = Benner(DRIVER, URL, EMAIL, SENHA)
     envio_xml_benner.exec_envio_xml(DIRETORIO)

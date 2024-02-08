@@ -123,7 +123,7 @@ class inserir_dados(PageElement):
     checkbox9 = (By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[1]/input')
     checkbox10 = (By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[1]/input')
     recursar = (By.LINK_TEXT, 'Recursar Procedimento')
-    justificativa = (By.XPATH, '/html/body/bc-modal-evolution/bc-modal-justificar-glosa/div/div/div/div[2]/div[2]/span/div/div/input')
+    justificativas = (By.CLASS_NAME, 'form-control ng-pristine ng-untouched ng-valid ng-empty ng-valid-maxlength')
     valor = (By.XPATH, '//*[@id="ValorRecursado"]')
     novo_recurso = (By.XPATH, '//*[@id="simpleConfirmationModal_btOk"]')
     pesquisar_proc = (By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/thead/tr[1]/th/div[2]/input')
@@ -132,7 +132,13 @@ class inserir_dados(PageElement):
     fechar_botao = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[3]')
     fechar_alerta = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
 
-
+    def justificar(self, qtd_glosas, justificativa_plan):
+        for i in range(0, qtd_glosas):
+            justificativa = self.driver.find_element(By.ID, f'Justificativas[{i}].Justificativa')
+            justificativa.click()
+            time.sleep(1)
+            justificativa.send_keys(justificativa_plan)
+            time.sleep(2)
 
     def Protocolo(self):
         nomesarquivos = os.listdir(pasta)
@@ -165,8 +171,8 @@ class inserir_dados(PageElement):
                 except:
                     print("Não teve Modal")
                     pass
-                self.driver.find_element(*self.protocolo).send_keys(f"{linha['Protocolo Glosa']}")
-                print('Protocolo: ' + f"{linha['Protocolo Glosa']}")
+                self.driver.find_element(*self.protocolo).send_keys(f"{linha['Protocolo Aceite']}")
+                print('Protocolo: ' + f"{linha['Protocolo Aceite']}")
         
                 time.sleep(1)
                 self.driver.find_element(*self.pesquisar).click()
@@ -276,7 +282,12 @@ class inserir_dados(PageElement):
                 time.sleep(2) 
                 self.driver.find_element(*self.pesquisar_proc).send_keys(f"{linha['Procedimento']}")
                 time.sleep(2)
-                self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/thead/tr[2]/th[8]').click()
+                for t in range(10):
+                    try:
+                        self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/thead/tr[2]/th[8]').click()
+                        break
+                    except:
+                        time.sleep(2)
                 time.sleep(2)
                 self.driver.find_element(*self.pesquisar_proc).clear()
                 time.sleep(2)
@@ -332,6 +343,7 @@ class inserir_dados(PageElement):
                         try:
                             valor1 =  self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[8]').text
                             codigo1 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[2]').text
+                            glosas1 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[4]').text.split(', ')
                             for k, v in enumerate(codigo1):
                                 if codigo1[0] != "0":
                                     break
@@ -367,12 +379,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            try:
-                                self.driver.find_element(*self.justificativa).click()
-                                self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
-                            except:
-                                print('Não justificou')
-                                break
+                            self.justificar(len(glosas1), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -403,7 +410,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas1), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -449,6 +456,7 @@ class inserir_dados(PageElement):
 
                     valor2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[8]').text
                     codigo2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[2]').text
+                    glosas2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[4]').text.split(', ')
                     for k, v in enumerate(codigo2):
                         if codigo2[0] != "0":
                             break
@@ -474,7 +482,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas2), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -506,7 +514,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas2), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -552,6 +560,7 @@ class inserir_dados(PageElement):
 
                     valor3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[8]').text
                     codigo3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[2]').text
+                    glosas3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[4]').text.split(', ')
                     for k, v in enumerate(codigo3):
                         if codigo3[0] != "0":
                             break
@@ -577,7 +586,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas3), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -610,7 +619,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas3), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -656,6 +665,7 @@ class inserir_dados(PageElement):
 
                     valor4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[8]').text
                     codigo4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[2]').text
+                    glosas4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[4]').text.split(', ')
                     for k, v in enumerate(codigo4):
                         if codigo4[0] != "0":
                             break
@@ -681,7 +691,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas4), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -713,7 +723,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas4), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -758,6 +768,7 @@ class inserir_dados(PageElement):
 
                     valor5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[8]').text
                     codigo5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[2]').text
+                    glosas5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[4]').text.split(', ')
                     for k, v in enumerate(codigo5):
                         if codigo5[0] != "0":
                             break
@@ -783,7 +794,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas5), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -817,7 +828,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas5), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -861,6 +872,7 @@ class inserir_dados(PageElement):
 
                     valor6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[8]').text
                     codigo6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[2]').text
+                    glosas6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[4]').text.split(', ')
                     for k, v in enumerate(codigo6):
                         if codigo6[0] != "0":
                             break
@@ -886,7 +898,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas6), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -917,7 +929,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas6), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -963,6 +975,7 @@ class inserir_dados(PageElement):
 
                     valor7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[8]').text
                     codigo7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[2]').text
+                    glosas7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[4]').text.split(', ')
                     for k, v in enumerate(codigo7):
                         if codigo7[0] != "0":
                             break
@@ -988,7 +1001,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas7), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -1021,7 +1034,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas7), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -1067,6 +1080,7 @@ class inserir_dados(PageElement):
 
                     valor8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[8]').text
                     codigo8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[2]').text
+                    glosas8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[4]').text.split(', ')
                     for k, v in enumerate(codigo8):
                         if codigo8[0] != "0":
                             break
@@ -1092,7 +1106,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas8), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -1123,7 +1137,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas8), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -1167,6 +1181,7 @@ class inserir_dados(PageElement):
 
                     valor9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[8]').text
                     codigo9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[2]').text
+                    glosas9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[4]').text.split(', ')
                     for k, v in enumerate(codigo9):
                         if codigo9[0] != "0":
                             break
@@ -1191,7 +1206,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas9), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -1221,7 +1236,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas9), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -1265,6 +1280,7 @@ class inserir_dados(PageElement):
 
                     valor10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[8]').text
                     codigo10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[2]').text
+                    glosas10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[4]').text.split(', ')
                     for k, v in enumerate(codigo10):
                         if codigo10[0] != "0":
                             break
@@ -1290,7 +1306,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas10), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -1320,7 +1336,7 @@ class inserir_dados(PageElement):
                             self.driver.find_element(*self.valor).send_keys(f"{linha['Valor Recursado']}")
                             print('Valor inserido')
                             time.sleep(1)
-                            self.driver.find_element(*self.justificativa).send_keys(f"{linha['Recurso Glosa']}")
+                            self.justificar(len(glosas10), f"{linha['Recurso Glosa']}")
                             print('Justificativa inserida')
                             time.sleep(2)
                             self.driver.find_element(*self.salvar).click()
@@ -1425,7 +1441,5 @@ def recursar_tjdft(user, password):
         tkinter.messagebox.showinfo( 'Automação' , 'Recursos do TJDFT Concluídos' )
     
     except Exception as e:
-        tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal do TJDFT caiu' )
+        tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada:\n{e.__class__.__name__} - {e}' )
         driver.quit()
-
-recursar_tjdft("lucas.paz", "WheySesc2024*")
