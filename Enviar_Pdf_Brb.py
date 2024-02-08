@@ -10,6 +10,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+import tkinter
 
 class PageElement(ABC):
     def __init__(self, driver, url=''):
@@ -199,45 +200,49 @@ class EnviarPdf(PageElement):
                         pass
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def enviar_pdf(user, password):
-    global pasta, login_page
+def enviar_pdf(user: str, password):
+    try:
+        global pasta, login_page
 
-    pasta = filedialog.askdirectory()
+        pasta = filedialog.askdirectory()
 
-    url = 'https://portal.saudebrb.com.br/GuiasTISS/Logon'
+        url = 'https://portal.saudebrb.com.br/GuiasTISS/Logon'
 
-    options = {
-    'proxy': {
-            'http': f'http://{user}:{password}@10.0.0.230:3128',
-            'https': f'https://{user}:{password}@10.0.0.230:3128'
+        options = {
+        'proxy': {
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'https://{user}:{password}@10.0.0.230:3128'
+            }
         }
-    }
 
-    chrome_options = Options()
+        chrome_options = Options()
 
-    chrome_options.add_argument("--start-maximized")
-    # chrome_options.add_argument('--ignore-certificate-errors')
-    # chrome_options.add_argument('--ignore-ssl-errors')
+        chrome_options.add_argument("--start-maximized")
+        # chrome_options.add_argument('--ignore-certificate-errors')
+        # chrome_options.add_argument('--ignore-ssl-errors')
 
-    driver = webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options)
 
-    login_page = Login(driver, url)
-    login_page.open()
-    driver.maximize_window()
-    time.sleep(4)
-    pyautogui.write(user)
-    pyautogui.press("TAB")
-    time.sleep(1)
-    pyautogui.write(password)
-    pyautogui.press("enter")
-    time.sleep(4)
+        login_page = Login(driver, url)
+        login_page.open()
+        driver.maximize_window()
+        time.sleep(4)
+        pyautogui.write(user.lower())
+        pyautogui.press("TAB")
+        time.sleep(1)
+        pyautogui.write(password)
+        pyautogui.press("enter")
+        time.sleep(4)
 
-    login_page.logar(
-        usuario = '00735860000173',
-        senha = 'amhpdf0073'
-        )
+        login_page.logar(
+            usuario = '00735860000173',
+            senha = 'AMHP7860@'
+            )
 
-    Caminho(driver,url).exe_caminho()
+        Caminho(driver,url).exe_caminho()
 
-    envio_xml = EnviarPdf(driver, url)
-    envio_xml.enviar_pdf()
+        envio_xml = EnviarPdf(driver, url)
+        envio_xml.enviar_pdf()
+        tkinter.messagebox.showinfo( 'Automação' , f"Envios concluídos!" )
+    except Exception as e:
+        tkinter.messagebox.showinfo( 'Automação' , f"Ocorreu uma exceção não tratada.\n{e.__class__.__name__} - {e}" )

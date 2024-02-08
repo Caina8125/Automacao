@@ -38,21 +38,21 @@ class Login(PageElement):
 
 
 class caminho(PageElement):
-    recurso = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[19]/a/span[1]')
-    novo = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[19]/ul/li[1]/a/span')
-    proximo = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
+    lote_de_pagamento = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[17]/a/span[1]')
+    pesquisar_lotes = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[17]/ul/li[3]/a/span[1]')
+    proximo = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[2]')
     fechar = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[3]')
-    fechar_botao = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[3]')
+    fechar_botao = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[2]')
     fechar_alerta = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
 
     def exe_caminho(self):
         try:
-            modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
+            modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div')))
             self.driver.find_element(*self.fechar_botao).click()
 
             while True:
                 try:
-                    proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
+                    proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[2]')))
                     proximo_botao.click()
                 except:
                     break
@@ -67,17 +67,17 @@ class caminho(PageElement):
         except:
             print("Não teve Modal")
             pass
-        self.driver.find_element(*self.recurso).click()
+        self.driver.find_element(*self.lote_de_pagamento).click()
         time.sleep(2)
-        self.driver.find_element(*self.novo).click()
+        self.driver.find_element(*self.pesquisar_lotes).click()
         time.sleep(3)
         try:
-            modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
+            modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div')))
             self.driver.find_element(*self.fechar_botao).click()
 
             while True:
                 try:
-                    proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
+                    proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[2]')))
                     proximo_botao.click()
                 except:
                     break
@@ -88,12 +88,13 @@ class caminho(PageElement):
             except:
                 print("Não foi possível encontrar o botão de fechar.")
                 pass
+
         except:
             print("Não teve Modal")
             pass
 
     def novo_rec(self):
-        self.driver.find_element(*self.novo).click()
+        self.driver.find_element(*self.pesquisar_lotes).click()
         print('Dentro de novo recurso')
 
     def Alert(self):
@@ -105,7 +106,7 @@ class inserir_dados(PageElement):
     protocolo = (By.XPATH, '//*[@id="Protocolo"]')
     pesquisar = (By.XPATH, '//*[@id="btn-Pesquisar"]/span')
     selecionar = (By.XPATH, '//*[@id="DataGrid"]/tbody[1]/tr[1]/td[2]/input')
-    atualizar = (By.XPATH, '//*[@id="atualizar-situacao-lote"]')
+    atualizar = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/thead/tr[1]/th/div[1]/div/div/a[3]/span')
     recursoclick = (By.XPATH, '//*[@id="recurso-glosa"]/span')
     controle = (By.XPATH, '//*[@id="GuiasGlosadasTable"]/thead/tr[1]/th/div[2]/input')
     alerta2 = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[3]')
@@ -122,7 +123,7 @@ class inserir_dados(PageElement):
     checkbox9 = (By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[1]/input')
     checkbox10 = (By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[1]/input')
     recursar = (By.LINK_TEXT, 'Recursar Procedimento')
-    justificativa = (By.XPATH, '/html/body/bc-modal-evolution/bc-modal-justificar-glosa/div/div/div/div[2]/div[2]/bc-exibir-a-partir-da-versao-tiss[2]/div/span/div/div/input')
+    justificativa = (By.XPATH, '/html/body/bc-modal-evolution/bc-modal-justificar-glosa/div/div/div/div[2]/div[2]/span/div/div/input')
     valor = (By.XPATH, '//*[@id="ValorRecursado"]')
     novo_recurso = (By.XPATH, '//*[@id="simpleConfirmationModal_btOk"]')
     pesquisar_proc = (By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/thead/tr[1]/th/div[2]/input')
@@ -144,12 +145,12 @@ class inserir_dados(PageElement):
             faturas_df1 = pd.read_excel(planilha)
             for index, linha in faturas_df1.iterrows():
                 try:
-                    modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
+                    modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div')))
                     self.driver.find_element(*self.fechar_botao).click()
 
                     while True:
                         try:
-                            proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
+                            proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[2]')))
                             proximo_botao.click()
                         except:
                             break
@@ -160,6 +161,7 @@ class inserir_dados(PageElement):
                     except:
                         print("Não foi possível encontrar o botão de fechar.")
                         pass
+
                 except:
                     print("Não teve Modal")
                     pass
@@ -176,12 +178,12 @@ class inserir_dados(PageElement):
                     None
 
                 try:
-                    modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
+                    modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div')))
                     self.driver.find_element(*self.fechar_botao).click()
 
                     while True:
                         try:
-                            proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
+                            proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[2]')))
                             proximo_botao.click()
                         except:
                             break
@@ -192,6 +194,7 @@ class inserir_dados(PageElement):
                     except:
                         print("Não foi possível encontrar o botão de fechar.")
                         pass
+
                 except:
                     print("Não teve Modal")
                     pass
@@ -236,12 +239,12 @@ class inserir_dados(PageElement):
                 break
 
             try:
-                modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
+                modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div')))
                 self.driver.find_element(*self.fechar_botao).click()
 
                 while True:
                     try:
-                        proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
+                        proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[2]')))
                         proximo_botao.click()
                     except:
                         break
@@ -1375,7 +1378,7 @@ class inserir_dados(PageElement):
                 os.rename(planilha, novo_nome)
             except:
                 print("Erro ao renomear arquivo")
-            self.driver.get('https://portalconectasaude.com.br/Pagamentos/PesquisaLote/PesquisaComValorGlosado')
+            self.driver.get('https://prosaudeconecta.tjdft.jus.br/Pagamentos/PesquisaLote/Index')
         self.driver.quit()
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def recursar_tjdft(user, password):
@@ -1425,4 +1428,4 @@ def recursar_tjdft(user, password):
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro enquanto o Robô trabalhava, provavelmente o portal do TJDFT caiu' )
         driver.quit()
 
-recursar_tjdft()
+recursar_tjdft("lucas.paz", "WheySesc2024*")

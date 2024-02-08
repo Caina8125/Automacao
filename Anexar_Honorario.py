@@ -12,7 +12,6 @@ import time
 from tkinter.messagebox import showerror, showinfo
 from tkinter import filedialog
 from selenium.webdriver.chrome.options import Options
-import requests
 
 class PageElement(ABC):
     def __init__(self,driver,url=''):
@@ -21,32 +20,6 @@ class PageElement(ABC):
     def open(self):
         self.driver.get(self.url)
     
-class LogarGeap():
-    proxies = {
-    'http': '10.0.0.230:3128',
-    'https': 'lucas.paz:Gsw2022&@10.0.0.230:3128'
-    }
-    login = {
-    "username": "23003723",
-    "password": "amhpdf0073",
-    "nrotpousuario": "1",
-    "grant_type": "password",
-    "CpfMultiusuario": "66661692120"
-}
-    data = []
-    token = ''
-    headers = {}
-    url = 'https://wwwapi.geap.com.br/authentication/api/Token'
-    
-    def logar(self):
-        response_login = requests.post(url=self.url, data=self.login, proxies=self.proxies)
-        self.data = response_login.json()
-
-    def gerar_token(self):
-        self.token = self.data["access_token"]
-        return {'Authorization': f'Bearer {self.token}'}
-
-
 class Login(PageElement):
     acessar_portal = (By.XPATH, '/html/body/div[3]/div[3]/div[1]/form/div[1]/div[1]/div/a')
     usuario = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[1]/div/div[1]/div/input')
@@ -96,7 +69,7 @@ class caminho(PageElement):
         # driver.switch_to.window(driver.window_handles[1])
         self.driver.switch_to.window(self.driver.window_handles[-1])
 
-class Anexar_Guia(PageElement, LogarGeap):
+class Anexar_Guia(PageElement):
     anexar = (By.XPATH,'//*[@id="fupDoc"]')
     adicionar = (By.XPATH,'//*[@id="btnAdicionar"]')
     url_guia = 'https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/'
@@ -199,23 +172,18 @@ class Anexar_Guia(PageElement, LogarGeap):
                 id = self.driver.find_element(By.XPATH,'//*[@id="grvLista"]/tbody/tr[1]/th[1]').text
 
             except:
-                logar_geap = LogarGeap()
-                logar_geap.logar()
-                headers = logar_geap.gerar_token()
-                response = requests.get(url=f"{self.url_guia}{linha['Nro Guia GEAP']}".replace('.0', ''), headers=headers, proxies=self.proxies)
-                data = response.json()
-                try:
-                    situacao = data["ResultData"]["Situacao"]
-                except:
-                    situacao = "Erro ao enviar"
-                dados = [situacao]
+                print('Erro ao anexar guia')
+                dados = ['Não Anexado']
                 df = pd.DataFrame(dados)
                 book = load_workbook(planilha)
-                writer = pd.ExcelWriter(planilha, engine='openpyxl', mode='a')
+                writer = pd.ExcelWriter(planilha, engine='openpyxl')
                 writer.book = book
                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
                 df.to_excel(writer, 'Planilha1', startrow= count, startcol=4, header=False, index=False)
                 writer.save()
+                self.driver.back()
+                self.driver.back()
+                numero_envio_anterior = numero_envio
                 continue
 
             if id == "Id Arquivo":

@@ -82,9 +82,15 @@ class Recursar(PageElement):
                 for planilha in lista_de_planilhas:
                     df = pd.read_excel(planilha)
                     protocolo = f"{df['Protocolo Aceite'][0]}".replace('.0', '')
-                    protocolo_pagamento = f"{df['Protocolo Pagamento'][0]}".replace('.0', '')
+                    if "P" in protocolo:
+                        protocolo_pagamento = f"{df['Protocolo Pagamento'][0]}".replace('.0', '')
+                        
+                    else:
+                        protocolo_pagamento = ''
+
                     if "Enviado" in planilha:
                         continue
+
                     if "P" in protocolo and not protocolo_pagamento.isdigit():    
                         self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoRecursoGlosa/Index')
                         time.sleep(2)
@@ -265,7 +271,10 @@ class Recursar(PageElement):
                                 writer = pd.ExcelWriter(planilha, engine='openpyxl')
                                 writer.book = book
                                 writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                                df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=21, header=False, index=False)
+                                if "P" in protocolo:
+                                    df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=21, header=False, index=False)
+                                else:
+                                    df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=20, header=False, index=False)
                                 writer.save()
                                 print('Salvo na planilha')
                                 writer.close()
