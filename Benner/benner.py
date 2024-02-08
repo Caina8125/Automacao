@@ -19,6 +19,7 @@ class Benner(PageElement):
     email_input: tuple = (By.XPATH, '//*[@id="Email"]')
     enviar_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/bc-detalhes-lote/div[3]/div/div[1]/div[2]/a[3]/span')
     exames_complementares_opt: tuple = (By.XPATH, '/html/body/div[10]/div/div/div[2]/bc-anexo-dropzone/div/div/div/div[2]/div[7]/select/option[12]')
+    exames_de_analises_clinicas_opt: tuple = (By.XPATH, '/html/body/div[10]/div/div/div[2]/bc-anexo-dropzone/div/div/div/div[2]/div[7]/select/option[16]')
     fechar_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/bc-detalhes-lote/div[3]/div/div[1]/div[2]/a[1]/span')
     incluir: tuple = (By.XPATH, '/html/body/div[10]/div/div/div[3]/button[2]')
     incluir_anexo: tuple = (By.XPATH, '//*[@id="incluir-anexo"]/span')
@@ -35,6 +36,7 @@ class Benner(PageElement):
     pesquisar_lotes_li: tuple = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[23]/ul/li[3]/a/span[1]')
     proximo_botao: tuple = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
     registros_lotes: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/tbody')
+    select_enviar_fatura: tuple = (By.XPATH, '/html/body/div[10]/div/div/div[2]/bc-anexo-dropzone/div/div/div/div[2]/div[7]/select')
     senha_input: tuple = (By.XPATH, '//*[@id="Senha"]')
     table_anexos = (By.XPATH, '//*[@id="AnexosDataGrid"]')
     upload_novo: tuple = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[36]/a')
@@ -93,6 +95,7 @@ class Benner(PageElement):
         sleep(2)
         cls.get_click(cls.pesquisar)
         sleep(2)
+        cls.pegar_alerta()
         registros_content: str = cls.driver.find_element(*cls.registros_lotes).text
 
         if "Não existem registros." in registros_content:
@@ -108,12 +111,19 @@ class Benner(PageElement):
         cls.driver.find_element(*cls.enviar_lote).click()
         sleep(2)
 
-    def adicionar_anexo(cls, caminho: str) -> None:
+    def adicionar_anexo(cls, caminho: str, convenio: str) -> None:
         cls.get_click(cls.incluir_anexo)
         sleep(2)
         cls.driver.find_element(*cls.input_file).send_keys(caminho)
         sleep(2)
-        cls.driver.find_element(*cls.exames_complementares_opt).click()
+
+        match convenio:
+            case 'POSTAL SAÚDE | 419133':
+                cls.driver.find_element(*cls.exames_complementares_opt).click()
+
+            case 'CÂMARA DOS DEPUTADOS | 888888':
+                cls.driver.find_element(*cls.exames_de_analises_clinicas_opt).click()
+
         sleep(2)
         cls.driver.find_element(*cls.incluir).click()
         sleep(2)
@@ -140,10 +150,10 @@ class Benner(PageElement):
 
         match convenio:
             case "POSTAL SAÚDE | 419133":
-                if SIZE > 15:
+                if SIZE > 20:
                     return False
             case "CÂMARA DOS DEPUTADOS | 888888":
-                if SIZE > 20:
+                if SIZE > 15:
                     return False
         
         return True
@@ -211,7 +221,7 @@ class Benner(PageElement):
                         self.arquivos_anexados.append(numero_fatura)
                         continue
                     
-                    self.adicionar_anexo(caminho)
+                    self.adicionar_anexo(caminho, convenio)
                     page_content: str = self.driver.find_element(*self.body).text
 
                     while "Aguarde" in page_content:
