@@ -51,7 +51,7 @@ from Demonstrativo_Stf import demonstrativo_stf
 from Demonstrativo_Tjdft import demonstrativo_tjdft
 from Demonstrativo_Unafisco import demonstrativo_unafisco
 from Gerar_relatorios_Brindes import Gerar_Relat_Normal
-from Nota_Fiscal import subirNF
+from Nota_Fiscal_2 import subirNF2
 from gerador_de_planilha import gerar_planilha
 from leitor_de_pdf_gama import pdf_reader
 from Enviar_Pdf_Brb import enviar_pdf
@@ -199,7 +199,7 @@ class Application:
             pass
 
     def desocultar(self):
-        self.lbl.pack_forget()
+        self.lbl.pack_forget()    
 
     def botao_iniciar(self):
         self.buttonIniciar = Button(self.quintoContainer, bg="#274360",foreground="white",width=10, command=lambda: threading.Thread(target=self.chamarAutomacao).start())
@@ -467,7 +467,7 @@ class Application:
                 self.reiniciar()
 
             case "Tesouraria - Nota Fiscal":
-                self.inserir_login(subirNF)
+                self.inserir_login(subirNF2)
             case _:
                 self.botao_iniciar()
 
