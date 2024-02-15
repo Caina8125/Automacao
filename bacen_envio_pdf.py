@@ -174,7 +174,7 @@ def enviar_bacen():
 
     envio_bacen = EnvioPDF(driver=driver, url=url)
     envio_bacen.open()
-    LoginLayoutAntigo(driver=driver, url=url).login(usuario = "00735860000173", senha = "Amhpdf!2023")
+    LoginLayoutAntigo(driver=driver, url=url).login(usuario = "00735860000173", senha = "Amhpdf!2023)")
     lista_de_dados = []
 
     for pasta in lista_de_pastas:
