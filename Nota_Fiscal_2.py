@@ -252,7 +252,7 @@ class Nf(PageElement):
         mesPorExtenso   = self.mesCompetencia(convertMes)
         return mesPorExtenso
     
-    def verificarMesVigentePortal(self,mes,count,linha,dadosNF):
+    def verificarMesVigentePortal(self,mes,i):
         # Pegar o mês vigente do portal
         try:
             self.driver.switch_to.default_content()
@@ -269,7 +269,7 @@ class Nf(PageElement):
         if mes in campoMesPortal:
             print("Mês vigente da NF")
         else:
-            if count > 1:
+            if i > 2:
                 self.gravarNF()
                 self.verificarNFGravada()
             self.alterarCompetencia(mes)
@@ -293,7 +293,7 @@ class Nf(PageElement):
 
         
 
-    def verificarNFGravada(self,linha):
+    def verificarNFGravada(self):
         try:
             try:
                 status = driver.find_element(By.XPATH, '//*[@id="base-modal"]/div/div/div[1]/h4').text
@@ -353,7 +353,7 @@ class Nf(PageElement):
             #Obter o Mês por Extenso
             mes = self.obterMes(data)
             #Verifica mes do portal e trocar caso não seja o mesmo da NF
-            self.verificarMesVigentePortal(mes,count_linha,linha,dadosNF)
+            self.verificarMesVigentePortal(mes,i)
             #Converter cnpj em string e verificar tamanho
             cnpj = self.verificaCnpj(linha)
             #Converter NF em string
@@ -370,11 +370,15 @@ class Nf(PageElement):
             time.sleep(1)
             self.gravarNF()
             time.sleep(1)
-            self.verificarNFGravada(linha)
+            self.verificarNFGravada()
 
             count_linha += 1
             i = 2
             print(count_linha)
+
+        self.gravarNF()
+        time.sleep(1)
+        # self.verificarNFGravada()
 
 #---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -414,8 +418,9 @@ def subirNF2(user, password):
         time.sleep(1)
         Nf(driver,url).inserirDadosNf(dados)
         Pidgin.notaFiscal("Todas as Notas Concluídas")
-    except:
-        Pidgin.notaFiscal("Ocorreu um erro sem tratamento: {e.__class__.__name__}: {e}")
+        time.sleep(1)
+    except Exception as e:
+        Pidgin.notaFiscal(f"Ocorreu um erro sem tratamento: {e.__class__.__name__}: {e}")
 
         driver.quit()
         pass
