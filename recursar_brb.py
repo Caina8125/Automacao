@@ -421,7 +421,7 @@ def recursar_brb(user, password):
         
         global usuario, senha, login_page
         usuario = "00735860000173"
-        senha = "amhpdf0073"
+        senha = "AMHP7356!"
 
         login_page = Login(driver, url)
         login_page.open()
