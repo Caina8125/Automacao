@@ -46,7 +46,6 @@ class Login(PageElement):
             self.driver.find_element(*self.portal_tiss).click()
             
         except:
-            self.driver.refresh()
             self.driver.implicitly_wait(180)
             self.driver.find_element(*self.portal_tiss).click()
         

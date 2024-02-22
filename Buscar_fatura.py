@@ -26,22 +26,28 @@ class Login(PageElement):
     senha = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[2]/div/div[1]/div[1]/input')
     entrar = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/button/div[2]/div/div')
     fechar = (By.XPATH, '/html/body/div[4]/div[2]/div/div[3]/button')
+    portal_tiss = (By.XPATH, '/html/body/div[1]/div/div[2]/div/div[1]/div[1]/div[1]/div/div')
 
     def exe_login(self, senha, cpf):
+        time.sleep(4)
         try:
             self.driver.find_element(*self.fechar).click()
         except:
             pass
-        time.sleep(2)
         self.driver.find_element(*self.acessar_portal).click()
-        time.sleep(2)
-        self.driver.find_element(*self.usuario).send_keys(cpf)
-        time.sleep(2)
-        self.driver.find_element(*self.senha).send_keys(senha)
-        time.sleep(1)
-        self.driver.find_element(*self.senha).send_keys(senha)
-        time.sleep(2)
-        self.driver.find_element(*self.entrar).click()
+        try:
+            self.driver.implicitly_wait(4)
+            self.driver.find_element(*self.usuario).send_keys(cpf)
+            self.driver.find_element(*self.senha).click()
+            self.driver.find_element(*self.senha).send_keys(senha)
+            time.sleep(2)
+            self.driver.find_element(*self.entrar).click()
+            time.sleep(2)
+            self.driver.find_element(*self.portal_tiss).click()
+            
+        except:
+            self.driver.implicitly_wait(180)
+            self.driver.find_element(*self.portal_tiss).click()
 
         
 class caminho(PageElement):
@@ -50,13 +56,13 @@ class caminho(PageElement):
     guia = (By.XPATH,'//*[@id="objTableDetalhe"]/tbody/tr[3]/td[1]/a')
 
     def exe_caminho(self):
+        self.driver.implicitly_wait(4)
         time.sleep(4)
         try:
             self.driver.find_element(*self.alerta).click()
         except:
             print('Alerta não apareceu')
         self.driver.implicitly_wait(15)
-        self.driver.find_element(*self.versao_anterior).click()
         time.sleep(2)
         driver.switch_to.window(driver.window_handles[1])
         time.sleep(1)
