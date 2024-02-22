@@ -37,6 +37,7 @@ class Caminho(PageElement):
     relatorio_de_faturas = (By.XPATH, '/html/body/header/div[4]/div/div/div/div[11]/div[1]/div[2]/div/div[2]/div/div/div/div[1]/a')
     iframe = (By.XPATH, '/html/body/div[6]/iframe[4]')
     fechar_chat = (By.XPATH, '/html/body/div/div/div/div[2]')
+    fechar_modal = (By.XPATH, '/html/body/div[3]/button[1]')
 
     def exe_caminho(self):
         try:
@@ -50,15 +51,25 @@ class Caminho(PageElement):
 
         self.driver.implicitly_wait(30)
         time.sleep(3)
+        
+        try:
+            self.driver.implicitly_wait(3)
+            self.driver.find_element(*self.fechar_modal).click()
+        except:
+            self.driver.implicitly_wait(30)
+
         self.driver.find_element(*self.faturas).click()
         time.sleep(2)
         self.driver.find_element(*self.relatorio_de_faturas).click()
         time.sleep(2)
-        id = self.driver.find_element(*self.iframe).get_attribute("id")
-        self.driver.switch_to.frame(id)
-        self.driver.find_element(*self.fechar_chat).click()
-        time.sleep(1)
-        self.driver.switch_to.default_content()
+        try:
+            id = self.driver.find_element(*self.iframe).get_attribute("id")
+            self.driver.switch_to.frame(id)
+            self.driver.find_element(*self.fechar_chat).click()
+            time.sleep(1)
+            self.driver.switch_to.default_content()
+        except:
+            pass
 
 class BaixarDemonstrativo(PageElement):
     lote = (By.XPATH, '//*[@id="txtLote"]')
