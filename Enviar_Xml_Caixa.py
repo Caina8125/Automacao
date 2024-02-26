@@ -7,6 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium import webdriver
 from openpyxl import load_workbook
 from abc import ABC
+import shutil
 import pandas as pd
 import time
 import os
@@ -48,6 +49,10 @@ class Xml(PageElement):
     def arquivos(self):
         xml = os.listdir(pasta)
         return xml
+    
+    def alteraXmlEnviadoPasta(self,caminho,xml):
+        destino = r"C:\Convenios Medicos\Server\XML"
+        os.rename(caminho, f"{destino + '/' + xml}")
 
     def envio(self):
         self.caminho()
@@ -58,6 +63,7 @@ class Xml(PageElement):
             time.sleep(1)
             self.driver.find_element(*self.gravar).click()
             time.sleep(1)
+            self.alteraXmlEnviadoPasta(caminho_arquivo, xml)
             print(xml)
             
 #---------------------------------------------------------------------------------------------------------------------------------
@@ -76,7 +82,7 @@ def Enviar_caixa(user, password):
     options = {
     'proxy': {
             'http': f'http://{user}:{password}@10.0.0.230:3128',
-                'https': f'http://{user}:{password}@10.0.0.230:3128'
+            'https': f'http://{user}:{password}@10.0.0.230:3128'
         }
     }
 
