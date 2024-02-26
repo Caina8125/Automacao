@@ -32,12 +32,12 @@ class PlanilhaSerpro():
     def get_info_processo(self, df_processo: DataFrame) -> None:
         print(df_processo['Protocolo Glosa'])
         return {
-            'protocolo': f'{df_processo["Protocolo Glosa"][0]}'.replace('.0', ''),
-            'numero_fatura': f'{df_processo["Fatura"][0]}',
-            'valor_total_original': f'{df_processo["Valor Original"].sum()}',
-            'valor_liberado': f'{df_processo["Valor Original"].sum() + df_processo["Valor Glosa"].sum()}',
-            'valor_glosa_total': f'{df_processo["Valor Glosa"].sum()}',
-            'valor_recurso_total': f'{df_processo["Valor Recursado"].sum()}'
+            'protocolo': f'{df_processo["Protocolo Glosa"].values.tolist()[0]}'.replace('.0', ''),
+            'numero_fatura': f'{df_processo["Fatura"].values.tolist()[0]}',
+            'valor_total_original': df_processo["Valor Original"].sum(),
+            'valor_liberado': df_processo["Valor Original"].sum() + df_processo["Valor Glosa"].sum(),
+            'valor_glosa_total': df_processo["Valor Glosa"].sum(),
+            'valor_recurso_total': df_processo["Valor Recursado"].sum()
         }
     
     def atualiza_template(self, chave, dado) -> None:
@@ -49,16 +49,16 @@ class PlanilhaSerpro():
                 self.add_info_na_celula('Lote:', dado)
 
             case 'valor_total_original':
-                self.add_info_na_celula('Valor Informado:', dado)
+                self.add_info_na_celula('Valor Informado:', f'R${dado:_.2f}'.replace('.',',').replace('_','.'))
 
             case 'valor_liberado':
-                self.add_info_na_celula('Valor Liberado:', dado)
+                self.add_info_na_celula('Valor Liberado:', f'R${dado:_.2f}'.replace('.',',').replace('_','.'))
 
             case 'valor_glosa_total':
-                self.add_info_na_celula('Valor Glosa:', dado)
+                self.add_info_na_celula('Valor Glosa:', f'R${dado:_.2f}'.replace('.',',').replace('_','.'))
 
             case 'valor_recurso_total':
-                self.add_info_na_celula('Valor Recurso:', dado)
+                self.add_info_na_celula('Valor Recurso:', f'R${dado:_.2f}'.replace('.',',').replace('_','.'))
     
     def add_info_na_celula(self, valor_celula: str, valor: str) -> None:
         for row in self.sheet.iter_rows():
@@ -82,12 +82,14 @@ class PlanilhaSerpro():
             print(df_processo.columns)
             info_processo: dict = self.get_info_processo(df_processo)
 
-            for chave, dado in info_processo.items(): 
+            for chave, dado in info_processo.items():
+                if isinstance(dado, float):
+                    print(f'{dado:_.2f}'.replace('.', ',').replace('_', '.'))
                 self.atualiza_template(chave, dado)
 
             writer: ExcelWriter = self.create_writer(numero_processo)
             self.create_excel(writer, df_processo)
-            writer.close()
+            writer.save()
 
 teste = PlanilhaSerpro(path_planilha=r"C:\Users\lucas.paz\Documents\Serpro\SERPRO.xlsx")
 teste.a_ser_nomeada()
