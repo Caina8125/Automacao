@@ -11,6 +11,7 @@ from Benner.enviar_pdf_benner import enviar_pdf_benner
 from Benner.enviar_xml_benner import enviar_xml_benner
 from Atualiza_Local import *
 from Anexar_Guia_Geap import anexar_guias
+from Enviar_Xml_Caixa import Enviar_caixa
 from VerificarSituacao_BRB import verificacao_brb
 from recursar_brb import recursar_brb
 from recursar_cassi import recursar_cassi
@@ -116,6 +117,7 @@ class Application:
                                                                    "Faturamento - Enviar PDF BRB",
                                                                    "Faturamento - Enviar XML Bacen",
                                                                    "Faturamento - Enviar XML Benner",
+                                                                   "Faturamento - Enviar XML Caixa",
                                                                    "Faturamento - Leitor de PDF GAMA",
                                                                    "Faturamento - Verificar Situação BRB",
                                                                    "Faturamento - Verificar Situação Fascal",
@@ -333,6 +335,9 @@ class Application:
 
             case "Faturamento - Enviar XML Benner":
                 self.inserir_login(enviar_xml_benner)
+
+            case "Faturamento - Enviar XML Caixa":
+                self.inserir_login(Enviar_caixa)
 
             case "Faturamento - Leitor de PDF GAMA":
                 self.gif()
