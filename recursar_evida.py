@@ -37,6 +37,7 @@ class Login(PageElement):
 class Caminho(PageElement):
     faturas = (By.XPATH, '//*[@id="menuPrincipal"]/div/div[11]/a')
     relatorio_de_faturas = (By.XPATH, '/html/body/header/div[4]/div/div/div/div[11]/div[1]/div[2]/div/div[2]/div/div/div/div[1]/a')
+    fechar_modal = (By.XPATH, '/html/body/div[3]/button[1]')
 
     def exe_caminho(self):
         try:
@@ -49,6 +50,13 @@ class Caminho(PageElement):
             login_page.exe_login(usuario, senha)
 
         self.driver.implicitly_wait(30)
+
+        try:
+            self.driver.implicitly_wait(3)
+            self.driver.find_element(*self.fechar_modal).click()
+        except:
+            self.driver.implicitly_wait(30)
+
         time.sleep(3)
         self.driver.find_element(*self.faturas).click()
         time.sleep(2)
