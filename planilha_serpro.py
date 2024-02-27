@@ -58,13 +58,32 @@ class PlanilhaSerpro():
 
             case 'valor_recurso_total':
                 self.add_info_na_celula('Valor Recurso:', f'R${dado:_.2f}'.replace('.',',').replace('_','.'))
+
+    def valor_in_cell(self, valor: str, cell: str | None) -> bool:
+        try:
+            if valor in cell:
+                return True
+            else:
+                return False
+        except:
+            return False
     
     def add_info_na_celula(self, valor_celula: str, valor: str) -> None:
+        celula_encontrada = False
+
         for row in self.sheet.iter_rows():
+
             for cell in row:
-                if cell.value == valor_celula:
+                
+                if self.valor_in_cell(valor_celula, cell.value):
                     new_value = valor_celula + ' ' + valor
                     self.sheet.cell(row=cell.row, column=cell.column).value = new_value
+                    celula_encontrada = True
+                    break
+
+            if celula_encontrada:
+                break
+            
     
     def create_excel(self, writer: ExcelWriter, df_processo: DataFrame) -> None:
         df_processo = df_processo.drop(['Fatura', 'Protocolo Glosa', 'Valor Recursado'], axis='columns')
@@ -85,8 +104,8 @@ class PlanilhaSerpro():
 
             writer: ExcelWriter = self.create_writer(numero_processo)
             self.create_excel(writer, df_processo)
-
-        writer.close()
+            writer.close()
+        
 
 teste = PlanilhaSerpro(path_planilha=r"C:\Users\lucas.paz\Documents\Serpro\SERPRO.xlsx")
 teste.a_ser_nomeada()
