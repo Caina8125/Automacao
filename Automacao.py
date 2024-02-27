@@ -10,7 +10,8 @@ from Buscar_fatura import iniciar
 from Benner.enviar_pdf_benner import enviar_pdf_benner
 from Benner.enviar_xml_benner import enviar_xml_benner
 from Atualiza_Local import *
-from Anexar_Honorario import anexar_guias
+from Anexar_Guia_Geap import anexar_guias
+from Enviar_Xml_Caixa import Enviar_caixa
 from VerificarSituacao_BRB import verificacao_brb
 from recursar_brb import recursar_brb
 from recursar_cassi import recursar_cassi
@@ -108,7 +109,7 @@ class Application:
         self.nomeLabel = Label(self.terceiroContainer, text="Selecione a automação",font=self.fontePadrao, background="white")
         self.nomeLabel.pack(side=LEFT)
 
-        self.comboBox = ttk.Combobox(self.quartoContainer, values=["Faturamento - Anexar Honorario Geap",
+        self.comboBox = ttk.Combobox(self.quartoContainer, values=["Faturamento - Anexar Guia Geap",
                                                                    "Faturamento - Conferência GEAP",
                                                                    "Faturamento - Conferência Bacen",
                                                                    "Faturamento - Enviar PDF Bacen",
@@ -116,6 +117,7 @@ class Application:
                                                                    "Faturamento - Enviar PDF BRB",
                                                                    "Faturamento - Enviar XML Bacen",
                                                                    "Faturamento - Enviar XML Benner",
+                                                                   "Faturamento - Enviar XML Caixa",
                                                                    "Faturamento - Leitor de PDF GAMA",
                                                                    "Faturamento - Verificar Situação BRB",
                                                                    "Faturamento - Verificar Situação Fascal",
@@ -310,7 +312,7 @@ class Application:
         automacao = self.comboBox.get()
 
         match automacao:
-            case "Faturamento - Anexar Honorario Geap":
+            case "Faturamento - Anexar Guia Geap":
                 self.inserir_login(anexar_guias)
 
             case "Faturamento - Conferência GEAP":
@@ -333,6 +335,9 @@ class Application:
 
             case "Faturamento - Enviar XML Benner":
                 self.inserir_login(enviar_xml_benner)
+
+            case "Faturamento - Enviar XML Caixa":
+                self.inserir_login(Enviar_caixa)
 
             case "Faturamento - Leitor de PDF GAMA":
                 self.gif()
