@@ -30,7 +30,6 @@ class PlanilhaSerpro():
         return df_processo
     
     def get_info_processo(self, df_processo: DataFrame) -> None:
-        print(df_processo['Protocolo Glosa'])
         return {
             'protocolo': f'{df_processo["Protocolo Glosa"].values.tolist()[0]}'.replace('.0', ''),
             'numero_fatura': f'{df_processo["Fatura"].values.tolist()[0]}',
@@ -79,17 +78,15 @@ class PlanilhaSerpro():
 
         for numero_processo in LISTA_DE_PROCESSOS:
             df_processo: DataFrame = self.filter_df_by_number(numero_processo)
-            print(df_processo.columns)
             info_processo: dict = self.get_info_processo(df_processo)
 
             for chave, dado in info_processo.items():
-                if isinstance(dado, float):
-                    print(f'{dado:_.2f}'.replace('.', ',').replace('_', '.'))
                 self.atualiza_template(chave, dado)
 
             writer: ExcelWriter = self.create_writer(numero_processo)
             self.create_excel(writer, df_processo)
-            writer.save()
+
+        writer.close()
 
 teste = PlanilhaSerpro(path_planilha=r"C:\Users\lucas.paz\Documents\Serpro\SERPRO.xlsx")
 teste.a_ser_nomeada()
