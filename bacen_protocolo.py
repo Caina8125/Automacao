@@ -45,9 +45,11 @@ class BuscarProtocolo(PageElement):
         self.driver.find_element(*self.lupa_pesquisar).click()
         sleep(2)
         body = self.driver.find_element(*self.body).text
+
         if "Nenhum registro encontrado." in body:
             self.driver.find_element(*self.input_numero_lote).clear()
             return 'Nenhum registro encontrado.'
+        
         else:
             numero_protocolo = self.driver.find_element(*self.a_numero_protocolo).text
             sleep(1)
