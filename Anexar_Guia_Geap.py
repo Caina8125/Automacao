@@ -4,21 +4,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchWindowException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from seleniumwire import webdriver
 from openpyxl import load_workbook
-from abc import ABC
 import time
 from tkinter.messagebox import showerror, showinfo
 from tkinter import filedialog
 from selenium.webdriver.chrome.options import Options
-
-class PageElement(ABC):
-    def __init__(self,driver=None,url=''):
-        self.driver: webdriver.Chrome = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
     
 class Login(PageElement):
     acessar_portal = (By.XPATH, '/html/body/div[3]/div[3]/div[1]/form/div[1]/div[1]/div/a')
@@ -224,7 +216,7 @@ class Anexar_Guia(PageElement):
                     numero_envio_anterior = numero_envio
                 break
 
-            except:
+            except Exception as e:
                 handles = self.driver.window_handles
                 numero_de_guias = len(handles)
 

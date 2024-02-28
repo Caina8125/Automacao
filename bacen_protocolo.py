@@ -1,15 +1,7 @@
-from abc import ABC
 from time import sleep
-import pandas as pd
 from selenium.webdriver.common.by import By
+from page_element import PageElement
 
-class PageElement(ABC):
-    def __init__(self, driver, url)-> None:
-        self.driver = driver
-        self.url = url
-        
-    def open(self)-> None:
-        self.driver.get(self.url)
 
 class BuscarProtocolo(PageElement):
     body = (By.XPATH, '/html/body')

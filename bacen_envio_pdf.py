@@ -1,4 +1,3 @@
-from abc import ABC
 from time import sleep
 import pandas as pd
 from selenium import webdriver
@@ -6,24 +5,13 @@ from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from tkinter.filedialog import askdirectory, askopenfilenames
-from bacen_protocolo import BuscarProtocolo
-from abc import ABC
 import pandas as pd
 from seleniumwire import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
-from tkinter import messagebox
 import os
 import zipfile
-
-class PageElement(ABC):
-    def __init__(self, driver=None, url=None)-> None:
-        self.driver = driver
-        self.url = url
-        
-    def open(self)-> None:
-        self.driver.get(self.url)
-        sleep(2)
+from page_element import PageElement
 
 class LoginLayoutAntigo(PageElement):
     usuario_input = (By.XPATH, '/html/body/table/tbody/tr/td/div/div/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[2]/td/form/table/tbody/tr[1]/td[2]/input')

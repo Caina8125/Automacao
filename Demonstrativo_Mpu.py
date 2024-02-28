@@ -6,20 +6,12 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from abc import ABC
 import time
 import datetime
 import os
 import tkinter
 import Pidgin
-
-class PageElement(ABC):
-    def __init__(self, driver, url='') -> None:
-        self.driver = driver
-        self.url = url
-
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 class Login(PageElement):
     usuario = (By.XPATH, '//*[@id="rp1_edt"]/table/tbody/tr[2]/td/form/table/tbody/tr[1]/td[2]/input')

@@ -7,17 +7,10 @@ from selenium.webdriver.chrome.service import Service
 from seleniumwire import webdriver
 from tkinter.messagebox import showinfo, showerror
 from openpyxl import load_workbook
-from abc import ABC
 import pandas as pd
 import time
 import os
-
-class PageElement(ABC):
-    def __init__(self, driver, url='') -> None:
-        self.driver: webdriver.Chrome = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 class Login(PageElement):
     acessar_portal = (By.XPATH, '/html/body/div[3]/div[3]/div[1]/form/div[1]/div[1]/div/a')

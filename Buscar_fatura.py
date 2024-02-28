@@ -1,24 +1,14 @@
 import pandas as pd
 import time
-from abc import ABC
 from tkinter import filedialog
 import tkinter.messagebox
-from openpyxl import Workbook, load_workbook
+from openpyxl import load_workbook
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from seleniumwire import webdriver
-
-class PageElement(ABC):
-    def __init__(self, driver, url=''):
-        self.driver = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 class Login(PageElement):
     acessar_portal = (By.XPATH, '/html/body/div[3]/div[3]/div[1]/form/div[1]/div[1]/div/a')

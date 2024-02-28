@@ -6,7 +6,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from abc import ABC
 import time
 import tkinter
 import Pidgin
@@ -15,13 +14,7 @@ import json
 from tkinter import filedialog
 import datetime
 import shutil
-
-class PageElement(ABC):
-    def __init__(self, driver, url=''):
-        self.driver = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 class Login(PageElement):
     prestador = (By.XPATH, '/html/body/table[2]/tbody/tr/td/form/table/tbody/tr/td[2]/table/tbody/tr[3]/td[2]/select/option[3]')

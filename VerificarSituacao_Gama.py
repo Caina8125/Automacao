@@ -1,29 +1,15 @@
 import pandas as pd
-import pyautogui
 import time
-import os
-import sys
-from abc import ABC
 from tkinter import filedialog
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
-from openpyxl import Workbook, load_workbook
+from openpyxl import load_workbook
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 from Filtro_Faturamento import *
 from selenium.webdriver.chrome.options import Options
 from seleniumwire import webdriver
-
-class PageElement(ABC):
-    def __init__(self, driver, url='')-> None:
-        self.driver = driver
-        self.url = url
-    def open(self)-> None:
-        self.driver.get(self.url)
+from page_element import PageElement
 
 class Login(PageElement):
     usuario = (By.XPATH, '//*[@id="username"]')

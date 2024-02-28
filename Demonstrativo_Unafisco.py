@@ -6,18 +6,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from abc import ABC
 import time
 import tkinter
 import Pidgin
 import os
-
-class PageElement(ABC):
-    def __init__(self, driver, url=''):
-        self.driver = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 class Login(PageElement):
     medico = (By.XPATH, '//*[@id="tipoAcesso"]/option[10]')
