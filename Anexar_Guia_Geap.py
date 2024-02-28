@@ -216,7 +216,7 @@ class Anexar_Guia(PageElement):
                     numero_envio_anterior = numero_envio
                 break
 
-            except:
+            except Exception as e:
                 handles = self.driver.window_handles
                 numero_de_guias = len(handles)
 
