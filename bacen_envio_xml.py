@@ -58,10 +58,12 @@ class EnviarXML(PageElement):
     def confere_envio(self, lista_de_processos):
         self.driver.get("https://www3.bcb.gov.br/portalbcsaude/saude/a/portal/prestador/tiss/ConsultarArquivoTiss.aspx?i=PORTAL_SUBMENU_XML_CONSULTARARQUIVO&m=MENU_ENVIO_XML_AGRUPADO")
         listas_para_df = []
+
         for processo in lista_de_processos:
             protocolo = acessar_portal.buscar_protocolo(processo)
             lista = [processo, protocolo]
             listas_para_df.append(lista)
+            
         cabecalho = ["N° Fatura", "N° Protocolo"]
         df = pd.DataFrame(listas_para_df, columns=cabecalho)
         data_e_hora_atuais = datetime.now()
