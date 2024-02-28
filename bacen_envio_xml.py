@@ -1,13 +1,12 @@
-from abc import ABC
 import time
 import pandas as pd
 from selenium import webdriver
 from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
 from tkinter.filedialog import askdirectory
-from bacen_protocolo import BuscarProtocolo, PageElement
+from bacen_protocolo import BuscarProtocolo
+from page_element import PageElement
 from abc import ABC
 import pandas as pd
 from seleniumwire import webdriver

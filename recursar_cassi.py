@@ -12,13 +12,7 @@ from seleniumwire import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 import Pidgin
-
-class PageElement(ABC):
-    def __init__(self, driver: webdriver.Chrome, url=''):
-        self.driver: webdriver.Chrome = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 class Login(PageElement):
     usuario = (By.XPATH, '//*[@id="cpfOuCnpj"]')

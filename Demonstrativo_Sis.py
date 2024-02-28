@@ -2,7 +2,6 @@ from tkinter import filedialog
 import tkinter.messagebox
 from selenium.webdriver.common.by import By
 from selenium import webdriver
-from abc import ABC
 import pandas as pd
 import time
 import os
@@ -13,13 +12,7 @@ from selenium.webdriver.chrome.service import Service
 import json
 import shutil
 import Pidgin
-
-class PageElement(ABC):
-    def __init__(self, driver, url=''):
-        self.driver = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 class Login(PageElement):
     usuario = (By.XPATH, '//*[@id="UserName"]')

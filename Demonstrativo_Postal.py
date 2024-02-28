@@ -4,7 +4,6 @@ import shutil
 import Pidgin
 import tkinter
 import pandas as pd
-from abc import ABC
 import tkinter.messagebox
 from selenium import webdriver
 from tkinter import filedialog
@@ -13,14 +12,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-
-class PageElement(ABC):
-    def __init__(self, driver, url=''):
-        self.driver = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 
 class Login(PageElement):

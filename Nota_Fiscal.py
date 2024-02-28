@@ -2,23 +2,13 @@ import time
 import pyautogui
 import time
 import Pidgin
-from abc import ABC
 import pandas as pd
 from datetime import datetime
 from selenium import webdriver
 from tkinter import filedialog
 from openpyxl import load_workbook
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support import expected_conditions as EC
-
-
-class PageElement(ABC):
-    def __init__(self, driver, url='') -> None:
-        self.driver = driver
-        self.url    = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 
 class Login(PageElement):

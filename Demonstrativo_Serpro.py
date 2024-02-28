@@ -3,7 +3,6 @@ import time
 import shutil
 import tkinter
 import pandas as pd
-from abc import ABC
 from selenium import webdriver
 from tkinter import filedialog
 from seleniumwire import webdriver
@@ -12,14 +11,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import Pidgin
-
-
-class PageElement(ABC):
-    def __init__(self, driver, url=''):
-        self.driver = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 
 class Login(PageElement):

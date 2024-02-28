@@ -1,27 +1,17 @@
 import pandas as pd
-import pyautogui
 import time
-from abc import ABC
 from tkinter import filedialog
 from selenium import webdriver
-from openpyxl import Workbook, load_workbook
+from openpyxl import load_workbook
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from seleniumwire import webdriver
 from selenium.webdriver.chrome.options import Options
 import tkinter
-
-class PageElement(ABC):
-    def __init__(self, driver, url=''):
-        self.driver = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 class Login(PageElement):
     multiusuario = (By.XPATH, '/html/body/div[3]/div[3]/div/form/div[1]/label')

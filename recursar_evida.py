@@ -6,20 +6,12 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from abc import ABC
 import time
 from openpyxl import load_workbook
 import tkinter.messagebox
-import Pidgin
 import tkinter
 import os
-
-class PageElement(ABC):
-    def __init__(self, driver, url=''):
-        self.driver = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 class Login(PageElement):
     prestador_pf = (By.XPATH, '//*[@id="tipoAcesso"]/option[6]')

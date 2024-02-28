@@ -1,13 +1,10 @@
 from tkinter import filedialog
-from user_authentication import UserLogin
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchWindowException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium import webdriver
 from openpyxl import load_workbook
-from abc import ABC
 import pandas as pd
 import time
 import os
@@ -16,14 +13,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from seleniumwire import webdriver
 import tkinter
-
-
-class PageElement(ABC):
-    def __init__(self, driver, url=''):
-        self.driver = driver
-        self.url = url
-    def open(self):
-        self.driver.get(self.url)
+from page_element import PageElement
 
 
 class Login(PageElement):
