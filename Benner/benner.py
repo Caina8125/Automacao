@@ -5,7 +5,6 @@ import pandas as pd
 from seleniumwire.webdriver import Chrome
 from page_element import PageElement
 from selenium.webdriver.common.by import By
-from datetime import date
 
 class Benner(PageElement):
     arquivos_anexados: list = []
