@@ -37,6 +37,7 @@ class SalutisCasembrapa(PageElement):
     credenciados = (By.XPATH, '//*[@id="divTreeNavegation"]/div[8]/span[2]')
     lotes = (By.XPATH, '//*[@id="divTreeNavegation"]/div[11]/span[2]')
     lotes_de_credenciados = (By.XPATH, '//*[@id="divTreeNavegation"]/div[16]/span[2]')
+    fechar_lotes_de_credenciados = (By.XPATH, '//*[@id="tabs"]/td[1]/table/tbody/tr/td[4]/span')
     numero_lote_pesquisa = (By.XPATH, '//*[@id="grdPesquisa"]/tbody/tr[1]/td[1]/table/tbody/tr[2]/td/table/tbody/tr[5]/td[2]/table/tbody/tr/td[1]/input')
     buscar_lotes = (By.XPATH, '//*[@id="buttonsContainer_1"]/td[1]/span[2]')
     numero_lote_operadora = (By.CSS_SELECTOR, '#form-view-label_gridLote_NUMERO > table > tbody > tr > td:nth-child(1) > input')
@@ -90,8 +91,18 @@ class SalutisCasembrapa(PageElement):
         time.sleep(2)
         self.driver.switch_to.frame('inlineFrameTabId1')
         selector = self.driver.find_element(*self.numero_lote_operadora)
-        
-        return selector.get_attribute('value')
+        lote_operadora = selector.get_attribute('value')
+        self.driver.switch_to.default_content()
+        self.driver.find_element(*self.fechar_lotes_de_credenciados).click()
+        return lote_operadora
+    
+    def entrar_no_recurso(self):
+        self.driver.implicitly_wait(30)
+        self.driver.find_element(*self.salutis).click()
+        time.sleep(2)
+        self.driver.find_element(*self.processamento_de_guias).click()
+        time.sleep(2) 
+        self.driver.find_element(*self.recurso_de_glosa).click()
     
     def executa_recurso(self, planilha):
         self.login()
@@ -100,6 +111,8 @@ class SalutisCasembrapa(PageElement):
             numero_fatura = str(linha['Fatura']).replace('.0', '')
             lote_operadora = self.buscar_numero_lote(numero_fatura)
             print(lote_operadora)
+            self.entrar_no_recurso()
+
     
 def teste(user, password):
     planilha = filedialog.askopenfilename()
