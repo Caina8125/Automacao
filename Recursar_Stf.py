@@ -307,7 +307,7 @@ def recursar_stf(user, password):
 
         login_page.exe_login(
             usuario = "00735860000173",
-            senha = "#DF0073amhp"
+            senha = "Amhp2024@"
         )
         Recurso(driver, url).fazer_recurso(pasta)
         tkinter.messagebox.showinfo( 'Automação Recurso de Glosa' , 'Recursos do STF Concluídos' )
