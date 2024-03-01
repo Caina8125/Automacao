@@ -307,7 +307,7 @@ def recursar_caixa(user, password):
 
         login_page.exe_login(
             usuario = "00735860000173",
-            senha = "Saude@2024!"
+            senha = "!Saude2024"
         )
         Recurso(driver, url).fazer_recurso()
         tkinter.messagebox.showinfo( 'Automação Saúde Caixa Recurso de Glosa' , 'Recursos do Saúde Caixa Concluídos 😎✌' )

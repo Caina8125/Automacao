@@ -161,7 +161,7 @@ def Enviar_caixa(user, password):
 
         login_page.exe_login(
             usuario = "00735860000173",
-            senha = "Saude@2024!"
+            senha = "!Saude2024"
         )
 
         lista_dados = Xml(driver, url).envio()
