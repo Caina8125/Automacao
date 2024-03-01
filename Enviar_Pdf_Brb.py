@@ -236,6 +236,6 @@ def enviar_pdf(user: str, password):
 
         envio_xml = EnviarPdf(driver, url)
         envio_xml.enviar_pdf()
-        tkinter.messagebox.showinfo( 'Automação' , f"Envios concluídos!" )
+        tkinter.messagebox.showinfo( 'Automação' , "Envios concluídos!" )
     except Exception as e:
         tkinter.messagebox.showinfo( 'Automação' , f"Ocorreu uma exceção não tratada.\n{e.__class__.__name__} - {e}" )

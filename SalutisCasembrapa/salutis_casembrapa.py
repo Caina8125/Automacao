@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from datetime import timedelta
+from datetime import datetime
 from tkinter import filedialog
 import pandas as pd
 from selenium.webdriver import Chrome
@@ -46,6 +48,7 @@ class SalutisCasembrapa(PageElement):
     lotes_de_credenciados: tuple = (By.XPATH, '/html/body/div[8]/div[2]/div[20]/span[2]')
     fechar_lotes_de_credenciados: tuple = (By.XPATH, '//*[@id="tabs"]/td[1]/table/tbody/tr/td[4]/span')
     numero_lote_pesquisa: tuple = (By.XPATH, '//*[@id="grdPesquisa"]/tbody/tr[1]/td[1]/table/tbody/tr[2]/td/table/tbody/tr[5]/td[2]/table/tbody/tr/td[1]/input')
+    numero_lote_na_operadora: tuple = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[2]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
     buscar_lotes: tuple = (By.XPATH, '//*[@id="buttonsContainer_1"]/td[1]/span[2]')
     numero_lote_operadora: tuple = (By.CSS_SELECTOR, '#form-view-label_gridLote_NUMERO > table > tbody > tr > td:nth-child(1) > input')
     processamento_de_guias: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[6]/span[2]')
@@ -64,8 +67,10 @@ class SalutisCasembrapa(PageElement):
     input_localizar_servico = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[1]/td[3]/input')
     radio_todos_os_campos_guia = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[2]/td[3]/table/tbody/tr[1]/td[1]/input')
     radio_todos_os_campos_servicos = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[2]/td[3]/table/tbody/tr[1]/td[1]/input')
-
-
+    data_inicio_lote = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[10]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
+    data_inicio_operadora = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[12]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
+    bold_proxima_da_guia = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[1]/td[4]/b')
+    bold_proxima_do_servico = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[1]/td[4]/b')
 
     def __init__(self, driver: Chrome, url: str, usuario: str, senha: str, diretorio: str) -> None:
         super().__init__(driver=driver, url=url)
@@ -105,12 +110,25 @@ class SalutisCasembrapa(PageElement):
         time.sleep(2)
 
     def pegar_numero_lote(self, numero_fatura: str):
+        data_atual = datetime.now()
+        data_seis_meses_atras = (data_atual - timedelta(days=180)).strftime('%d/%m/%Y')
         self.driver.implicitly_wait(30)
         self.driver.find_element(*self.lotes_de_credenciados).click()
         time.sleep(2)
         self.driver.switch_to.frame('inlineFrameTabId1')
+        self.driver.find_element(*self.data_inicio_lote).clear()
+        time.sleep(1)
+        self.driver.find_element(*self.data_inicio_lote).send_keys(data_seis_meses_atras)
+        time.sleep(1)
+        self.driver.find_element(*self.data_inicio_operadora).clear()
+        time.sleep(1)
+        self.driver.find_element(*self.data_inicio_operadora).send_keys(data_seis_meses_atras)
+        time.sleep(1)
         self.driver.find_element(*self.numero_lote_pesquisa).clear()
         time.sleep(2)
+        self.driver.find_element(*self.numero_lote_na_operadora).clear()
+        time.sleep(2)
+        self.driver.find_element(*self.numero_lote_pesquisa).click()
         self.driver.find_element(*self.numero_lote_pesquisa).send_keys(numero_fatura)
         time.sleep(2)
         self.driver.switch_to.default_content()
@@ -142,6 +160,7 @@ class SalutisCasembrapa(PageElement):
         time.sleep(1)
         self.driver.find_element(*self.input_lote).clear()
         time.sleep(1)
+        self.driver.find_element(*self.input_lote).click()
         self.driver.find_element(*self.input_lote).send_keys(numero_lote)
         self.driver.switch_to.default_content()
 
@@ -183,8 +202,9 @@ class SalutisCasembrapa(PageElement):
             df = pd.read_excel(planilha)
             numero_fatura = str(df['Fatura'][0]).replace('.0', '')
             lote_operadora = self.pegar_numero_lote(numero_fatura)
+            if lote_operadora == '':
+                return
             time.sleep(2)
-            print(lote_operadora)
 
             # Entra em Recurso de Glosa
             self.driver.find_element(*self.salutis).click()
@@ -196,8 +216,18 @@ class SalutisCasembrapa(PageElement):
             self.abrir_divs()
 
             for index, linha in df.iterrows():
-                ...
+                numero_guia = f'{df["Nro. Guia"][index]}'.replace('.0', '')
+                codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
+                valor_glosa = f'{linha["Valor Glosa"]}'
+                valor_recurso = f'{linha["Valor Recursado"]}'
+                justificativa = f'{linha["Recurso Glosa"]}'.replace('\t', ' ')
 
+                self.driver.find_element(*self.input_localizar_guia).send_keys(numero_guia)
+                self.driver.find_element(*self.bold_proxima_da_guia).click()
+                time.sleep(2)
+                self.driver.find_element(*self.input_localizar_servico).send_keys(codigo_procedimento)
+                self.driver.find_element(*self.bold_proxima_do_servico).click()
+                
     
 def teste(user, password):
     diretorio = filedialog.askdirectory()
