@@ -1,6 +1,5 @@
 from tkinter import filedialog
 import pandas as pd
-import pyautogui
 from selenium import webdriver
 from seleniumwire import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -152,42 +151,35 @@ def demonstrativo_pmdf(user, password):
         url = 'http://saude.pm.df.gov.br/tiss/pagemain.aspx'
         planilha = filedialog.askopenfilename() 
 
-        # options = {
-        #     'proxy' : {
-        #         'http': f'http://{user}:{password}@10.0.0.230:3128',
-        #         'https': f'http://{user}:{password}@10.0.0.230:3128'
-        #     }
-        # }
+        options = {
+            'proxy' : {
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
+            }
+        }
 
         chrome_options = Options()
         chrome_options.add_experimental_option('prefs', {
             "download.default_directory": r"\\10.0.0.239\automacao_financeiro\PMDF",
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
-            "safebrowsing.enabled": 'false',
             "safebrowsing.disable_download_protection,": True,
             "safebrowsing_for_trusted_sources_enabled": False,
             "plugins.always_open_pdf_externally": True
     })
         chrome_options.add_argument("--start-maximized")
-        
+
         servico = Service(ChromeDriverManager().install())
         try:
-            driver = webdriver.Chrome(service=servico, options = chrome_options)
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
         except:
-            driver = webdriver.Chrome(options = chrome_options)
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
         usuario = "00735860000173"
         senha = "00735860000173"
 
         login_page = Login(driver, url)
         login_page.open()
-        pyautogui.write(user.lower())
-        pyautogui.press("TAB")
-        time.sleep(1)
-        pyautogui.write(password)
-        pyautogui.press("enter")
-        time.sleep(4)
         login_page.exe_login(usuario, senha)
         Caminho(driver, url).exe_caminho()
         BaixarDemonstrativo(driver, url).baixar_demonstrativo(planilha)
