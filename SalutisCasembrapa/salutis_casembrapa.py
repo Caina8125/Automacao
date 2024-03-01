@@ -43,7 +43,7 @@ class SalutisCasembrapa(PageElement):
     websaude: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[7]/span[2]')
     credenciados: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[8]/span[2]')
     lotes: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[11]/span[2]')
-    lotes_de_credenciados: tuple = (By.XPATH, '/html/body/div[8]/div[2]/div[19]/span[2]')
+    lotes_de_credenciados: tuple = (By.XPATH, '/html/body/div[8]/div[2]/div[20]/span[2]')
     fechar_lotes_de_credenciados: tuple = (By.XPATH, '//*[@id="tabs"]/td[1]/table/tbody/tr/td[4]/span')
     numero_lote_pesquisa: tuple = (By.XPATH, '//*[@id="grdPesquisa"]/tbody/tr[1]/td[1]/table/tbody/tr[2]/td/table/tbody/tr[5]/td[2]/table/tbody/tr/td[1]/input')
     buscar_lotes: tuple = (By.XPATH, '//*[@id="buttonsContainer_1"]/td[1]/span[2]')
@@ -60,8 +60,8 @@ class SalutisCasembrapa(PageElement):
     mudar_visao_4 = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[1]/div')
     lupa_localizar_guia = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[2]/td[1]/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div')
     lupa_localizar_servico = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[2]/td[1]/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div')
-    input_localizar_guia = (By.XPATH, '')
-    input_localizar_servico = (By.XPATH, '')
+    input_localizar_guia = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[1]/td[3]/input')
+    input_localizar_servico = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[1]/td[3]/input')
     radio_todos_os_campos_guia = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[2]/td[3]/table/tbody/tr[1]/td[1]/input')
     radio_todos_os_campos_servicos = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[2]/td[3]/table/tbody/tr[1]/td[1]/input')
 
@@ -155,7 +155,7 @@ class SalutisCasembrapa(PageElement):
             except:
                 continue
 
-    def abrir_mudar_visao(self):
+    def abrir_divs(self):
         self.driver.switch_to.frame('inlineFrameTabId2')
         time.sleep(1)
         self.driver.find_element(*self.mudar_visao_1).click()
@@ -165,6 +165,15 @@ class SalutisCasembrapa(PageElement):
         self.driver.find_element(*self.mudar_visao_3).click()
         time.sleep(1)
         self.driver.find_element(*self.mudar_visao_4).click()
+        time.sleep(2)
+        self.driver.find_element(*self.lupa_localizar_guia).click()
+        time.sleep(2)
+        self.driver.find_element(*self.lupa_localizar_servico).click()
+        time.sleep(2)
+        self.driver.find_element(*self.radio_todos_os_campos_guia).click()
+        time.sleep(2)
+        self.driver.find_element(*self.radio_todos_os_campos_servicos).click()
+        time.sleep(2)
     
     def executa_recurso(self):
         self.login()
@@ -184,7 +193,7 @@ class SalutisCasembrapa(PageElement):
             time.sleep(2)
             self.busca_fatura(lote_operadora)
             time.sleep(2)
-            self.abrir_mudar_visao()
+            self.abrir_divs()
 
             for index, linha in df.iterrows():
                 ...
