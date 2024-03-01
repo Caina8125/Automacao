@@ -169,6 +169,9 @@ def demonstrativo_pmdf(user, password):
             "plugins.always_open_pdf_externally": True
     })
         chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+        
         servico = Service(ChromeDriverManager().install())
         try:
             driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
