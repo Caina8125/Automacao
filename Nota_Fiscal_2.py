@@ -70,10 +70,10 @@ class Caminho(PageElement):
 
 
 class Nf(PageElement):
-    inserirCNPJ1    = (By.XPATH, '//*[@id="dgContratados__ctl2_txtCPF_CNPJ"]')
-    inserirNumDoc   = (By.XPATH, '//*[@id="dgContratados__ctl2_txtNum_Doc"]')
+    inserirCNPJ1    = (By.XPATH, f'//*[@id="dgDeclContratados__ctl2_txtCpfCnpjPrestador"]')
+    inserirNumDoc   = (By.XPATH, f'//*[@id="dgDeclContratados__ctl2_txtNumDoc"]')
     botaoGravar     = (By.XPATH, '//*[@id="btnGravar"]')
-    campoVlDoc      = (By.XPATH, '//*[@id="dgContratados__ctl2_txtValor_Doc"]')
+    campoVlDoc      = (By.XPATH, '//*[@id="dgDeclContratados__ctl2_txtValorDoc"]')
     fecharModalErro = (By.XPATH, '//*[@id="base-modal"]/div/div/div[1]/button')
     botaoCancelar   = (By.XPATH, '//*[@id="Button4"]')
     selectMes       = (By.XPATH, '//*[@id="ddlMes"]')
@@ -150,16 +150,16 @@ class Nf(PageElement):
     def inserirDezEmDez(self,count,i,cnpj,nf):
         self.driver.implicitly_wait(3)
         self.driver.switch_to.frame('iframe')
-        self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{i}_txtCPF_CNPJ"]').clear()
-        self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{i}_txtCPF_CNPJ"]').send_keys(cnpj)
+        self.driver.find_element(By.XPATH, f'//*[@id="dgDeclContratados__ctl{i}_txtCpfCnpjPrestador"]').clear()
+        self.driver.find_element(By.XPATH, f'//*[@id="dgDeclContratados__ctl{i}_txtCpfCnpjPrestador"]').send_keys(cnpj)
         self.driver.find_element(*self.inserirNumDoc).click()
         time.sleep(2)
         try:
-            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{i}_txtNum_Doc"]').clear()
-            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{i}_txtNum_Doc"]').send_keys(nf)
+            self.driver.find_element(By.XPATH, f'//*[@id="dgDeclContratados__ctl{i}_txtNumDoc"]').clear()
+            self.driver.find_element(By.XPATH, f'//*[@id="dgDeclContratados__ctl{i}_txtNumDoc"]').send_keys(nf)
         except:
-            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{i}_txtNum_Doc"]').clear()
-            self.driver.find_element(By.XPATH, f'//*[@id="dgContratados__ctl{i}_txtNum_Doc"]').send_keys(nf)
+            self.driver.find_element(By.XPATH, f'//*[@id="dgDeclContratados__ctl{i}_txtNumDoc"]').clear()
+            self.driver.find_element(By.XPATH, f'//*[@id="dgDeclContratados__ctl{i}_txtNumDoc"]').send_keys(nf)
         self.driver.find_element(*self.campoVlDoc).click()
         self.salvarResultadoExcel("Enviado no Portal",count)
 
@@ -319,6 +319,7 @@ class Nf(PageElement):
         self.driver.switch_to.default_content()
             
     def inserirDadosNf(self,dadosNF):
+        global i
         self.driver.implicitly_wait(3)
         count_linha = 1
         i = 2
