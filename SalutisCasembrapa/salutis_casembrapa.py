@@ -11,8 +11,9 @@ from selenium.webdriver.common.by import By
 from openpyxl import load_workbook
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
+from typing import Any
 import time
-from os import listdir
+from os import listdir, rename
 import json
 # from page_element import PageElement
 
@@ -223,8 +224,12 @@ class SalutisCasembrapa(PageElement):
         valor_portal: str = self.driver.find_element(*self.input_valor_portal).get_attribute('value')
         return procedimento in proced_portal and valor_portal in valor
     
-    def salvar_valor_planilha(self, path_planilha: str, valor: str, coluna: int, linha: int):
-        dados = {"Recursado no Portal" : [valor]}
+    def salvar_valor_planilha(self, path_planilha: str, valor: Any, coluna: int, linha: int):
+        if isinstance(valor, list) or isinstance(valor, tuple):
+            dados = {"Recursado no Portal" : valor}
+        else:
+            dados = {"Recursado no Portal" : [valor]}
+
         df_dados = pd.DataFrame(dados)
         book = load_workbook(path_planilha)
         writer = pd.ExcelWriter(path_planilha, engine='openpyxl')
@@ -247,11 +252,14 @@ class SalutisCasembrapa(PageElement):
         lista_de_codigos_mot_glosa: list[str] = codigo_mot_glosa.split(', ')
 
         for codigo in lista_de_codigos_mot_glosa:
+            readonly = self.driver.find_element(*self.input_motivo).get_attribute('readonly')
+
+            if readonly == 'true':
+                continue
+
             self.confirma_valor_inserido(self.input_motivo, codigo)
             time.sleep(2)
             self.confirma_valor_inserido(self.text_area_recurso, justificativa)
-            time.sleep(2)
-            self.driver.find_element(*self.input_valor_recursado).clear()
             time.sleep(2)
             self.confirma_valor_inserido(self.input_valor_recursado, valor_recurso)
             time.sleep(2)
@@ -264,25 +272,32 @@ class SalutisCasembrapa(PageElement):
             time.sleep(2)
             self.driver.switch_to.frame('inlineFrameTabId2')
 
-            self.salvar_valor_planilha(
-                path_planilha=path_planilha,
-                valor='Sim',
-                coluna=24,
-                linha=linha+1
-            )
-
             if quantidade_recurso > 1:
-
-                self.salvar_valor_planilha(
-                    path_planilha=path_planilha,
-                    valor=numero_processo,
-                    coluna=3,
-                    linha=linha + 1
-                )
-
                 self.driver.find_element(*self.proximo_recurso).click()
                 time.sleep(2)
-    
+
+        self.salvar_valor_planilha(
+            path_planilha=path_planilha,
+            valor=numero_processo,
+            coluna=3,
+            linha=linha + 1
+        )
+
+        self.salvar_valor_planilha(
+            path_planilha=path_planilha,
+            valor='Sim',
+            coluna=24,
+            linha=linha+1
+        )
+
+    def renomear_planilha(self, path_planilha: str, msg: str):
+        novo_nome: str = path_planilha.replace('.xlsx', '') + f'_{msg}.xlsx'
+        rename(path_planilha, novo_nome)
+
+    def content_has_value(self, element: tuple, valor: str) -> bool:
+        content = self.driver.find_element(*element).text
+        return valor in content
+
     def executa_recurso(self):
         self.login()
         self.abrir_opcoes_menu()
@@ -290,10 +305,21 @@ class SalutisCasembrapa(PageElement):
         for planilha in self.lista_de_planilhas:
             df = pd.read_excel(planilha)
             numero_fatura = str(df['Fatura'][0]).replace('.0', '')
-            lote_operadora = self.pegar_numero_lote(numero_fatura)
+            lote_operadora = self.pegar_numero_lote(numero_fatura) # conferir se há um lote já nessa planilha
+
             if lote_operadora == '':
-                return
+                self.renomear_planilha(planilha, "Nao_Enviado")
+                continue
+
             time.sleep(2)
+
+            df['Lote'] = lote_operadora
+            self.salvar_valor_planilha(
+                path_planilha=planilha,
+                valor=df['Lote'].values.tolist(),
+                coluna=2,
+                linha=1
+            )
 
             # Entra em Recurso de Glosa
             self.driver.find_element(*self.salutis).click()
@@ -301,6 +327,11 @@ class SalutisCasembrapa(PageElement):
             self.driver.find_element(*self.recurso_de_glosa).click()
             time.sleep(2)
             self.busca_fatura(lote_operadora)
+
+            if self.content_has_value(self.body, 'Erro'):
+                self.renomear_planilha(planilha, 'Nao_Enviado')
+                continue
+
             time.sleep(2)
             self.abrir_divs()
 
@@ -325,8 +356,27 @@ class SalutisCasembrapa(PageElement):
                 self.confirma_valor_inserido(self.input_localizar_guia, numero_guia)
                 self.driver.find_element(*self.bold_proxima_da_guia).click()
                 time.sleep(2)
+                
+                if self.content_has_value(self.body, 'Valor não encontrado'):
+                    self.salvar_valor_planilha(
+                        path_planilha=planilha,
+                        valor='Guia não encontrada',
+                        coluna=24,
+                        linha=index + 1
+                    )
+                    continue
+
                 self.confirma_valor_inserido(self.input_localizar_servico, codigo_procedimento)
                 self.driver.find_element(*self.bold_proxima_do_servico).click()
+
+                if self.content_has_value(self.body, 'Valor não encontrado'):
+                    self.salvar_valor_planilha(
+                        path_planilha=planilha,
+                        valor='Procedimento não encontrado',
+                        coluna=24,
+                        linha=index + 1
+                    )
+                    continue
 
                 if self.procedimento_is_valid(codigo_procedimento, valor_glosa):
 
