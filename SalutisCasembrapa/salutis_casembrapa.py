@@ -52,6 +52,19 @@ class PageElement(ABC):
 
         except Exception as e:
             raise Exception(e)
+        
+    def get_click(self, element: tuple) -> bool:
+        for i in range(10):
+            try:
+                self.driver.find_element(*element).click()
+                return True
+            
+            except:
+                if i == 10:
+                    return False
+                
+                self.driver.execute_script('scrollBy(0,100)')
+                continue
 
 class SalutisCasembrapa(PageElement):
     usuario_input: tuple = (By.XPATH, '//*[@id="username"]')
