@@ -103,12 +103,16 @@ class Benner(PageElement):
         return True
 
     def fechar_e_enviar(cls) -> None:
-        cls.driver.find_element(*cls.fechar_lote).click()
-        sleep(2)
-        cls.driver.find_element(*cls.confirm_fechar_lote).click()
-        sleep(2)
-        cls.driver.find_element(*cls.enviar_lote).click()
-        sleep(2)
+        cls.driver.implicitly_wait(5)
+        try:
+            cls.driver.find_element(*cls.fechar_lote).click()
+            sleep(2)
+            cls.driver.find_element(*cls.confirm_fechar_lote).click()
+            sleep(2)
+            cls.driver.find_element(*cls.enviar_lote).click()
+            sleep(2)
+        except:
+            pass
 
     def adicionar_anexo(cls, caminho: str, convenio: str) -> None:
         cls.get_click(cls.incluir_anexo)
@@ -160,6 +164,7 @@ class Benner(PageElement):
     def fazer_envio_postal(cls, dia_atual: int) -> None:
         if dia_atual >= 1 and dia_atual <= 5:
             cls.fechar_e_enviar()
+            cls.driver.get('https://portalconectasaude.com.br/Pagamentos/PesquisaLote/Index')
         
         else:
             cls.driver.find_element(*cls.fechar_lote).click()
@@ -234,6 +239,7 @@ class Benner(PageElement):
                     match convenio:
                         case "POSTAL SAÚDE | 419133":
                             self.fazer_envio_postal(dia_atual)
+                            self.driver.implicitly_wait(15)
 
                         case "CÂMARA DOS DEPUTADOS | 888888":
                             self.driver.get('https://portalconectasaude.com.br/Pagamentos/PesquisaLote/Index')

@@ -8,6 +8,7 @@ from seleniumwire import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from openpyxl import load_workbook
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
 import time
@@ -33,9 +34,23 @@ class PageElement(ABC):
     def open(self) -> None:
         self.driver.get(self._url)
 
-    @property
-    @abstractmethod
-    def url(self):...
+    def confirma_valor_inserido(self, element: tuple, valor: str) -> None:
+        try:
+            self.driver.find_element(*element).clear()
+            valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
+            count: int = 0
+
+            while valor_inserido == '':
+                self.driver.find_element(*element).send_keys(valor)
+                time.sleep(2)
+                valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
+                count += 1
+
+                if count == 10:
+                    raise Exception("Element not interactable")
+
+        except Exception as e:
+            raise Exception(e)
 
 class SalutisCasembrapa(PageElement):
     usuario_input: tuple = (By.XPATH, '//*[@id="username"]')
@@ -68,24 +83,35 @@ class SalutisCasembrapa(PageElement):
     radio_todos_os_campos_guia = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[2]/td[3]/table/tbody/tr[1]/td[1]/input')
     radio_todos_os_campos_servicos = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[2]/td[3]/table/tbody/tr[1]/td[1]/input')
     data_inicio_lote = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[10]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
+    data_fim_lote = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[10]/td/table/tbody/tr[3]/td[4]/table/tbody/tr/td[1]/input')
     data_inicio_operadora = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[12]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
+    data_fim_operadora = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[12]/td/table/tbody/tr[3]/td[4]/table/tbody/tr/td[1]/input')
     bold_proxima_da_guia = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[1]/td[4]/b')
     bold_proxima_do_servico = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[3]/td[1]/table/tbody/tr[1]/td[4]/b')
+    input_proc_portal = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[5]/td[2]/table/tbody/tr/td[1]/input')
+    input_valor_portal = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[4]/td/table/tbody/tr[3]/td[4]/table/tbody/tr/td[1]/input')
+    inserir = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[2]/div')
+    ok_alerta_inserir_recurso = (By.XPATH, '/html/body/div[10]/div[2]/table/tbody/tr[2]/td/div/button')
+    input_numero_processo = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[1]/td[2]/table/tbody/tr/td[1]/input')
+    input_motivo = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[4]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
+    text_area_recurso = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[4]/td/table/tbody/tr[5]/td[2]/table/tbody/tr/td[1]/textarea')
+    input_valor_recursado = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[4]/td/table/tbody/tr[9]/td[2]/table/tbody/tr/td[1]/input')
+    confirmar_recurso_button = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[4]/div')
+    gravar_recurso_button = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[2]/td[1]/table/tbody/tr/td[2]/div/table/tbody/tr/td[1]/span[2]/p')
+    sim = (By.XPATH, '/html/body/div[9]/table/tbody/tr/td[2]/div/div[2]')
+    span_quantidade_recurso = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[9]/span[3]')
+    proximo_recurso = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[2]/td[1]/table/tbody/tr/td[1]/table/tbody/tr/td[4]/div')
 
     def __init__(self, driver: Chrome, url: str, usuario: str, senha: str, diretorio: str) -> None:
         super().__init__(driver=driver, url=url)
         self.usuario: str = usuario
         self.senha: str = senha
         self.diretorio: str = diretorio
-        self.lista_de_planilhas = [
+        self.lista_de_planilhas: list[str] = [
             f'{diretorio}\\{arquivo}' 
             for arquivo in listdir(diretorio)
             if arquivo.endswith('.xlsx')
             ]
-
-    @property
-    def url(self):
-        return self._url
 
     def login(self):
         self.open()
@@ -110,26 +136,25 @@ class SalutisCasembrapa(PageElement):
         time.sleep(2)
 
     def pegar_numero_lote(self, numero_fatura: str):
-        data_atual = datetime.now()
-        data_seis_meses_atras = (data_atual - timedelta(days=180)).strftime('%d/%m/%Y')
+        data_atual: datetime = datetime.now()
+        data_seis_meses_atras: str = (data_atual - timedelta(days=180)).strftime('%d/%m/%Y')
         self.driver.implicitly_wait(30)
         self.driver.find_element(*self.lotes_de_credenciados).click()
         time.sleep(2)
         self.driver.switch_to.frame('inlineFrameTabId1')
-        self.driver.find_element(*self.data_inicio_lote).clear()
+        self.confirma_valor_inserido(self.data_inicio_lote, data_seis_meses_atras)
         time.sleep(1)
-        self.driver.find_element(*self.data_inicio_lote).send_keys(data_seis_meses_atras)
+        self.confirma_valor_inserido(self.data_fim_lote, data_atual.strftime('%d/%m/%Y'))
         time.sleep(1)
-        self.driver.find_element(*self.data_inicio_operadora).clear()
+        self.confirma_valor_inserido(self.data_inicio_operadora, data_seis_meses_atras)
         time.sleep(1)
-        self.driver.find_element(*self.data_inicio_operadora).send_keys(data_seis_meses_atras)
+        self.confirma_valor_inserido(self.data_fim_operadora, data_atual.strftime('%d/%m/%Y'))
         time.sleep(1)
         self.driver.find_element(*self.numero_lote_pesquisa).clear()
         time.sleep(2)
         self.driver.find_element(*self.numero_lote_na_operadora).clear()
         time.sleep(2)
-        self.driver.find_element(*self.numero_lote_pesquisa).click()
-        self.driver.find_element(*self.numero_lote_pesquisa).send_keys(numero_fatura)
+        self.confirma_valor_inserido(self.numero_lote_pesquisa, numero_fatura)
         time.sleep(2)
         self.driver.switch_to.default_content()
         
@@ -158,10 +183,7 @@ class SalutisCasembrapa(PageElement):
         time.sleep(1)
         self.driver.find_element(*self.input_processo).clear()
         time.sleep(1)
-        self.driver.find_element(*self.input_lote).clear()
-        time.sleep(1)
-        self.driver.find_element(*self.input_lote).click()
-        self.driver.find_element(*self.input_lote).send_keys(numero_lote)
+        self.confirma_valor_inserido(self.input_lote, numero_lote)
         self.driver.switch_to.default_content()
 
         for i in range(1, 3):
@@ -193,6 +215,73 @@ class SalutisCasembrapa(PageElement):
         time.sleep(2)
         self.driver.find_element(*self.radio_todos_os_campos_servicos).click()
         time.sleep(2)
+
+    def procedimento_is_valid(self, procedimento: str, valor: str):
+        self.driver.find_element(*self.input_proc_portal).click()
+        self.driver.find_element(*self.input_valor_portal).click()
+        proced_portal: str = self.driver.find_element(*self.input_proc_portal).get_attribute('value')
+        valor_portal: str = self.driver.find_element(*self.input_valor_portal).get_attribute('value')
+        return procedimento in proced_portal and valor_portal in valor
+    
+    def salvar_valor_planilha(self, path_planilha: str, valor: str, coluna: int, linha: int):
+        dados = {"Recursado no Portal" : [valor]}
+        df_dados = pd.DataFrame(dados)
+        book = load_workbook(path_planilha)
+        writer = pd.ExcelWriter(path_planilha, engine='openpyxl')
+        writer.book = book
+        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+        df_dados.to_excel(writer, 'Recurso', startrow=linha, startcol=coluna, header=False, index=False)
+        writer.save()
+        writer.close()
+    
+    def lancar_recurso(self, path_planilha: str, linha: int, valor_recurso: str, codigo_mot_glosa: str, justificativa: str):
+        self.driver.find_element(*self.inserir).click()
+        time.sleep(2)
+        self.driver.switch_to.default_content()
+        self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
+        self.driver.switch_to.frame('inlineFrameTabId2')
+        numero_processo = self.driver.find_element(*self.input_numero_processo).get_attribute('value')
+        time.sleep(2)
+        
+        quantidade_recurso: int = int(self.driver.find_element(*self.span_quantidade_recurso).text)
+        lista_de_codigos_mot_glosa: list[str] = codigo_mot_glosa.split(', ')
+
+        for codigo in lista_de_codigos_mot_glosa:
+            self.confirma_valor_inserido(self.input_motivo, codigo)
+            time.sleep(2)
+            self.confirma_valor_inserido(self.text_area_recurso, justificativa)
+            time.sleep(2)
+            self.driver.find_element(*self.input_valor_recursado).clear()
+            time.sleep(2)
+            self.confirma_valor_inserido(self.input_valor_recursado, valor_recurso)
+            time.sleep(2)
+            self.driver.find_element(*self.confirmar_recurso_button).click()
+            time.sleep(2)
+            self.driver.find_element(*self.gravar_recurso_button).click()
+            time.sleep(2)
+            self.driver.switch_to.default_content()
+            self.driver.find_element(*self.sim).click()
+            time.sleep(2)
+            self.driver.switch_to.frame('inlineFrameTabId2')
+
+            self.salvar_valor_planilha(
+                path_planilha=path_planilha,
+                valor='Sim',
+                coluna=24,
+                linha=linha+1
+            )
+
+            if quantidade_recurso > 1:
+
+                self.salvar_valor_planilha(
+                    path_planilha=path_planilha,
+                    valor=numero_processo,
+                    coluna=3,
+                    linha=linha + 1
+                )
+
+                self.driver.find_element(*self.proximo_recurso).click()
+                time.sleep(2)
     
     def executa_recurso(self):
         self.login()
@@ -216,18 +305,38 @@ class SalutisCasembrapa(PageElement):
             self.abrir_divs()
 
             for index, linha in df.iterrows():
-                numero_guia = f'{df["Nro. Guia"][index]}'.replace('.0', '')
+
+                if f'{linha["Recursado no Portal"]}' == 'Sim':
+                    continue
+
+                numero_guia = f'{linha["Nro. Guia"]}'.replace('.0', '')
                 codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
-                valor_glosa = f'{linha["Valor Glosa"]}'
+
+                if isinstance(linha['Valor Glosa'], float):
+                    valor_glosa = "{:.2f}".format(linha["Valor Glosa"])
+
+                else:
+                    valor_glosa = "{:.2f}".format(float(linha["Valor Glosa"]))
+                    
                 valor_recurso = f'{linha["Valor Recursado"]}'
+                codigo_motivo_glosa = f'{linha["Motivo Glosa"]}'
                 justificativa = f'{linha["Recurso Glosa"]}'.replace('\t', ' ')
 
-                self.driver.find_element(*self.input_localizar_guia).send_keys(numero_guia)
+                self.confirma_valor_inserido(self.input_localizar_guia, numero_guia)
                 self.driver.find_element(*self.bold_proxima_da_guia).click()
                 time.sleep(2)
-                self.driver.find_element(*self.input_localizar_servico).send_keys(codigo_procedimento)
+                self.confirma_valor_inserido(self.input_localizar_servico, codigo_procedimento)
                 self.driver.find_element(*self.bold_proxima_do_servico).click()
-                
+
+                if self.procedimento_is_valid(codigo_procedimento, valor_glosa):
+
+                    self.lancar_recurso(
+                        path_planilha=planilha,
+                        linha=index,
+                        valor_recurso=valor_recurso,
+                        codigo_mot_glosa=codigo_motivo_glosa,
+                        justificativa=justificativa
+                    )
     
 def teste(user, password):
     diretorio = filedialog.askdirectory()
