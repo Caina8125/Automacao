@@ -247,6 +247,12 @@ class SalutisCasembrapa(PageElement):
         self.driver.switch_to.frame('inlineFrameTabId2')
         numero_processo = self.driver.find_element(*self.input_numero_processo).get_attribute('value')
         time.sleep(2)
+        self.salvar_valor_planilha(
+            path_planilha=path_planilha,
+            valor=numero_processo,
+            coluna=3,
+            linha=linha + 1
+        )
         
         quantidade_recurso: int = int(self.driver.find_element(*self.span_quantidade_recurso).text)
         lista_de_codigos_mot_glosa: list[str] = codigo_mot_glosa.split(', ')
@@ -278,13 +284,6 @@ class SalutisCasembrapa(PageElement):
 
         self.salvar_valor_planilha(
             path_planilha=path_planilha,
-            valor=numero_processo,
-            coluna=3,
-            linha=linha + 1
-        )
-
-        self.salvar_valor_planilha(
-            path_planilha=path_planilha,
             valor='Sim',
             coluna=24,
             linha=linha+1
@@ -303,13 +302,20 @@ class SalutisCasembrapa(PageElement):
         self.abrir_opcoes_menu()
 
         for planilha in self.lista_de_planilhas:
+
+            if 'Enviado' in planilha or 'Nao_Enviado' in planilha:
+                continue
+
             df = pd.read_excel(planilha)
             numero_fatura = str(df['Fatura'][0]).replace('.0', '')
-            lote_operadora = self.pegar_numero_lote(numero_fatura) # conferir se há um lote já nessa planilha
+            lote_operadora = str(df['Lote'][0]).replace('.0', '')
 
             if lote_operadora == '':
-                self.renomear_planilha(planilha, "Nao_Enviado")
-                continue
+                lote_operadora = self.pegar_numero_lote(numero_fatura)
+
+                if lote_operadora == '':
+                    self.renomear_planilha(planilha, "Nao_Enviado")
+                    continue
 
             time.sleep(2)
 
@@ -355,7 +361,8 @@ class SalutisCasembrapa(PageElement):
 
                 self.confirma_valor_inserido(self.input_localizar_guia, numero_guia)
                 self.driver.find_element(*self.bold_proxima_da_guia).click()
-                time.sleep(2)
+                time.sleep(3)
+                self.driver.switch_to.default_content()
                 
                 if self.content_has_value(self.body, 'Valor não encontrado'):
                     self.salvar_valor_planilha(
@@ -366,8 +373,11 @@ class SalutisCasembrapa(PageElement):
                     )
                     continue
 
+                self.driver.switch_to.frame('inlineFrameTabId2')
                 self.confirma_valor_inserido(self.input_localizar_servico, codigo_procedimento)
                 self.driver.find_element(*self.bold_proxima_do_servico).click()
+                time.sleep(3)
+                self.driver.switch_to.default_content()
 
                 if self.content_has_value(self.body, 'Valor não encontrado'):
                     self.salvar_valor_planilha(
@@ -377,6 +387,8 @@ class SalutisCasembrapa(PageElement):
                         linha=index + 1
                     )
                     continue
+
+                self.driver.switch_to.frame('inlineFrameTabId2')
 
                 if self.procedimento_is_valid(codigo_procedimento, valor_glosa):
 
