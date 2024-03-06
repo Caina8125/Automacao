@@ -1,5 +1,9 @@
 import pandas as pd
 from tkinter import messagebox
+from datetime import datetime
+from filtro_matricula import FiltroMatricula
+from tkinter import filedialog
+
 
 class FiltroMatricula():
     def __init__(self, planilha1, planilha2) -> None:
@@ -24,17 +28,18 @@ class FiltroMatricula():
             messagebox.showinfo('Filtro Matrícula', 'Não há dados para serem salvos!')
             return
 
-        df_plan_nova.to_excel(r"\\10.0.0.239\automacao_glosa\Filtro Matrícula\Relatório_Filtrado.xlsx", sheet_name='Faturas_Glosadas', index=False)
+        data_atual = datetime.now()
+        data_e_hora_em_texto = data_atual.strftime('%d_%m_%Y_%H_%M_%S')
+        df_plan_nova.to_excel(f"\\Output\\Relatorio_Filtrado_{data_e_hora_em_texto}.xlsx", sheet_name='Faturas_Glosadas', index=False)
         messagebox.showinfo('Filtro Matrícula', 'Planilha gerada!')
 
 def filtrar_matricula():
-    from filtro_matricula import FiltroMatricula
-    from tkinter import filedialog
-    from tkinter import messagebox
-
-    messagebox.showinfo('Filtro Matrícula', 'Selecione a planilha de glosas.')
-    planilha1 = filedialog.askopenfilename()
-    messagebox.showinfo('Filtro Matrícula', 'Selecione a planilha com as matrículas.')
-    planilha2 = filedialog.askopenfilename()
-    filtro = FiltroMatricula(planilha1, planilha2)
-    filtro.filtrar()
+    try:
+        messagebox.showinfo('Filtro Matrícula', 'Selecione a planilha de glosas.')
+        planilha1 = filedialog.askopenfilename()
+        messagebox.showinfo('Filtro Matrícula', 'Selecione a planilha com as matrículas.')
+        planilha2 = filedialog.askopenfilename()
+        filtro = FiltroMatricula(planilha1, planilha2)
+        filtro.filtrar()
+    except Exception as e:
+        messagebox.showerror('Filtro Matrícula', f'Ocorreu uma exceção nao tratada.\n{e.__class__.__name__}:\n{e}')
