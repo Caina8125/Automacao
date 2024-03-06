@@ -4,6 +4,7 @@ from tkinter import ttk
 import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
+from SalutisCasembrapa.salutis_casembrapa import recursar_casembrapa
 from filtro_matricula import filtrar_matricula
 from user_authentication import UserLogin
 from Recursar_Duplicado import *
@@ -150,6 +151,7 @@ class Application:
                                                                    "Glosa - Filtro Matrículas",
                                                                    "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)",
                                                                    "Glosa - Recursar BRB",
+                                                                   "Glosa - Recursar Casembrapa",
                                                                    "Glosa - Recursar Cassi",
                                                                    "Glosa - Recursar E-VIDA",
                                                                    "Glosa - Recursar Fascal",
@@ -439,6 +441,9 @@ class Application:
 
             case "Glosa - Recursar BRB":
                 self.inserir_login(recursar_brb)
+
+            case "Glosa - Recursar Casembrapa":
+                self.inserir_login(recursar_casembrapa)
 
             case "Glosa - Recursar Cassi":
                 self.inserir_login(recursar_cassi)
