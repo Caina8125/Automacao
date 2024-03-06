@@ -4,6 +4,7 @@ from tkinter import ttk
 import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
+from filtro_matricula import filtrar_matricula
 from user_authentication import UserLogin
 from Recursar_Duplicado import *
 from Buscar_fatura import iniciar
@@ -146,6 +147,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos TJDFT", 
                                                                    "Financeiro - Demonstrativos Unafisco", 
                                                                    "Glosa - Gerador de Planilha GDF",
+                                                                   "Glosa - Filtro Matrículas",
                                                                    "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)",
                                                                    "Glosa - Recursar BRB",
                                                                    "Glosa - Recursar Cassi",
@@ -425,6 +427,11 @@ class Application:
             case "Glosa - Gerador de Planilha GDF":
                 self.gif()
                 gerar_planilha()
+                self.reiniciar()
+
+            case "Glosa - Filtro Matrículas":
+                self.gif()
+                filtrar_matricula()
                 self.reiniciar()
 
             case "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)":

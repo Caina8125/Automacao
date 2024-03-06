@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from datetime import timedelta
 from datetime import datetime
 from tkinter import filedialog
@@ -10,11 +10,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from openpyxl import load_workbook
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.keys import Keys
 from typing import Any
 import time
 from os import listdir, rename
-import json
 # from page_element import PageElement
 
 class PageElement(ABC):
@@ -36,6 +34,8 @@ class PageElement(ABC):
         self.driver.get(self._url)
 
     def confirma_valor_inserido(self, element: tuple, valor: str) -> None:
+        """Este método verifica se um input recebeu os valores que foram enviados.
+           Caso não tenha recebido, tenta enviar novamente até 10x."""
         try:
             self.driver.find_element(*element).clear()
             valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
@@ -53,7 +53,9 @@ class PageElement(ABC):
         except Exception as e:
             raise Exception(e)
         
-    def get_click(self, element: tuple) -> bool:
+    def get_element_visible(self, element: tuple) -> bool:
+        """Este método observa se irá ocorrer ElementClickInterceptedException. Caso ocorra
+        irá dar um scroll até 10x na página conforme o comando passado até achar o click do elemento"""
         for i in range(10):
             try:
                 self.driver.find_element(*element).click()
@@ -64,6 +66,22 @@ class PageElement(ABC):
                     return False
                 
                 self.driver.execute_script('scrollBy(0,100)')
+                continue
+
+    def get_click(self, element: tuple, valor) -> None:
+        for i in range(10):
+            self.driver.find_element(*element).click()
+            time.sleep(1)
+            content = self.driver.find_element(*self.body).text
+
+            if valor in content:
+                break
+            
+            else:
+                if i == 10:
+                    raise Exception('Element not interactable')
+                
+                time.sleep(2)
                 continue
 
 class SalutisCasembrapa(PageElement):
@@ -115,6 +133,7 @@ class SalutisCasembrapa(PageElement):
     sim = (By.XPATH, '/html/body/div[9]/table/tbody/tr/td[2]/div/div[2]')
     span_quantidade_recurso = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[9]/span[3]')
     proximo_recurso = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[2]/td[1]/table/tbody/tr/td[1]/table/tbody/tr/td[4]/div')
+    frame = (By.XPATH, '/html/body/div[4]/div/div[2]/iframe')
 
     def __init__(self, driver: Chrome, url: str, usuario: str, senha: str, diretorio: str) -> None:
         super().__init__(driver=driver, url=url)
@@ -138,7 +157,7 @@ class SalutisCasembrapa(PageElement):
         time.sleep(2)
 
     def abrir_opcoes_menu(self):
-        self.driver.find_element(*self.salutis).click()
+        self.get_click(self.salutis, "Atalho")
         time.sleep(2)
         self.driver.find_element(*self.websaude).click()
         time.sleep(2)
@@ -341,7 +360,7 @@ class SalutisCasembrapa(PageElement):
             )
 
             # Entra em Recurso de Glosa
-            self.driver.find_element(*self.salutis).click()
+            self.get_click(self.salutis, "Atalho")
             time.sleep(2)
             self.driver.find_element(*self.recurso_de_glosa).click()
             time.sleep(2)
