@@ -33,6 +33,9 @@ class PageElement(ABC):
     def open(self) -> None:
         self.driver.get(self._url)
 
+    def get_attribute_value(self, element: tuple, atributo: str):
+        return self.driver.find_element(*element).get_attribute(atributo)
+
     def confirma_valor_inserido(self, element: tuple, valor: str) -> None:
         """Este método verifica se um input recebeu os valores que foram enviados.
            Caso não tenha recebido, tenta enviar novamente até 10x."""
@@ -43,7 +46,7 @@ class PageElement(ABC):
 
             while valor_inserido == '':
                 self.driver.find_element(*element).send_keys(valor)
-                time.sleep(2)
+                time.sleep(0.5)
                 valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
                 count += 1
 
@@ -134,6 +137,7 @@ class SalutisCasembrapa(PageElement):
     span_quantidade_recurso = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[9]/span[3]')
     proximo_recurso = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[2]/td[1]/table/tbody/tr/td[1]/table/tbody/tr/td[4]/div')
     frame = (By.XPATH, '/html/body/div[4]/div/div[2]/iframe')
+    guia_pesquisada = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
 
     def __init__(self, driver: Chrome, url: str, usuario: str, senha: str, diretorio: str) -> None:
         super().__init__(driver=driver, url=url)
@@ -150,23 +154,23 @@ class SalutisCasembrapa(PageElement):
         self.open()
         self.driver.implicitly_wait(30)
         self.driver.find_element(*self.usuario_input).send_keys(self.usuario)
-        time.sleep(2)
+        time.sleep(1)
         self.driver.find_element(*self.senha_input).send_keys(self.senha)
-        time.sleep(2)
+        time.sleep(1)
         self.driver.find_element(*self.entrar).click()
-        time.sleep(2)
+        time.sleep(1)
 
     def abrir_opcoes_menu(self):
         self.get_click(self.salutis, "Atalho")
-        time.sleep(2)
+        time.sleep(1)
         self.driver.find_element(*self.websaude).click()
-        time.sleep(2)
+        time.sleep(1)
         self.driver.find_element(*self.credenciados).click()
-        time.sleep(2)
+        time.sleep(1)
         self.driver.find_element(*self.lotes).click()
-        time.sleep(2)
+        time.sleep(1)
         self.driver.find_element(*self.processamento_de_guias).click()
-        time.sleep(2)
+        time.sleep(1)
 
     def pegar_numero_lote(self, numero_fatura: str):
         data_atual: datetime = datetime.now()
@@ -174,7 +178,7 @@ class SalutisCasembrapa(PageElement):
         self.driver.implicitly_wait(30)
         self.driver.find_element(*self.lotes_de_credenciados).click()
         time.sleep(2)
-        self.driver.switch_to.frame('inlineFrameTabId1')
+        self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
         self.confirma_valor_inserido(self.data_inicio_lote, data_seis_meses_atras)
         time.sleep(1)
         self.confirma_valor_inserido(self.data_fim_lote, data_atual.strftime('%d/%m/%Y'))
@@ -186,9 +190,9 @@ class SalutisCasembrapa(PageElement):
         self.driver.find_element(*self.numero_lote_pesquisa).clear()
         time.sleep(2)
         self.driver.find_element(*self.numero_lote_na_operadora).clear()
-        time.sleep(2)
+        time.sleep(1)
         self.confirma_valor_inserido(self.numero_lote_pesquisa, numero_fatura)
-        time.sleep(2)
+        time.sleep(1)
         self.driver.switch_to.default_content()
         
         for i in range(1, 5):
@@ -202,7 +206,7 @@ class SalutisCasembrapa(PageElement):
                 continue
 
         time.sleep(2)
-        self.driver.switch_to.frame('inlineFrameTabId1')
+        self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
         selector = self.driver.find_element(*self.numero_lote_operadora)
         lote_operadora = selector.get_attribute('value')
         self.driver.switch_to.default_content()
@@ -210,7 +214,7 @@ class SalutisCasembrapa(PageElement):
         return lote_operadora
     
     def busca_fatura(self, numero_lote):
-        self.driver.switch_to.frame('inlineFrameTabId2')
+        self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
         time.sleep(2)
         self.driver.find_element(*self.input_guia).clear()
         time.sleep(1)
@@ -230,7 +234,7 @@ class SalutisCasembrapa(PageElement):
                 continue
 
     def abrir_divs(self):
-        self.driver.switch_to.frame('inlineFrameTabId2')
+        self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
         time.sleep(1)
         self.driver.find_element(*self.mudar_visao_1).click()
         time.sleep(1)
@@ -239,15 +243,15 @@ class SalutisCasembrapa(PageElement):
         self.driver.find_element(*self.mudar_visao_3).click()
         time.sleep(1)
         self.driver.find_element(*self.mudar_visao_4).click()
-        time.sleep(2)
+        time.sleep(1)
         self.driver.find_element(*self.lupa_localizar_guia).click()
-        time.sleep(2)
+        time.sleep(1)
         self.driver.find_element(*self.lupa_localizar_servico).click()
-        time.sleep(2)
+        time.sleep(1)
         self.driver.find_element(*self.radio_todos_os_campos_guia).click()
-        time.sleep(2)
+        time.sleep(1)
         self.driver.find_element(*self.radio_todos_os_campos_servicos).click()
-        time.sleep(2)
+        time.sleep(1)
 
     def procedimento_is_valid(self, procedimento: str, valor: str):
         self.driver.find_element(*self.input_proc_portal).click()
@@ -276,7 +280,7 @@ class SalutisCasembrapa(PageElement):
         time.sleep(2)
         self.driver.switch_to.default_content()
         self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
-        self.driver.switch_to.frame('inlineFrameTabId2')
+        self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
         numero_processo = self.driver.find_element(*self.input_numero_processo).get_attribute('value')
         time.sleep(2)
         self.salvar_valor_planilha(
@@ -296,23 +300,23 @@ class SalutisCasembrapa(PageElement):
                 continue
 
             self.confirma_valor_inserido(self.input_motivo, codigo)
-            time.sleep(2)
+            time.sleep(1)
             self.confirma_valor_inserido(self.text_area_recurso, justificativa)
-            time.sleep(2)
+            time.sleep(1)
             self.confirma_valor_inserido(self.input_valor_recursado, valor_recurso)
-            time.sleep(2)
+            time.sleep(1)
             self.driver.find_element(*self.confirmar_recurso_button).click()
-            time.sleep(2)
+            time.sleep(1)
             self.driver.find_element(*self.gravar_recurso_button).click()
-            time.sleep(2)
+            time.sleep(1)
             self.driver.switch_to.default_content()
             self.driver.find_element(*self.sim).click()
-            time.sleep(2)
-            self.driver.switch_to.frame('inlineFrameTabId2')
+            time.sleep(1)
+            self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
 
             if quantidade_recurso > 1:
                 self.driver.find_element(*self.proximo_recurso).click()
-                time.sleep(2)
+                time.sleep(1)
 
         self.salvar_valor_planilha(
             path_planilha=path_planilha,
@@ -342,7 +346,7 @@ class SalutisCasembrapa(PageElement):
             numero_fatura = str(df['Fatura'][0]).replace('.0', '')
             lote_operadora = str(df['Lote'][0]).replace('.0', '')
 
-            if lote_operadora == '':
+            if lote_operadora == '' or lote_operadora == 'nan':
                 lote_operadora = self.pegar_numero_lote(numero_fatura)
 
                 if lote_operadora == '':
@@ -381,17 +385,21 @@ class SalutisCasembrapa(PageElement):
                 numero_guia = f'{linha["Nro. Guia"]}'.replace('.0', '')
                 codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
 
-                if isinstance(linha['Valor Glosa'], float):
+                if isinstance(linha['Valor Glosa'], float) or isinstance(linha['Valor Glosa'], int):
                     valor_glosa = "{:.2f}".format(linha["Valor Glosa"])
 
                 else:
-                    valor_glosa = "{:.2f}".format(float(linha["Valor Glosa"]))
+                    valor_glosa = "{:.2f}".format(float(linha["Valor Glosa"].replace('.', '').replace(',', '.')))
                     
                 valor_recurso = f'{linha["Valor Recursado"]}'
                 codigo_motivo_glosa = f'{linha["Motivo Glosa"]}'
                 justificativa = f'{linha["Recurso Glosa"]}'.replace('\t', ' ')
 
-                self.confirma_valor_inserido(self.input_localizar_guia, numero_guia)
+                guia_pesquisada = self.driver.find_element(*self.guia_pesquisada).get_attribute('value')
+                
+                if guia_pesquisada != numero_guia:
+                    self.confirma_valor_inserido(self.input_localizar_guia, numero_guia)
+
                 self.driver.find_element(*self.bold_proxima_da_guia).click()
                 time.sleep(3)
                 self.driver.switch_to.default_content()
@@ -403,9 +411,12 @@ class SalutisCasembrapa(PageElement):
                         coluna=24,
                         linha=index + 1
                     )
+                    self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
+                    time.sleep(1)
+                    self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
                     continue
 
-                self.driver.switch_to.frame('inlineFrameTabId2')
+                self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
                 self.confirma_valor_inserido(self.input_localizar_servico, codigo_procedimento)
                 self.driver.find_element(*self.bold_proxima_do_servico).click()
                 time.sleep(3)
@@ -418,9 +429,12 @@ class SalutisCasembrapa(PageElement):
                         coluna=24,
                         linha=index + 1
                     )
+                    self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
+                    time.sleep(1)
+                    self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
                     continue
 
-                self.driver.switch_to.frame('inlineFrameTabId2')
+                self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
 
                 if self.procedimento_is_valid(codigo_procedimento, valor_glosa):
 
