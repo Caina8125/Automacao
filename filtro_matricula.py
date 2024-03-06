@@ -1,7 +1,6 @@
 import pandas as pd
 from tkinter import messagebox
 from datetime import datetime
-from filtro_matricula import FiltroMatricula
 from tkinter import filedialog
 
 
