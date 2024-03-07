@@ -150,6 +150,7 @@ class Nf(PageElement):
     def inserirDezEmDez(self,count,i,cnpj,nf):
         self.driver.implicitly_wait(3)
         self.driver.switch_to.frame('iframe')
+        self.inserirModeloDocumento(i)
         self.driver.find_element(By.XPATH, f'//*[@id="dgDeclContratados__ctl{i}_txtCpfCnpjPrestador"]').clear()
         self.driver.find_element(By.XPATH, f'//*[@id="dgDeclContratados__ctl{i}_txtCpfCnpjPrestador"]').send_keys(cnpj)
         self.driver.find_element(*self.inserirNumDoc).click()
@@ -317,6 +318,10 @@ class Nf(PageElement):
         self.driver.find_element(*self.fecharModal).click()
         time.sleep(2)
         self.driver.switch_to.default_content()
+    def inserirModeloDocumento(self,i):
+        campoClick = f'//*[@id="dgDeclContratados__ctl{i}_ddlModeloDoc"]'
+
+        self.driver.find_element(By.XPATH,f'//*[@id="dgDeclContratados__ctl{i}_ddlModeloDoc"]/option[2]').click()
             
     def inserirDadosNf(self,dadosNF):
         global i
@@ -333,6 +338,7 @@ class Nf(PageElement):
 
             #Tratando Data Copetencia
             dataCompetencia = f"{linha['NFECOMPETENCIA']}".replace(" 00:00:00","")
+
 
             # Verificando se Data copetencia está vazio, se estiver pular para próxima
             if not '-' in dataCompetencia:
