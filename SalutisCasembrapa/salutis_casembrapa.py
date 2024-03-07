@@ -24,6 +24,7 @@ class SalutisCasembrapa(PageElement):
     credenciados: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[8]/span[2]')
     lotes: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[11]/span[2]')
     lotes_de_credenciados: tuple = (By.XPATH, '/html/body/div[8]/div[2]/div[20]/span[2]')
+    fechar_recurso_de_glosa: tuple = (By.XPATH, '/html/body/div[3]/div/table/tbody/tr/td[1]/table/tbody/tr/td[4]/span/div')
     fechar_lotes_de_credenciados: tuple = (By.XPATH, '//*[@id="tabs"]/td[1]/table/tbody/tr/td[4]/span')
     numero_lote_pesquisa: tuple = (By.XPATH, '//*[@id="grdPesquisa"]/tbody/tr[1]/td[1]/table/tbody/tr[2]/td/table/tbody/tr[5]/td[2]/table/tbody/tr/td[1]/input')
     numero_lote_na_operadora: tuple = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[2]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
@@ -327,24 +328,25 @@ class SalutisCasembrapa(PageElement):
                 
                 if guia_pesquisada != numero_guia:
                     self.confirma_valor_inserido(self.input_localizar_guia, numero_guia)
+                    self.driver.find_element(*self.bold_proxima_da_guia).click()
 
-                self.driver.find_element(*self.bold_proxima_da_guia).click()
-                time.sleep(3)
-                self.driver.switch_to.default_content()
-                
-                if self.content_has_value(self.body, 'Valor não encontrado'):
-                    self.salvar_valor_planilha(
-                        path_planilha=planilha,
-                        valor='Guia não encontrada',
-                        coluna=24,
-                        linha=index + 1
-                    )
-                    self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
-                    time.sleep(1)
+                    time.sleep(3)
+                    self.driver.switch_to.default_content()
+                    
+                    if self.content_has_value(self.body, 'Valor não encontrado'):
+                        self.salvar_valor_planilha(
+                            path_planilha=planilha,
+                            valor='Guia não encontrada',
+                            coluna=24,
+                            linha=index + 1
+                        )
+                        self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
+                        time.sleep(1)
+                        self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
+                        continue
+
                     self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
-                    continue
 
-                self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
                 self.confirma_valor_inserido(self.input_localizar_servico, codigo_procedimento)
                 self.driver.find_element(*self.bold_proxima_do_servico).click()
                 time.sleep(3)
@@ -374,7 +376,8 @@ class SalutisCasembrapa(PageElement):
                         justificativa=justificativa
                     )
 
-            self.driver.find_element(*self.fechar_lotes_de_credenciados).click()
+            self.driver.switch_to.default_content()
+            self.driver.find_element(*self.fechar_recurso_de_glosa).click()
             time.sleep(1)
 
 def recursar_casembrapa(user, password):
@@ -392,7 +395,6 @@ def recursar_casembrapa(user, password):
     chrome_options.add_argument("--start-maximized")
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument('--ignore-ssl-errors')
-    chrome_options.add_argument('--kiosk-printing')
     servico = Service(ChromeDriverManager().install())
 
     driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
@@ -400,5 +402,5 @@ def recursar_casembrapa(user, password):
     usuario = "00735860000173"
     senha = "0073586@"
 
-    login_page = SalutisCasembrapa(driver, url, usuario, senha, diretorio)
-    login_page.executa_recurso()
+    salutis_casembrapa = SalutisCasembrapa(driver, url, usuario, senha, diretorio)
+    salutis_casembrapa.executa_recurso()
