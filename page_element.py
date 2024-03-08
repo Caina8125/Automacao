@@ -62,7 +62,7 @@ class PageElement(ABC):
     def get_click(self, element: tuple, valor: str) -> None:
         for i in range(10):
             self.driver.find_element(*element).click()
-            time.sleep(1)
+            time.sleep(3)
             content: str = self.driver.find_element(*self.body).text
 
             if valor in content:

@@ -175,6 +175,7 @@ class Application:
         
         self.info = Label(self.quintoContainer, text= "Trabalhando...",font=('Arial,10,bold'), background="white")
         self.info.pack()
+        
 
         self.lbl = ImageLabel(self.quintoContainer,background="white")
         self.lbl.pack(side=LEFT)

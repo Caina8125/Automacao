@@ -28,14 +28,14 @@ class SalutisCasembrapa(PageElement):
     fechar_lotes_de_credenciados: tuple = (By.XPATH, '//*[@id="tabs"]/td[1]/table/tbody/tr/td[4]/span')
     numero_lote_pesquisa: tuple = (By.XPATH, '//*[@id="grdPesquisa"]/tbody/tr[1]/td[1]/table/tbody/tr[2]/td/table/tbody/tr[5]/td[2]/table/tbody/tr/td[1]/input')
     numero_lote_na_operadora: tuple = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[2]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
-    buscar_lotes: tuple = (By.XPATH, '//*[@id="buttonsContainer_1"]/td[1]/span[2]')
+    buscar_lotes: tuple = (By.XPATH, '/html/body/div[4]/div/div[1]/table/tbody/tr/td[2]/table/tbody/tr/td[1]/span[2]')
     numero_lote_operadora: tuple = (By.CSS_SELECTOR, '#form-view-label_gridLote_NUMERO > table > tbody > tr > td:nth-child(1) > input')
     processamento_de_guias: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[6]/span[2]')
     recurso_de_glosa: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[9]/span[2]')
     input_guia = (By.XPATH, '//*[@id="pesquisaParametro"]/tbody/tr[1]/td[1]/table/tbody/tr/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
     input_processo = (By.XPATH, '//*[@id="pesquisaParametro"]/tbody/tr[1]/td[1]/table/tbody/tr/td/table/tbody/tr[1]/td[2]/table/tbody/tr/td[1]/input')
     input_lote = (By.XPATH, '//*[@id="pesquisaParametro"]/tbody/tr[1]/td[1]/table/tbody/tr/td/table/tbody/tr[7]/td[2]/table/tbody/tr/td[1]/input')
-    buscar = (By.ID, 'buttonsContainer_2')
+    buscar = (By.XPATH, '/html/body/div[4]/div/div[1]/table/tbody/tr/td[2]/table/tbody/tr')
     mudar_visao_1 = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[1]/div')
     mudar_visao_2 = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[1]/div')
     mudar_visao_3 = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[1]/div')
@@ -63,10 +63,14 @@ class SalutisCasembrapa(PageElement):
     confirmar_recurso_button = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[4]/div')
     gravar_recurso_button = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[2]/td[1]/table/tbody/tr/td[2]/div/table/tbody/tr/td[1]/span[2]/p')
     sim = (By.XPATH, '/html/body/div[9]/table/tbody/tr/td[2]/div/div[2]')
-    span_quantidade_recurso = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[9]/span[3]')
+    span_quantidade_recurso = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[1]/td[1]/table/tbody/tr/td[2]/table/tbody/tr/td[9]/span[2]')
     proximo_recurso = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/thead/tr[2]/td[1]/table/tbody/tr/td[1]/table/tbody/tr/td[4]/div')
     frame = (By.XPATH, '/html/body/div[4]/div/div[2]/iframe')
+    input_valor_glosado = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[7]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[9]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[4]/td/table/tbody/tr[7]/td[2]/table/tbody/tr/td[1]/input')
+    botao_ok_erro = (By.XPATH, '/html/body/div[10]/div[2]/table/tbody/tr[2]/td/div/button')
     guia_pesquisada = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
+    ok_alerta_lote = (By.XPATH, '/html/body/div[10]/div[2]/table/tbody/tr[2]/td/div/button')
+    ultimo_lote = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/thead/tr[2]/td[1]/table/tbody/tr/td[1]/table/tbody/tr/td[5]/div')
 
     def __init__(self, driver: Chrome, url: str, usuario: str, senha: str, diretorio: str) -> None:
         super().__init__(driver=driver, url=url)
@@ -100,6 +104,7 @@ class SalutisCasembrapa(PageElement):
         time.sleep(1)
         self.driver.find_element(*self.processamento_de_guias).click()
         time.sleep(1)
+        self.driver.find_element(*self.salutis).click()
 
     def pegar_numero_lote(self, numero_fatura: str):
         data_atual: datetime = datetime.now()
@@ -126,15 +131,33 @@ class SalutisCasembrapa(PageElement):
         
         for i in range(1, 5):
             try:
+                self.driver.implicitly_wait(5)
                 self.driver.find_element(*self.buscar_lotes).click()
                 time.sleep(2)
                 texto_no_botao = self.driver.find_element(*self.buscar_lotes).text
-                if texto_no_botao == 'Pesquisar Lotes':
+
+                if texto_no_botao == 'Pesquisar Lotes' or 'Lote cancelado' in self.driver.find_element(*self.body).text:
                     break
+
             except:
+                if 'Lote cancelado' in self.driver.find_element(*self.body).text:
+                    break
+
                 continue
 
         time.sleep(2)
+
+        self.driver.implicitly_wait(30)
+        if 'Lote cancelado' in self.driver.find_element(*self.body).text:
+            self.driver.switch_to.default_content()
+            self.driver.find_element(*self.ok_alerta_lote).click()
+            time.sleep(2)
+            self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
+            self.driver.find_element(*self.ultimo_lote).click()
+            self.driver.switch_to.default_content()
+            time.sleep(2)
+
+
         self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
         selector = self.driver.find_element(*self.numero_lote_operadora)
         lote_operadora = selector.get_attribute('value')
@@ -142,7 +165,7 @@ class SalutisCasembrapa(PageElement):
         self.driver.find_element(*self.fechar_lotes_de_credenciados).click()
         return lote_operadora
     
-    def busca_fatura(self, numero_lote):
+    def numero_lote_is_searchable(self, numero_lote: str) -> bool:
         self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
         time.sleep(2)
         self.driver.find_element(*self.input_guia).clear()
@@ -156,9 +179,17 @@ class SalutisCasembrapa(PageElement):
             try:
                 self.driver.find_element(*self.buscar).click()
                 time.sleep(4)
+
+                if "Erro" in self.driver.find_element(*self.body).text:
+                    self.driver.switch_to.default_content()
+                    self.driver.find_element(*self.botao_ok_erro).click()
+                    time.sleep(2)
+                    self.driver.find_element(*self.fechar_recurso_de_glosa).click()
+                    return False
+
                 texto_no_botao = self.driver.find_element(*self.buscar).text
                 if texto_no_botao == 'Nova Busca':
-                    break
+                    return True
             except:
                 continue
 
@@ -203,7 +234,15 @@ class SalutisCasembrapa(PageElement):
         df_dados.to_excel(writer, 'Recurso', startrow=linha, startcol=coluna, header=False, index=False)
         writer.save()
         writer.close()
-    
+
+    def acrescenta_motivos_glosa(self, motivo_glosa: str, quantidade_recurso: int) -> list[str]:
+        lista_motivos = []
+
+        for i in range(0, quantidade_recurso):
+            lista_motivos.append(motivo_glosa)
+
+        return lista_motivos
+
     def lancar_recurso(self, path_planilha: str, linha: int, valor_recurso: str, codigo_mot_glosa: str, justificativa: str):
         self.driver.find_element(*self.inserir).click()
         time.sleep(2)
@@ -211,6 +250,17 @@ class SalutisCasembrapa(PageElement):
         self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
         self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
         numero_processo = self.driver.find_element(*self.input_numero_processo).get_attribute('value')
+        valor_glosa_portal = self.driver.find_element(*self.input_valor_glosado).get_attribute('value')
+
+        if valor_recurso > valor_glosa_portal:
+            self.salvar_valor_planilha(
+                path_planilha=path_planilha,
+                valor="Valor de recurso maior que o valor glosado no portal",
+                coluna=25,
+                linha=linha+1
+            )
+            return
+        
         time.sleep(2)
         self.salvar_valor_planilha(
             path_planilha=path_planilha,
@@ -220,37 +270,66 @@ class SalutisCasembrapa(PageElement):
         )
         
         quantidade_recurso: int = int(self.driver.find_element(*self.span_quantidade_recurso).text)
+
         lista_de_codigos_mot_glosa: list[str] = codigo_mot_glosa.split(', ')
+
+        if len(lista_de_codigos_mot_glosa) != quantidade_recurso and len(lista_de_codigos_mot_glosa) == 1:
+            lista_de_codigos_mot_glosa: list[str] = self.acrescenta_motivos_glosa(lista_de_codigos_mot_glosa[0], quantidade_recurso)
 
         for codigo in lista_de_codigos_mot_glosa:
             readonly = self.driver.find_element(*self.input_motivo).get_attribute('readonly')
 
             if readonly == 'true':
+
+                if quantidade_recurso > 1:
+                    self.driver.find_element(*self.proximo_recurso).click()
+                    time.sleep(1)
+
                 continue
 
-            self.confirma_valor_inserido(self.input_motivo, codigo)
+            self.driver.find_element(*self.input_motivo).click()
+            self.driver.find_element(*self.input_motivo).send_keys(codigo)
             time.sleep(1)
+            self.driver.find_element(*self.text_area_recurso).click()
+            time.sleep(4)
+
+            if self.driver.find_element(*self.input_motivo).get_attribute('value') == '':
+                self.driver.switch_to.default_content()
+                self.driver.find_element(*self.botao_ok_erro).click()
+                time.sleep(2)
+                self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
+                self.salvar_valor_planilha(
+                    path_planilha=path_planilha,
+                    valor='Código de motivo de glosa inválido',
+                    coluna=25,
+                    linha=linha+1
+                )
+                return
+
             self.confirma_valor_inserido(self.text_area_recurso, justificativa)
             time.sleep(1)
             self.confirma_valor_inserido(self.input_valor_recursado, valor_recurso)
             time.sleep(1)
             self.driver.find_element(*self.confirmar_recurso_button).click()
             time.sleep(1)
-            self.driver.find_element(*self.gravar_recurso_button).click()
-            time.sleep(1)
-            self.driver.switch_to.default_content()
-            self.driver.find_element(*self.sim).click()
-            time.sleep(1)
-            self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
-
+            
             if quantidade_recurso > 1:
                 self.driver.find_element(*self.proximo_recurso).click()
                 time.sleep(1)
 
+        self.driver.find_element(*self.gravar_recurso_button).click()
+        self.driver.find_element(*self.gravar_recurso_button).click()
+        time.sleep(1)
+        self.driver.switch_to.default_content()
+        self.driver.find_element(*self.sim).click()
+        time.sleep(1)
+        self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
+
+
         self.salvar_valor_planilha(
             path_planilha=path_planilha,
             valor='Sim',
-            coluna=24,
+            coluna=25,
             linha=linha+1
         )
 
@@ -267,12 +346,14 @@ class SalutisCasembrapa(PageElement):
         self.abrir_opcoes_menu()
 
         for planilha in self.lista_de_planilhas:
+            if "Atalho" not in self.driver.find_element(*self.body).text:
+                self.get_click(self.salutis, "Atalho")
 
             if 'Enviado' in planilha or 'Nao_Enviado' in planilha:
                 continue
 
             df = pd.read_excel(planilha)
-            numero_fatura = str(df['Fatura'][0]).replace('.0', '')
+            numero_fatura = str(df['Fatura Inicial'][0]).replace('.0', '')
             lote_operadora = str(df['Lote'][0]).replace('.0', '')
 
             if lote_operadora == '' or lote_operadora == 'nan':
@@ -293,22 +374,24 @@ class SalutisCasembrapa(PageElement):
             )
 
             # Entra em Recurso de Glosa
-            self.get_click(self.salutis, "Atalho")
+            self.get_click(self.salutis, "Atalho")   
             time.sleep(2)
             self.driver.find_element(*self.recurso_de_glosa).click()
             time.sleep(2)
-            self.busca_fatura(lote_operadora)
-
-            if self.content_has_value(self.body, 'Erro'):
-                self.renomear_planilha(planilha, 'Nao_Enviado')
+            if not self.numero_lote_is_searchable(lote_operadora):
+                self.renomear_planilha(planilha, "Nao_Enviado")
                 continue
+
+            # if self.content_has_value(self.body, 'Erro'):
+            #     self.renomear_planilha(planilha, 'Nao_Enviado')
+            #     continue
 
             time.sleep(2)
             self.abrir_divs()
 
             for index, linha in df.iterrows():
 
-                if f'{linha["Recursado no Portal"]}' == 'Sim':
+                if f'{linha["Recursado no Portal"]}' == 'Sim' or f'{linha["Recursado no Portal"]}' == 'Procedimento não encontrado':
                     continue
 
                 numero_guia = f'{linha["Nro. Guia"]}'.replace('.0', '')
@@ -319,8 +402,13 @@ class SalutisCasembrapa(PageElement):
 
                 else:
                     valor_glosa = "{:.2f}".format(float(linha["Valor Glosa"].replace('.', '').replace(',', '.')))
+
+                if isinstance(linha['Valor Recursado'], float) or isinstance(linha['Valor Recursado'], int):
+                    valor_recurso = "{:.2f}".format(linha["Valor Recursado"])
                     
-                valor_recurso = f'{linha["Valor Recursado"]}'
+                else: 
+                    valor_recurso = "{:.2f}".format(float(linha["Valor Recursado"].replace('.', '').replace(',', '.')))
+                
                 codigo_motivo_glosa = f'{linha["Motivo Glosa"]}'
                 justificativa = f'{linha["Recurso Glosa"]}'.replace('\t', ' ')
 
@@ -337,7 +425,7 @@ class SalutisCasembrapa(PageElement):
                         self.salvar_valor_planilha(
                             path_planilha=planilha,
                             valor='Guia não encontrada',
-                            coluna=24,
+                            coluna=25,
                             linha=index + 1
                         )
                         self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
@@ -349,14 +437,15 @@ class SalutisCasembrapa(PageElement):
 
                 self.confirma_valor_inserido(self.input_localizar_servico, codigo_procedimento)
                 self.driver.find_element(*self.bold_proxima_do_servico).click()
-                time.sleep(3)
+                self.driver.find_element(*self.bold_proxima_do_servico).click()
+                time.sleep(5)
                 self.driver.switch_to.default_content()
 
                 if self.content_has_value(self.body, 'Valor não encontrado'):
                     self.salvar_valor_planilha(
                         path_planilha=planilha,
                         valor='Procedimento não encontrado',
-                        coluna=24,
+                        coluna=25,
                         linha=index + 1
                     )
                     self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
@@ -376,6 +465,7 @@ class SalutisCasembrapa(PageElement):
                         justificativa=justificativa
                     )
 
+            self.renomear_planilha(planilha, 'Enviado')
             self.driver.switch_to.default_content()
             self.driver.find_element(*self.fechar_recurso_de_glosa).click()
             time.sleep(1)
