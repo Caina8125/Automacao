@@ -3,20 +3,24 @@ from pandas import ExcelWriter
 from pandas import read_excel
 from openpyxl import load_workbook
 from openpyxl import Workbook
+from tkinter.filedialog import askopenfilename
 from openpyxl.worksheet.worksheet import Worksheet
 
 
 class PlanilhaSerpro(): 
     def __init__(self, path_planilha: str) -> None:
+        self.path_planilha: str = path_planilha
         self._df_planilha: DataFrame = read_excel(path_planilha).loc[:, [
             'Fatura', 'Protocolo Glosa', 'Valor Recursado', 'Controle Inicial', 'Nro. Guia', 'Autorização', 'Matrícula', 'Paciente', 'Procedimento',
             'Descrição','Valor Original', 'Usuário Glosa', 'Valor Glosa', 'Motivo Glosa', 'Valor Cobrado', 'Recurso Glosa'
             ]]
-        self._book: Workbook = load_workbook(r"C:\Users\lucas.paz\Documents\Serpro\RECURSO DE GLOSAS SERPRO - DEZ 2023 .xlsx")
-        self.sheet = self._book['Recurso de Glosas Serpro']
+        self._book = None
+        self.sheet = None
     
     def create_writer(self, numero_processo: str) -> ExcelWriter:
-        writer: ExcelWriter = ExcelWriter(f'output\\Serpro_{numero_processo}.xlsx')
+        self._book: Workbook = load_workbook(r"Templates\SERPRO.xlsx")
+        self.sheet = self._book['Recurso de Glosas Serpro']
+        writer: ExcelWriter = ExcelWriter(f'output\\SERPRO\\Serpro_{numero_processo}.xlsx')
         writer.book = self._book
         writer.sheets = dict((ws.title, ws) for ws in self._book.worksheets)
         return writer
@@ -89,7 +93,7 @@ class PlanilhaSerpro():
         df_processo = df_processo.drop(['Fatura', 'Protocolo Glosa', 'Valor Recursado'], axis='columns')
         df_processo.to_excel(writer, 'Recurso de Glosas Serpro', startrow=5, startcol=0, header=False, index=False)
 
-    def a_ser_nomeada(self) -> None:
+    def gerar_arquivos_excel(self) -> None:
         LISTA_DE_PROCESSOS: list[str] = [
             f'{value}'.replace('.0', '') 
             for value in list(set(self._df_planilha['Fatura'].values.tolist()))
@@ -98,14 +102,15 @@ class PlanilhaSerpro():
         for numero_processo in LISTA_DE_PROCESSOS:
             df_processo: DataFrame = self.filter_df_by_number(numero_processo)
             info_processo: dict = self.get_info_processo(df_processo)
+            writer: ExcelWriter = self.create_writer(numero_processo)
 
             for chave, dado in info_processo.items():
                 self.atualiza_template(chave, dado)
 
-            writer: ExcelWriter = self.create_writer(numero_processo)
             self.create_excel(writer, df_processo)
-            writer.close()
+            writer.save()
         
-
-teste = PlanilhaSerpro(path_planilha=r"C:\Users\lucas.paz\Documents\Serpro\SERPRO.xlsx")
-teste.a_ser_nomeada()
+def exec_planilha():
+    path_planilha = askopenfilename()
+    teste = PlanilhaSerpro(path_planilha)
+    teste.gerar_arquivos_excel()

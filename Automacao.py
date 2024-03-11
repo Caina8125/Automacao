@@ -6,6 +6,7 @@ from PIL import Image, ImageTk
 from itertools import count, cycle
 from SalutisCasembrapa.salutis_casembrapa import recursar_casembrapa
 from filtro_matricula import filtrar_matricula
+from planilha_serpro import exec_planilha
 from user_authentication import UserLogin
 from Recursar_Duplicado import *
 from Buscar_fatura import iniciar
@@ -148,6 +149,7 @@ class Application:
                                                                    "Financeiro - Demonstrativos TJDFT", 
                                                                    "Financeiro - Demonstrativos Unafisco", 
                                                                    "Glosa - Gerador de Planilha GDF",
+                                                                   "Glosa - Gerar Planilhas SERPRO",
                                                                    "Glosa - Filtro Matrículas",
                                                                    "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)",
                                                                    "Glosa - Recursar BRB",
@@ -430,6 +432,11 @@ class Application:
             case "Glosa - Gerador de Planilha GDF":
                 self.gif()
                 gerar_planilha()
+                self.reiniciar()
+
+            case "Glosa - Gerar Planilhas SERPRO":
+                self.gif()
+                exec_planilha()
                 self.reiniciar()
 
             case "Glosa - Filtro Matrículas":
