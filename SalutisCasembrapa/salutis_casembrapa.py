@@ -14,6 +14,7 @@ from typing import Any
 import time
 from os import listdir, rename
 from page_element import PageElement
+from tkinter.messagebox import showerror, showinfo
 
 class SalutisCasembrapa(PageElement):
     usuario_input: tuple = (By.XPATH, '//*[@id="username"]')
@@ -471,26 +472,30 @@ class SalutisCasembrapa(PageElement):
             time.sleep(1)
 
 def recursar_casembrapa(user, password):
-    diretorio = filedialog.askdirectory()
-    url = 'http://170.84.17.131:22101/sistema'
+    try:
+        diretorio = filedialog.askdirectory()
+        url = 'http://170.84.17.131:22101/sistema'
 
-    options = {
-        'proxy' : {
-            'http': f'http://{user}:{password}@10.0.0.230:3128',
-            'https': f'http://{user}:{password}@10.0.0.230:3128'
+        options = {
+            'proxy' : {
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
+            }
         }
-    }
 
-    chrome_options = Options()
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
-    servico = Service(ChromeDriverManager().install())
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+        servico = Service(ChromeDriverManager().install())
 
-    driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
 
-    usuario = "00735860000173"
-    senha = "0073586@"
+        usuario = "00735860000173"
+        senha = "0073586@"
 
-    salutis_casembrapa = SalutisCasembrapa(driver, url, usuario, senha, diretorio)
-    salutis_casembrapa.executa_recurso()
+        salutis_casembrapa = SalutisCasembrapa(driver, url, usuario, senha, diretorio)
+        salutis_casembrapa.executa_recurso()
+        showinfo('Automação', 'Recursos finalizados!')
+    except Exception as e:
+        showerror('Automação', f'Ocorreu uma exceção não tratada.\n{e.__class__.__name__}:\n{e}')

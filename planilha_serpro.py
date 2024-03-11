@@ -1,3 +1,4 @@
+from tkinter.messagebox import showerror, showinfo
 from pandas import DataFrame
 from pandas import ExcelWriter
 from pandas import read_excel
@@ -111,6 +112,10 @@ class PlanilhaSerpro():
             writer.save()
         
 def exec_planilha():
-    path_planilha = askopenfilename()
-    teste = PlanilhaSerpro(path_planilha)
-    teste.gerar_arquivos_excel()
+    try:
+        path_planilha = askopenfilename()
+        teste = PlanilhaSerpro(path_planilha)
+        teste.gerar_arquivos_excel()
+        showinfo('Automação', 'Planilhas geradas com sucesso!')
+    except Exception as e:
+        showerror('Automação', f'Ocorreu uma exceção não tratada.\n{e.__class__.__name__}:\n{e}')
