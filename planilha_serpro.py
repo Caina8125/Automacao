@@ -11,9 +11,11 @@ from openpyxl.worksheet.worksheet import Worksheet
 class PlanilhaSerpro(): 
     def __init__(self, path_planilha: str) -> None:
         self.path_planilha: str = path_planilha
-        self._df_planilha: DataFrame = read_excel(path_planilha).loc[:, [
-            'Fatura', 'Protocolo Glosa', 'Valor Recursado', 'Controle Inicial', 'Nro. Guia', 'Autorização', 'Matrícula', 'Paciente', 'Procedimento',
-            'Descrição','Valor Original', 'Usuário Glosa', 'Valor Glosa', 'Motivo Glosa', 'Valor Cobrado', 'Recurso Glosa'
+        self._df_planilha: DataFrame = read_excel(path_planilha)
+        self._df_planilha['Valor Liberado'] = ''
+        self._df_planilha = self._df_planilha.loc[:, [
+            'Fatura', 'Protocolo Glosa', 'Valor Recursado', 'Amhptiss', 'Nro. Guia', 'Autorização', 'Matrícula', 'Paciente', 'Procedimento',
+            'Descrição','Valor Original', 'Valor Liberado', 'Valor Glosa', 'Motivo Glosa', 'Valor Cobrado', 'Recurso Glosa'
             ]]
         self._book = None
         self.sheet = None
@@ -30,7 +32,11 @@ class PlanilhaSerpro():
         df_processo: DataFrame = self._df_planilha.loc[(self._df_planilha["Fatura"] == int(numero_processo))]
 
         if df_processo.empty:
-            return self._df_planilha.loc[(self._df_planilha["Fatura"] == numero_processo)]
+            df_processo:DataFrame = self._df_planilha.loc[(self._df_planilha["Fatura"] == numero_processo)]
+
+        for index, linha in df_processo.iterrows():
+            valor_liberado = linha['Valor Original'] - abs(linha['Valor Glosa'])
+            df_processo['Valor Liberado'][index] = valor_liberado
         
         return df_processo
     
@@ -39,7 +45,7 @@ class PlanilhaSerpro():
             'protocolo': f'{df_processo["Protocolo Glosa"].values.tolist()[0]}'.replace('.0', ''),
             'numero_fatura': f'{df_processo["Fatura"].values.tolist()[0]}',
             'valor_total_original': df_processo["Valor Original"].sum(),
-            'valor_liberado': df_processo["Valor Original"].sum() + df_processo["Valor Glosa"].sum(),
+            'valor_liberado': df_processo["Valor Original"].sum() - abs(df_processo["Valor Glosa"].sum()),
             'valor_glosa_total': df_processo["Valor Glosa"].sum(),
             'valor_recurso_total': df_processo["Valor Recursado"].sum()
         }
