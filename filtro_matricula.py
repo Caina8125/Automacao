@@ -29,7 +29,7 @@ class FiltroMatricula():
 
         data_atual = datetime.now()
         data_e_hora_em_texto = data_atual.strftime('%d_%m_%Y_%H_%M_%S')
-        df_plan_nova.to_excel(f"\\Output\\Relatorio_Filtrado_{data_e_hora_em_texto}.xlsx", sheet_name='Faturas_Glosadas', index=False)
+        df_plan_nova.to_excel(f"Output\\Relatorio_Filtrado_{data_e_hora_em_texto}.xlsx", sheet_name='Faturas_Glosadas', index=False)
         messagebox.showinfo('Filtro Matrícula', 'Planilha gerada!')
 
 def filtrar_matricula():
