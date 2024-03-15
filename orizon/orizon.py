@@ -15,10 +15,7 @@ from page_element import PageElement
 
 class Orizon(PageElement):
     data_atual = date.today()
-    path_anexos_bradesco = r"\\10.0.0.239\automacao_integralis\ANEXOS BRADESCO"
-    path_enviados = r"\\10.0.0.239\automacao_integralis\ANEXOS BRADESCO\Enviados"
     quantidade_de_nao_enviados = 0
-    lista_de_diretorios = [pasta for pasta in listdir(path_anexos_bradesco) if pasta.isdigit()]
     input_usuario = (By.ID, 'username')
     input_senha = (By.ID, 'password')
     button_entrar = (By.ID, 'kc-login')
@@ -155,15 +152,19 @@ class Orizon(PageElement):
         self.driver.find_element(*self.btn_ok).click()
 
     def executar_anexo_de_guias(self) -> None:
+        path_anexos_bradesco = r"\\10.0.0.239\automacao_integralis\ANEXOS BRADESCO"
+        path_enviados = r"\\10.0.0.239\automacao_integralis\ANEXOS BRADESCO\Enviados"
+        lista_de_diretorios = [pasta for pasta in listdir(path_anexos_bradesco) if pasta.isdigit()]
+        
         try:
             self.driver.implicitly_wait(30)
             self.open()
             self.login()
             self.caminho()
 
-            for diretorio in self.lista_de_diretorios:
-                path_diretorio = self.path_anexos_bradesco + '\\' + diretorio #Caminho do diretório do processo
-                path_diretorio_enviados = self.path_enviados + '\\' + diretorio #Caminho que o diretório será jogado após finalizá-lo
+            for diretorio in lista_de_diretorios:
+                path_diretorio = path_anexos_bradesco + '\\' + diretorio #Caminho do diretório do processo
+                path_diretorio_enviados = path_enviados + '\\' + diretorio #Caminho que o diretório será jogado após finalizá-lo
 
                 data_seis_meses_atras: str = (self.data_atual - timedelta(days=180)).strftime('%d/%m/%Y')
 
