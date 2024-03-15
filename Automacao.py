@@ -4,11 +4,14 @@ from tkinter import ttk
 import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
+from lista_automacoes import LISTA_DE_AUTOMACOES
 from SalutisCasembrapa.salutis_casembrapa import recursar_casembrapa
 from filtro_matricula import filtrar_matricula
+from orizon.orizon import inciar_envio_de_anexos
 from planilha_serpro import exec_planilha
 from user_authentication import UserLogin
 from Recursar_Duplicado import *
+from login_clinicas_bradesco import get_login_data
 from Buscar_fatura import iniciar
 from Benner.enviar_pdf_benner import enviar_pdf_benner
 from Benner.enviar_xml_benner import enviar_xml_benner
@@ -65,6 +68,8 @@ from datetime import datetime
 import os
 
 class Application:
+    lista_clinicas = get_login_data()
+
     def __init__(self, master=None):
         self.fontePadrao = ("Arial", "10")
         self.primeiroContainer = Frame(master, background="white")
@@ -112,62 +117,7 @@ class Application:
         self.nomeLabel = Label(self.terceiroContainer, text="Selecione a automação",font=self.fontePadrao, background="white")
         self.nomeLabel.pack(side=LEFT)
 
-        self.comboBox = ttk.Combobox(self.quartoContainer, values=["Faturamento - Anexar Guia Geap",
-                                                                   "Faturamento - Conferência GEAP",
-                                                                   "Faturamento - Conferência Bacen",
-                                                                   "Faturamento - Enviar PDF Bacen",
-                                                                   "Faturamento - Enviar PDF Benner",
-                                                                   "Faturamento - Enviar PDF BRB",
-                                                                   "Faturamento - Enviar XML Bacen",
-                                                                   "Faturamento - Enviar XML Benner",
-                                                                   "Faturamento - Enviar XML Caixa",
-                                                                   "Faturamento - Leitor de PDF GAMA",
-                                                                   "Faturamento - Verificar Situação BRB",
-                                                                   "Faturamento - Verificar Situação Fascal",
-                                                                   "Faturamento - Verificar Situação Gama",
-                                                                   "Financeiro - Buscar Faturas GEAP", 
-                                                                   "Financeiro - Demonstrativos Amil", 
-                                                                   "Financeiro - Demonstrativos BRB", 
-                                                                   "Financeiro - Demonstrativos Câmara dos Deputados", 
-                                                                   "Financeiro - Demonstrativos Camed", 
-                                                                   "Financeiro - Demonstrativos Casembrapa", 
-                                                                   "Financeiro - Demonstrativos Cassi", 
-                                                                   "Financeiro - Demonstrativos Codevasf", 
-                                                                   "Financeiro - Demonstrativos E-Vida", 
-                                                                   "Financeiro - Demonstrativos Fapes", 
-                                                                   "Financeiro - Demonstrativos Fascal", 
-                                                                   "Financeiro - Demonstrativos Gama", 
-                                                                   "Financeiro - Demonstrativos Life Empresarial", 
-                                                                   "Financeiro - Demonstrativos MPU", 
-                                                                   "Financeiro - Demonstrativos PMDF", 
-                                                                   "Financeiro - Demonstrativos Postal", 
-                                                                   "Financeiro - Demonstrativos Real Grandeza", 
-                                                                   "Financeiro - Demonstrativos Saúde Caixa", 
-                                                                   "Financeiro - Demonstrativos Serpro", 
-                                                                   "Financeiro - Demonstrativos SIS", 
-                                                                   "Financeiro - Demonstrativos STF", 
-                                                                   "Financeiro - Demonstrativos TJDFT", 
-                                                                   "Financeiro - Demonstrativos Unafisco", 
-                                                                   "Glosa - Gerador de Planilha GDF",
-                                                                   "Glosa - Gerar Planilhas SERPRO",
-                                                                   "Glosa - Filtro Matrículas",
-                                                                   "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)",
-                                                                   "Glosa - Recursar BRB",
-                                                                   "Glosa - Recursar Casembrapa",
-                                                                   "Glosa - Recursar Cassi",
-                                                                   "Glosa - Recursar E-VIDA",
-                                                                   "Glosa - Recursar Fascal",
-                                                                   "Glosa - Recursar GEAP Duplicado",
-                                                                   "Glosa - Recursar GEAP Sem Duplicado",
-                                                                   "Glosa - Recursar Real Grandeza",
-                                                                   "Glosa - Recursar Saúde Caixa",
-                                                                   "Glosa - Recursar SIS",
-                                                                   "Glosa - Recursar STF",
-                                                                   "Glosa - Recursar STM",
-                                                                   "Glosa - Recursar TJDFT",
-                                                                   "Relatório - Brindes",
-                                                                   "Tesouraria - Nota Fiscal"
-                                                                    ], width=50)
+        self.comboBox = ttk.Combobox(self.quartoContainer, values=LISTA_DE_AUTOMACOES, width=50)
         self.comboBox["background"] = 'white'
         self.comboBox.pack(side=LEFT)
 
@@ -196,6 +146,17 @@ class Application:
         except:
             pass
 
+    def voltar_combobox(self):
+        self.nomeLabel.pack_forget()
+        self.comboBox.pack_forget()
+
+        self.nomeLabel = Label(self.terceiroContainer, text="Selecione a automação",font=self.fontePadrao, background="white")
+        self.nomeLabel.pack(side=LEFT)
+
+        self.comboBox = ttk.Combobox(self.quartoContainer, values=LISTA_DE_AUTOMACOES, width=50)
+        self.comboBox["background"] = 'white'
+        self.comboBox.pack(side=LEFT)
+
     def ocultar_login(self):
         try:
             self.label_user.grid_forget()
@@ -204,6 +165,8 @@ class Application:
             self.insert_password.grid_forget()
             self.botao_ok.pack_forget()
             self.voltar.pack_forget()
+
+            self.voltar_combobox()
         except:
             pass
 
@@ -219,6 +182,27 @@ class Application:
                            font=self.fontePadrao, background="white")
         self.texto.pack()
 
+    def inserir_combobox_clinicas(self):
+        self.nomeLabel.pack_forget()
+        self.comboBox.pack_forget()
+
+        self.nomeLabel = Label(self.terceiroContainer, text="Selecione uma clínica",font=self.fontePadrao, background="white")
+        self.nomeLabel.pack(side=LEFT)
+
+        self.comboBox = ttk.Combobox(self.quartoContainer, values=[
+            lista['nome'] for lista in self.lista_clinicas
+        ], width=20)
+        self.comboBox["background"] = 'white'
+        self.comboBox.pack(side=LEFT)
+
+        self.botao_start = Button(self.quintoContainer, bg="#274360",foreground="white", text="Iniciar", command=lambda: threading.Thread(target=self.enviar_anexos_bradesco).start())
+        self.voltar = Button(self.quintoContainer, bg="#274360", foreground="white", text="Voltar", command=lambda: threading.Thread(target=self.voltar_inicio(self.voltar_combobox)).start())
+
+        self.botao_start.bind("<Return>", lambda event: threading.Thread(target=self.enviar_anexos_bradesco).start())
+
+        self.botao_start.pack(side=LEFT, padx=10)
+        self.voltar.pack(side=RIGHT)
+
     def obter_datas(self):           
         global data_inicial, data_final, validacao
         data_inicial = self.inserir_data_inicial.get()
@@ -233,9 +217,32 @@ class Application:
             tkinter.messagebox.showerror( 'Data inválida!' , 'Digíte uma data válida')
             self.inserir_data()
 
+    def get_login_senha(self, clinica):
+        for dado in self.lista_clinicas:
+
+            if dado['nome'] == clinica:
+                return dado['user'], dado['password']
+
+    def enviar_anexos_bradesco(self):
+        clinica = self.comboBox.get()
+        
+        if clinica == '':
+            tkinter.messagebox.showwarning( '' , 'Selecione uma clínica!')
+            return
+        self.comboBox.configure(state="disabled")
+        
+        global login_portal, senha_portal
+        login_portal, senha_portal = self.get_login_senha(clinica)
+
+        self.inserir_login(inciar_envio_de_anexos)
+        
     def run_funtions(self, funcao1, user, password):
         if funcao1.__name__ == 'demonstrativo_cassi':
             funcao1(data_inicial, data_final, user, password)
+
+        elif funcao1.__name__ == 'inciar_envio_de_anexos':
+            funcao1(user, password, login_portal, senha_portal)
+        
         else:
             funcao1(user, password)
         self.reiniciar()
@@ -269,7 +276,15 @@ class Application:
         self.botao_ok.pack(side=LEFT, padx=10)
         self.voltar.pack(side=RIGHT)
 
-    def inserir_login(self, event):
+    def inserir_login(self, function):
+        self.comboBox.configure(state="disabled")
+        try:
+            self.botao_start.pack_forget()
+            self.voltar.pack_forget()
+
+        except:
+            pass
+
         self.label_user = tk.Label(self.quintoContainer, text="Usuário:")
         self.label_user.grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
         self.insert_user = tk.Entry(self.quintoContainer)
@@ -280,7 +295,7 @@ class Application:
         self.insert_password = tk.Entry(self.quintoContainer, show='*')
         self.insert_password.grid(row=1, column=1, padx=10, pady=10)
 
-        self.botao_ok = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", command=lambda: threading.Thread(target=self.exec_automacao(event)).start())
+        self.botao_ok = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", command=lambda: threading.Thread(target=self.exec_automacao(function)).start())
 
         self.voltar = Button(self.sextoContainer, bg="#274360", foreground="white", text="Voltar", command=lambda: threading.Thread(target=self.voltar_inicio(self.ocultar_login)).start())
 
@@ -288,6 +303,8 @@ class Application:
         # self.insert_user.bind("<FocusIn>", self.limpar_placeholder_user)
         # self.insert_password.pack()
         # self.insert_password.bind("<FocusIn>", self.limpar_placeholder_password)
+        self.insert_user.bind("<Return>", lambda event: threading.Thread(target=self.exec_automacao(function)).start())
+        self.insert_password.bind("<Return>", lambda event: threading.Thread(target=self.exec_automacao(function)).start())
         self.botao_ok.pack(side=LEFT, padx=10)
         self.voltar.pack(side=RIGHT)
 
@@ -486,6 +503,9 @@ class Application:
             case "Glosa - Recursar TJDFT":
                 self.inserir_login(recursar_tjdft)
 
+            case "Integralis - Enviar anexos Bradesco":
+                self.inserir_combobox_clinicas()
+
             case "Relatório - Brindes":
                 self.gif()
                 Gerar_Relat_Normal()
@@ -533,6 +553,19 @@ class Application:
         self.sextoContainer["padx"] = 100
         self.sextoContainer["pady"] = 10
         self.sextoContainer.pack()
+
+        try:
+            self.nomeLabel.pack_forget()
+            self.comboBox.pack_forget()
+
+            self.nomeLabel = Label(self.terceiroContainer, text="Selecione a automação",font=self.fontePadrao, background="white")
+            self.nomeLabel.pack(side=LEFT)
+
+            self.comboBox = ttk.Combobox(self.quartoContainer, values=LISTA_DE_AUTOMACOES, width=50)
+            self.comboBox["background"] = 'white'
+            self.comboBox.pack(side=LEFT)
+        except:
+            pass
 
         self.botao_iniciar()
         # self.botaoHistorico()

@@ -1,7 +1,7 @@
 from abc import ABC
-from selenium.webdriver import Chrome
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
-import time
+from time import sleep
 
 class PageElement(ABC):
     body: tuple = (By.XPATH, '/html/body')
@@ -13,9 +13,10 @@ class PageElement(ABC):
     h4: tuple = (By.TAG_NAME, 'h4')
     h5: tuple = (By.TAG_NAME, 'h5')
     h6: tuple = (By.TAG_NAME, 'h6')
+    table: tuple = (By.TAG_NAME, 'table')
 
-    def __init__(self, driver: Chrome, url: str = '') -> None:
-        self.driver: Chrome = driver
+    def __init__(self, driver: WebDriver, url: str = '') -> None:
+        self.driver: WebDriver = driver
         self._url:str = url
 
     def open(self) -> None:
@@ -34,7 +35,7 @@ class PageElement(ABC):
 
             while valor_inserido == '':
                 self.driver.find_element(*element).send_keys(valor)
-                time.sleep(0.5)
+                sleep(0.5)
                 valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
                 count += 1
 
@@ -62,7 +63,7 @@ class PageElement(ABC):
     def get_click(self, element: tuple, valor: str) -> None:
         for i in range(10):
             self.driver.find_element(*element).click()
-            time.sleep(3)
+            sleep(3)
             content: str = self.driver.find_element(*self.body).text
 
             if valor in content:
@@ -72,5 +73,5 @@ class PageElement(ABC):
                 if i == 10:
                     raise Exception('Element not interactable')
                 
-                time.sleep(2)
+                sleep(2)
                 continue
