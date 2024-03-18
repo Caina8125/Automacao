@@ -102,6 +102,7 @@ class ConnectMed(PageElement):
     option_glosados = (By.XPATH, '//*[@id="dadosLotesRecursoAberto_statusRecurso"]/option[2]')
     input_buscar = (By.ID, 'dadosLotesRecursoAberto_btnBuscar')
     table_guias = (By.ID, 'dadosLotesRecursoAberto-contas_grid')
+    table_proc = (By.ID, 'dadosLotesRecursoAberto-procedimentos_grid')
     # tabela_de_extratos = (By.CLASS_NAME, 'span-22 tab-administracao size-11')
 
     def __init__(self, driver: WebDriver, url: str, usuario: str, senha: str, diretorio: str='') -> None:
@@ -163,9 +164,9 @@ class ConnectMed(PageElement):
             return "{:.2f}".format(float(valor.replace('.', '').replace(',', '.')))
         
     def click_guia(self, numero_guia: str, table_element: WebElement) -> None:
-        table_length: int = len(read_html(table_element.get_attribute('OuterHTML')))
+        table_length: int = len(read_html(table_element.get_attribute('OuterHTML'))[0])
         
-        for i in range(2, table_length + 1):
+        for i in range(2, table_length + 2):
             guia_portal:WebElement = self.driver.find_element(By.XPATH, 
             f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[1]/div[1]/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[4]')
 
@@ -174,7 +175,20 @@ class ConnectMed(PageElement):
                 time.sleep(2)
 
     def is_recurso(self, procedimento: str, valor_glosado: str) -> bool:
-        ...
+        table_procedimentos_lenth = len(read_html(self.driver.find_element(*self.table_proc))[0])
+
+        for i in range(2, table_procedimentos_lenth):
+            procedimento_portal = self.driver.find_element(By.XPATH, 
+            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[21]/div')
+            valor_glosado_portal = self.driver.find_element(By.XPATH,
+            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[39]').text
+
+            if procedimento_portal.text == procedimento and valor_glosado_portal.replace('R$ ', '') == valor_glosado:
+                procedimento_portal.click()
+                time.sleep(2)
+                return True
+        
+        return False
 
     def to_be_named(self):
         self.driver.implicitly_wait(30)
@@ -219,7 +233,7 @@ class ConnectMed(PageElement):
                     codigo_procedimento = f'{l["Procedimento"]}'.replace('.0', '')
                     codigo_motivo_glosa = f'{l["Motivo Glosa"]}'
                     justificativa = f'{l["Recurso Glosa"]}'.replace('\t', ' ')
-                    valor_glosa = self.converter_numero_para_string(l['Valor Glosa'])
+                    valor_glosa = self.converter_numero_para_string(l['Valor Glosa']).replace('-', '')
                     valor_recurso = self.converter_numero_para_string(l['Valor Recursado'])
                     tabela_guias = self.driver.find_element(*self.table_guias)
 
@@ -229,9 +243,8 @@ class ConnectMed(PageElement):
                     self.click_guia(numero_guia, tabela_guias)
 
                     if not self.is_recurso(codigo_procedimento, valor_glosa):
-                        continue
-
-
+                        ...
+                    
 
 def recursar(user, password):
     diretorio = askdirectory()
