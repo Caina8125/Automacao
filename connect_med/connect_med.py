@@ -4,6 +4,7 @@ from os import listdir
 from tkinter.filedialog import askdirectory
 from pandas import DataFrame, concat, read_excel, read_html
 from copy import deepcopy
+from selenium.webdriver.remote.webelement import WebElement
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
 from seleniumwire import webdriver
@@ -94,6 +95,9 @@ class ConnectMed(PageElement):
     button_entrar = (By.ID, 'submitPrestador')
     extrato = (By.LINK_TEXT, 'Extrato')
     visualizar = (By.LINK_TEXT, 'Visualizar')
+    abrir_filtro_extrato = (By.ID, 'abrir-fechar')
+    opt_60_dias = (By.XPATH, '//*[@id="cmbPeriodo"]/option[3]')
+    btn_consultar = (By.ID, 'btnConsultarExtratoPeriodo')
     button_detalhar_extrato = (By.ID, 'linkDetalharExtrato')
     option_glosados = (By.XPATH, '//*[@id="dadosLotesRecursoAberto_statusRecurso"]/option[2]')
     input_buscar = (By.ID, 'dadosLotesRecursoAberto_btnBuscar')
@@ -157,12 +161,31 @@ class ConnectMed(PageElement):
 
         else:
             return "{:.2f}".format(float(valor.replace('.', '').replace(',', '.')))
+        
+    def click_guia(self, numero_guia: str, table_element: WebElement) -> bool:
+        table_length: int = len(read_html(table_element.get_attribute('OuterHTML')))
+        
+        for i in range(2, table_length + 1):
+            guia_portal:WebElement = self.driver.find_element(By.XPATH, 
+            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[1]/div[1]/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[4]')
+
+            if guia_portal.text == numero_guia:
+                guia_portal.click()
+                return True
+        
+        return False
 
     def to_be_named(self):
         self.driver.implicitly_wait(30)
         self.open()
         self.login()
         self.acessar_extrato()
+        self.driver.find_element(*self.abrir_filtro_extrato).click()
+        time.sleep(2)
+        self.driver.find_element(*self.opt_60_dias).click()
+        time.sleep(2)
+        self.driver.find_element(*self.btn_consultar).click()
+        time.sleep(2)
         df_extrato = self.get_extrato_df()
 
         for index, linha in df_extrato.iterrows():
@@ -175,6 +198,7 @@ class ConnectMed(PageElement):
             self.driver.find_element(*lupa_extrato).click()
             time.sleep(2)
             self.driver.find_element(*self.button_detalhar_extrato).click()
+            time.sleep(2)
             lista_de_dados_no_extrato = self.get_planilhas_dos_protocolos()
 
             for dado in lista_de_dados_no_extrato:
@@ -196,11 +220,13 @@ class ConnectMed(PageElement):
                     justificativa = f'{l["Recurso Glosa"]}'.replace('\t', ' ')
                     valor_glosa = self.converter_numero_para_string(l['Valor Glosa'])
                     valor_recurso = self.converter_numero_para_string(l['Valor Recursado'])
+                    tabela_guias = self.driver.find_element(*self.table_guias)
 
-                    if numero_guia not in self.driver.find_element(*self.table_guias).text:
+                    if numero_guia not in tabela_guias.text:
                         continue
 
-                    self.driver.find_element(By.LINK_TEXT, numero_guia).click()
+                    if not self.click_guia(numero_guia, tabela_guias):
+                        continue
         # todo se as informações baterem, clicar sob a linha para aparecer os precidimentos na parte inferior
 
 def recursar(user, password):
@@ -231,4 +257,5 @@ def recursar(user, password):
     connect_med = ConnectMed(driver, url, usuario, senha, diretorio)
     connect_med.to_be_named()
 
-recursar('lucas.paz', 'WheySesc2024*')
+if __name__ == '__main__':
+    recursar('lucas.paz', 'WheySesc2024*')
