@@ -201,7 +201,7 @@ def conferir_bacen(user, password):
 
         login_page.login(
             usuario = "00735860000173",
-            senha = "Amhpdf!2023)"
+            senha = "2024)Amhpdf!"
         )
         ConferirFatura(driver, url).fazer_conferencia(planilha)
         driver.quit()
