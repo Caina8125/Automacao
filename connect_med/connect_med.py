@@ -162,7 +162,7 @@ class ConnectMed(PageElement):
         else:
             return "{:.2f}".format(float(valor.replace('.', '').replace(',', '.')))
         
-    def click_guia(self, numero_guia: str, table_element: WebElement) -> bool:
+    def click_guia(self, numero_guia: str, table_element: WebElement) -> None:
         table_length: int = len(read_html(table_element.get_attribute('OuterHTML')))
         
         for i in range(2, table_length + 1):
@@ -171,9 +171,10 @@ class ConnectMed(PageElement):
 
             if guia_portal.text == numero_guia:
                 guia_portal.click()
-                return True
-        
-        return False
+                time.sleep(2)
+
+    def is_recurso(self, procedimento: str, valor_glosado: str) -> bool:
+        ...
 
     def to_be_named(self):
         self.driver.implicitly_wait(30)
@@ -224,10 +225,13 @@ class ConnectMed(PageElement):
 
                     if numero_guia not in tabela_guias.text:
                         continue
+                    
+                    self.click_guia(numero_guia, tabela_guias)
 
-                    if not self.click_guia(numero_guia, tabela_guias):
+                    if not self.is_recurso(codigo_procedimento, valor_glosa):
                         continue
-        # todo se as informações baterem, clicar sob a linha para aparecer os precidimentos na parte inferior
+
+
 
 def recursar(user, password):
     diretorio = askdirectory()
