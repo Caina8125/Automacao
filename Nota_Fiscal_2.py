@@ -18,8 +18,8 @@ class Login(PageElement):
         self.driver.find_element(*self.logarCertificado).click()
 
 class Caminho(PageElement):
-    declararServico = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[4]/div/span[3]')
-    incluir         = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[4]/ul/li[1]/div')
+    declararServico = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[3]/div/span[3]')
+    incluir         = (By.XPATH, '//*[@id="Menu1_MenuPrincipal"]/ul/li[3]/ul/li[1]/div')
     fecharModal     = (By.XPATH, '//*[@id="base-modal"]/div/div/div[1]/button')
     botaoMenu       = (By.XPATH, '//*[@id="menu-toggle"]')
     
