@@ -4,11 +4,10 @@ from os import listdir, rename
 from tkinter.filedialog import askdirectory
 from openpyxl import load_workbook
 from pandas import DataFrame, ExcelWriter, concat, read_excel, read_html
-from copy import deepcopy
+import pyautogui
 from selenium.webdriver.remote.webelement import WebElement
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
-from seleniumwire import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -129,6 +128,7 @@ class ConnectMed(PageElement):
     div_recurso_agrupado = (By.XPATH, '/html/body/div[4]')
     table_procedimentos_agrupados = (By.ID, 'dadosLotesRecursoAberto-procedimentos_aglutinado_grid')
     fechar_procedimentos_agrupados = (By.XPATH, '/html/body/div[4]/div[1]/button')
+    btn_ok = ...
 
     def __init__(self, driver: WebDriver, url: str, usuario: str, senha: str, proxies: dict, diretorio: str='', diretorio_anexos: str='') -> None:
         super().__init__(driver, url)
@@ -147,10 +147,10 @@ class ConnectMed(PageElement):
         self.dados_anexos: list[dict] = [
             {
                 'caminho': f'{diretorio_anexos}\\{arquivo}',
-                'numero_guia': arquivo.split(' ')[-1]
+                'numero_guia': arquivo.split(' ')[-1].replace('.pdf', '')
             } 
-            for arquivo in listdir(diretorio)
-            if arquivo.endswith('.xlsx')
+            for arquivo in listdir(diretorio_anexos)
+            if arquivo.endswith('.pdf')
             ]
         self.proxies = proxies
 
@@ -247,11 +247,15 @@ class ConnectMed(PageElement):
         if tipo == 'Aberto':
             self.text_area_resposta = (By.ID, 'dadosLotesRecursoAberto_mensagem')
             self.input_file = (By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[3]/div[1]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/form/div/div[4]/input')
-            self.salvar_recurso = (By.ID, 'dadosLotesRecursoAberto_btnRecursarSelecionados')
+            self.salvar_recurso = (By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[3]/div[1]/fieldset/div[2]/div[2]/input')
+            self.btn_ok = (By.XPATH, '/html/body/div[4]/div[3]/div/button[1]/span')
+            self.ok_sucesso = (By.XPATH, '')
         else:
             self.text_area_resposta = (By.ID, 'dialogRecursoGlosaAglutinados_mensagem')
             self.input_file = (By.XPATH, '/html/body/div[4]/div[2]/div/div/div[2]/div[2]/div[2]/div/fieldset/div/div/div[2]/fieldset/div/div/div/div/form/div/div[4]/input')
-            self.salvar_recurso = (By.ID, 'dadosLotesRecursoAberto_btnRecursarSelecionados')
+            self.salvar_recurso = (By.XPATH, '/html/body/div[4]/div[2]/div/div/div[2]/div[2]/div[2]/div/fieldset/div/div/div[3]/div[2]/input')
+            self.btn_ok = (By.XPATH, '/html/body/div[6]/div[3]/div/button[1]/span')
+            self.ok_sucesso = (By.XPATH, '/html/body/div[6]/div[3]/div/button/span')
 
     def procedimento_in_agrupado(self, lista_de_dados: list[dict], procedimento: str) -> bool:
         if len(lista_de_dados) == 0:
@@ -259,7 +263,8 @@ class ConnectMed(PageElement):
         
         for dado in lista_de_dados:
             procedimento_agrupado = self.remove_zeroes(dado['codigoItem'])
-            if procedimento == procedimento_agrupado:
+            valor_recursado = dado['valorRecursado']
+            if procedimento == procedimento_agrupado and valor_recursado == None:
                 return True
         
         return False
@@ -274,10 +279,12 @@ class ConnectMed(PageElement):
         time.sleep(1.5)
         self.driver.find_element(*self.text_area_resposta).send_keys(justificativa)
         time.sleep(1.5)
-        self.driver.find_element(*self.input_file).send_keys(r"C:\Users\lucas.paz\Documents\16 - RAFAEL.pdf")
+        self.driver.find_element(*self.input_file).send_keys(anexo)
         time.sleep(1.5)
-        # self.driver.find_element(*self.salvar_recurso).click()
-        # time.sleep(1.5)
+        self.get_element_visible(element=self.salvar_recurso)
+        time.sleep(1.5)
+        self.driver.find_element(*self.btn_ok).click()
+        time.sleep(1.5)
     
     def recursar_proc_aberto(self, num: str, vl_recurso: str, justificativa: str, anexo: str):
         self.inicializar_atributos_enviar_recurso('Aberto')
@@ -292,7 +299,7 @@ class ConnectMed(PageElement):
 
     def recursar_proc_agrupado(self, procedimento: str, valor_glosado: str, justificativa: str, anexo: str):
         self.inicializar_atributos_enviar_recurso('Agrupado')
-        quantidade_proc_agrupados = len(read_html(self.driver.find_element(*self.table_procedimentos_agrupados).get_attribute('outerHTML'))[0]) + 3
+        quantidade_proc_agrupados = len(read_html(self.driver.find_element(*self.table_procedimentos_agrupados).get_attribute('outerHTML'))[0]) + 1
 
         for i in range(2, quantidade_proc_agrupados):
             procedimento_agrupado = self.driver.find_element(By.XPATH,
@@ -311,6 +318,11 @@ class ConnectMed(PageElement):
 
             if procedimento_agrupado == procedimento and valor_glosado_portal == valor_glosado and valor_recurso_portal == 'R$0.00':
                 self.send_values(checkbox, td_valor_recurso, input_valor_recurso, valor_glosado, justificativa, anexo)
+                time.sleep(1)
+                self.driver.find_element(*self.ok_sucesso).click()
+                self.get_click
+                time.sleep(1)
+                self.driver.find_element(*self.fechar_procedimentos_agrupados).click()
                 return
             
     def salvar_valor_planilha(self, path_planilha: str, valor, coluna: int, linha: int):
@@ -348,7 +360,7 @@ class ConnectMed(PageElement):
                 self.salvar_valor_planilha(
                     path_planilha=path,
                     valor='Sim',
-                    coluna=...,
+                    coluna=53,
                     linha=row
                 )
                 return
@@ -377,7 +389,7 @@ class ConnectMed(PageElement):
                     self.salvar_valor_planilha(
                         path_planilha=path,
                         valor='Sim',
-                        coluna=...,
+                        coluna=53,
                         linha=row
                     )   
                     return
@@ -385,7 +397,7 @@ class ConnectMed(PageElement):
         self.salvar_valor_planilha(
             path_planilha=path,
             valor='Não',
-            coluna=...,
+            coluna=53,
             linha=row
         )
 
@@ -399,83 +411,91 @@ class ConnectMed(PageElement):
                 return dado['caminho']
                 
     def exec_recurso(self):
-        self.driver.implicitly_wait(30)
-        self.open()
-        self.login()
-        self.acessar_extrato()
-        self.driver.find_element(*self.abrir_filtro_extrato).click()
-        time.sleep(2)
-        self.driver.find_element(*self.opt_60_dias).click()
-        time.sleep(2)
-        self.driver.find_element(*self.btn_consultar).click()
-        time.sleep(2)
-        df_extrato = self.get_extrato_df()
-
-        for index, linha in df_extrato.iterrows():
-            mes_extrato: int = int(f"{linha['Extrato']}".split('/')[1])
-
-            if not mes_extrato == self.data_atual.month - 1: #TODO essa lógica do mês está errada
-                continue
-
-            lupa_extrato = (By.XPATH, f'/html/body/div[2]/div/div/div[2]/div[1]/table/tbody/tr[{index+1}]/td[5]/form/a')
-            self.driver.find_element(*lupa_extrato).click()
-            time.sleep(2)
-            self.driver.find_element(*self.button_detalhar_extrato).click()
-            time.sleep(2)
-            lista_de_dados_no_extrato = self.get_planilhas_dos_protocolos()
-
-            for dado in lista_de_dados_no_extrato:
-                caminho = dado['caminho']
-                lote = dado['lote']
-
-                if 'Enviado' in caminho or 'Não_Enviado' in caminho:
-                    continue
-
-                id = f'formularioBuscarLote_{lote}'
-
-                self.get_element_visible(element=(By.ID, id))
-                time.sleep(2)
-
-                df_planilha = read_excel(caminho)
-
-                for i, l in df_planilha.iterrows():
-                    if l['Recursado no Portal'] == 'Sim' or l['Recursado no Portal'] == 'Não':
-                        continue
-
-                    numero_guia = f"{l['Nro. Guia']}".replace('.0', '')
-                    codigo_procedimento = f'{l["Procedimento"]}'.replace('.0', '')
-                    justificativa = f'{l["Recurso Glosa"]}'.replace('\t', ' ')
-                    valor_glosa = self.converter_numero_para_string(l['Valor Glosa']).replace('-', '')
-                    valor_recurso = self.converter_numero_para_string(l['Valor Recursado'])
-                    tabela_guias = self.driver.find_element(*self.table_guias)
-
-                    anexo = self.encontrar_anexo_guia(numero_guia)
-
-                    if numero_guia not in tabela_guias.text:
-                        continue
-
-                    self.filtrar_guia(numero_guia)
-                    time.sleep(2)
-                    self.driver.find_element(*self.td_guia).click()
-                    time.sleep(2)
-
-                    self.lancar_recurso(codigo_procedimento, valor_glosa, valor_recurso, justificativa, anexo, caminho, i + 1)
-                    time.sleep(2)
-
-                self.driver.back()
-                self.driver.refresh()
-                time.sleep(2)
-                self.driver.find_element(*self.button_detalhar_extrato)
-                time.sleep(1)
-                self.renomear_planilha(caminho, 'Enviado')
-
+        # try:
+            self.driver.implicitly_wait(30)
             self.acessar_extrato()
-            time.sleep(1.5)
             self.driver.find_element(*self.abrir_filtro_extrato).click()
             time.sleep(2)
             self.driver.find_element(*self.opt_60_dias).click()
             time.sleep(2)
             self.driver.find_element(*self.btn_consultar).click()
+            time.sleep(2)
+            df_extrato = self.get_extrato_df()
+
+            for index, linha in df_extrato.iterrows():
+                mes_extrato: int = int(f"{linha['Extrato']}".split('/')[1])
+
+                if not mes_extrato == self.data_atual.month - 1: #TODO essa lógica do mês está errada
+                    continue
+
+                lupa_extrato = (By.XPATH, f'/html/body/div[2]/div/div/div[2]/div[1]/table/tbody/tr[{index+1}]/td[5]/form/a')
+                self.driver.find_element(*lupa_extrato).click()
+                time.sleep(2)
+                self.driver.find_element(*self.button_detalhar_extrato).click()
+                time.sleep(2)
+                while 'Capa de Lote' not in self.driver.find_element(*self.body).text:
+                    time.sleep(1)
+                lista_de_dados_no_extrato = self.get_planilhas_dos_protocolos()
+
+                for dado in lista_de_dados_no_extrato:
+                    caminho = dado['caminho']
+                    lote = dado['lote']
+
+                    if 'Enviado' in caminho or 'Não_Enviado' in caminho:
+                        continue
+
+                    id = f'formularioBuscarLote_{lote}'
+
+                    self.get_element_visible(element=(By.ID, id))
+                    time.sleep(2)
+
+                    df_planilha = read_excel(caminho)
+                    tabela_guias = self.driver.find_element(*self.table_guias).text
+
+                    for i, l in df_planilha.iterrows():
+                        if l['Recursado no Portal'] == 'Sim' or l['Recursado no Portal'] == 'Não':
+                            continue
+
+                        numero_guia = f"{l['Nro. Guia']}".replace('.0', '')
+                        codigo_procedimento = f'{l["Procedimento"]}'.replace('.0', '')
+                        justificativa = f'{l["Recurso Glosa"]}'.replace('\t', ' ')
+                        valor_glosa = self.converter_numero_para_string(l['Valor Glosa']).replace('-', '')
+                        valor_recurso = self.converter_numero_para_string(l['Valor Recursado'])
+
+                        anexo = self.encontrar_anexo_guia(numero_guia)
+
+                        if numero_guia not in tabela_guias:
+                            continue
+
+                        self.filtrar_guia(numero_guia)
+                        time.sleep(2)
+                        self.driver.find_element(*self.td_guia).click()
+                        time.sleep(2)
+
+                        self.lancar_recurso(codigo_procedimento, valor_glosa, valor_recurso, justificativa, anexo, caminho, i + 1)
+                        time.sleep(2)
+
+                    self.driver.back()
+                    self.driver.refresh()
+                    time.sleep(2)
+                    self.driver.find_element(*self.button_detalhar_extrato)
+                    time.sleep(1)
+                    self.renomear_planilha(caminho, 'Enviado')
+
+                self.acessar_extrato()
+                time.sleep(1.5)
+                self.driver.find_element(*self.abrir_filtro_extrato).click()
+                time.sleep(2)
+                self.driver.find_element(*self.opt_60_dias).click()
+                time.sleep(2)
+                self.driver.find_element(*self.btn_consultar).click()
+                
+            showinfo('Automação', 'Recurso realizado!')
+            self.driver.quit()
+
+        # except Exception as e:
+        #     showerror('Automação', f'Ocorreu uma exceção não tratada.\n{e.__class__.__name__}:\n{e}')
+        #     self.driver.quit()
 
 def recursar(user: str, password: str) -> None:
     showinfo('', 'Selecione a pasta com as planilhas.')
@@ -496,18 +516,26 @@ def recursar(user: str, password: str) -> None:
 
     chrome_options = Options()
     chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
+    # chrome_options.add_argument('--ignore-certificate-errors')
+    # chrome_options.add_argument('--ignore-ssl-errors')
     try:
         servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        driver = webdriver.Chrome(service=servico, options = chrome_options)
     except:
-        driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
+        driver = webdriver.Chrome(options = chrome_options)
 
     usuario = "glosaamhp"
     senha = "D8nEUqb!"
 
     connect_med = ConnectMed(driver, url, usuario, senha, proxies, diretorio_planilhas, diretorio_anexos)
+    connect_med.open()
+    pyautogui.write(user.lower())
+    pyautogui.press("TAB") 
+    time.sleep(1)
+    pyautogui.write(password)
+    pyautogui.press("enter")
+    time.sleep(4)
+    connect_med.login()
     connect_med.exec_recurso()
 
 if __name__ == '__main__':
