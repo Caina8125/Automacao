@@ -1,4 +1,3 @@
-from abc import ABC
 from datetime import timedelta
 from datetime import datetime
 from tkinter import filedialog

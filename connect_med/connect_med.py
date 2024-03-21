@@ -1,8 +1,9 @@
 from abc import ABC
 from datetime import date
-from os import listdir
+from os import listdir, rename
 from tkinter.filedialog import askdirectory
-from pandas import DataFrame, concat, read_excel, read_html
+from openpyxl import load_workbook
+from pandas import DataFrame, ExcelWriter, concat, read_excel, read_html
 from copy import deepcopy
 from selenium.webdriver.remote.webelement import WebElement
 from selenium import webdriver
@@ -13,6 +14,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 import time
+import requests
+from tkinter.messagebox import showerror, showinfo
 # from page_element import PageElement
 
 class PageElement(ABC):
@@ -57,13 +60,18 @@ class PageElement(ABC):
         except Exception as e:
             raise Exception(e)
         
-    def get_element_visible(self, element: tuple) -> bool:
+    def get_element_visible(self, element: tuple=None,  web_element: WebElement=None) -> bool:
         """Este método observa se irá ocorrer ElementClickInterceptedException. Caso ocorra
         irá dar um scroll até 10x na página conforme o comando passado até achar o click do elemento"""
         for i in range(10):
             try:
-                self.driver.find_element(*element).click()
-                return True
+                if element != None:
+                    self.driver.find_element(*element).click()
+                    return True
+                
+                elif web_element != None:
+                    web_element.click()
+                    return True
             
             except:
                 if i == 10:
@@ -105,13 +113,27 @@ class ConnectMed(PageElement):
     table_guias = (By.ID, 'dadosLotesRecursoAberto-contas_grid')
     td_guia = (By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[1]/div[1]/div/div/div[3]/div[3]/div/table/tbody/tr[2]/td[4]')
     table_proc = (By.ID, 'dadosLotesRecursoAberto-procedimentos_grid')
-    text_area_resposta = (By.ID, 'dadosLotesRecursoAberto_mensagem')
-    input_file = (By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[3]/div[1]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/form/div/div[4]/input')
-    # tabela_de_extratos = (By.CLASS_NAME, 'span-22 tab-administracao size-11')
+    text_area_resposta = ...
+    input_file = ...
+    input_codigo_usuario = (By.ID, 'dadosLotesRecursoAberto_codigoUsuario')
+    input_codigo_sistema = (By.ID, 'dadosLotesRecursoAberto_codigoSistema')
+    input_codigo_operadora = (By.ID, 'dadosLotesRecursoAberto_codigoOperadoraConnectmed')
+    input_codigo_op_processys = (By.ID, 'dadosLotesRecursoAberto_codigoOperadoraProcessys')
+    input_refer_id = (By.ID, 'dadosLotesRecursoAberto_referID')
+    input_contrato_prestador = (By.ID, 'dadosLotesRecursoAberto_contratoPrestador')
+    input_numero_capa_lote = (By.ID, 'dadosLotesRecursoAberto_numeroCapaLote')
+    input_numero_lote = (By.ID, 'dadosLotesRecursoAberto_numeroLote')
+    input_codigo_empresa = (By.ID, 'dadosLotesRecursoAberto_codigoEmpresa')
+    input_last_selected = (By.ID, 'dadosLotesRecursoAberto_lastSelectedRow')
+    input_data_pagamento = (By.ID, 'dadosLotesRecursoAberto_dataPagamento')
+    div_recurso_agrupado = (By.XPATH, '/html/body/div[4]')
+    table_procedimentos_agrupados = (By.ID, 'dadosLotesRecursoAberto-procedimentos_aglutinado_grid')
+    fechar_procedimentos_agrupados = (By.XPATH, '/html/body/div[4]/div[1]/button')
 
-    def __init__(self, driver: WebDriver, url: str, usuario: str, senha: str, diretorio: str='') -> None:
+    def __init__(self, driver: WebDriver, url: str, usuario: str, senha: str, proxies: dict, diretorio: str='', diretorio_anexos: str='') -> None:
         super().__init__(driver, url)
         self.diretorio: str = diretorio
+        self.diretorio_anexos: str = diretorio_anexos
         self.usuario: str = usuario
         self.senha: str = senha
         self.dados_planilhas: list[dict] = [
@@ -122,6 +144,15 @@ class ConnectMed(PageElement):
             for arquivo in listdir(diretorio)
             if arquivo.endswith('.xlsx')
             ]
+        self.dados_anexos: list[dict] = [
+            {
+                'caminho': f'{diretorio_anexos}\\{arquivo}',
+                'numero_guia': arquivo.split(' ')[-1]
+            } 
+            for arquivo in listdir(diretorio)
+            if arquivo.endswith('.xlsx')
+            ]
+        self.proxies = proxies
 
     def login(self) -> None:
         self.driver.find_element(*self.input_usuario).send_keys(self.usuario)
@@ -130,18 +161,18 @@ class ConnectMed(PageElement):
         time.sleep(2)
         self.driver.find_element(*self.button_entrar).click()
 
-    def acessar_extrato(self):
+    def acessar_extrato(self) -> None:
         self.driver.find_element(*self.extrato).click()
-        time.sleep(2)
+        # time.sleep(2)
         self.driver.find_element(*self.visualizar).click()
         time.sleep(2)
 
     def get_extrato_df(self) -> DataFrame:
-        df_extrato = read_html(self.driver.find_element(*self.table).get_attribute('outerHTML'))[0]
+        df_extrato: DataFrame = read_html(self.driver.find_element(*self.table).get_attribute('outerHTML'))[0]
         return df_extrato
     
     def get_lote_no_extrato(self) -> list:
-        tables = self.driver.find_elements(*self.table)
+        tables: list[WebElement] = self.driver.find_elements(*self.table)
         lista_df: list[DataFrame] = []
 
         for table in tables:
@@ -151,12 +182,13 @@ class ConnectMed(PageElement):
         return concat(lista_df)['Capa de Lote'].astype(str).values.tolist()
     
     def get_planilhas_dos_protocolos(self) -> list[str]:
-        protocolos = self.get_lote_no_extrato()
+        protocolos: str = self.get_lote_no_extrato()
         return [dado for dado in self.dados_planilhas if dado['lote'] in protocolos]
     
-    def filtrar_guia(self, numero_guia: str):
+    def filtrar_guia(self, numero_guia: str) -> None:
         self.driver.find_element(*self.option_glosados).click()
         time.sleep(2)
+        self.driver.find_element(*self.input_conta_prestador).clear()
         self.driver.find_element(*self.input_conta_prestador).send_keys(numero_guia)
         time.sleep(2)
         self.driver.find_element(*self.input_buscar).click()
@@ -167,46 +199,206 @@ class ConnectMed(PageElement):
 
         else:
             return "{:.2f}".format(float(valor.replace('.', '').replace(',', '.')))
+        
+    def img_in_element(self, element: WebElement) -> bool:
+        self.driver.implicitly_wait(3)
+        try:
+            element.find_element(By.TAG_NAME, 'img')
+            self.driver.implicitly_wait(30)
+            return True
+        except:
+            self.driver.implicitly_wait(30)
+            return False
+        
+    def get_query_params_str(self, td_controle: WebElement, tr_proc: WebElement) -> str:
+        codigo_usuario: str = self.driver.find_element(*self.input_codigo_usuario).get_attribute('value')
+        codigo_sistema: str = self.driver.find_element(*self.input_codigo_sistema).get_attribute('value')
+        codigo_operadora: str = self.driver.find_element(*self.input_codigo_operadora).get_attribute('value')
+        codigo_op_processys: str = self.driver.find_element(*self.input_codigo_op_processys).get_attribute('value')
+        refer_id: str = self.driver.find_element(*self.input_refer_id).get_attribute('value')
+        contrato_prestador: str = self.driver.find_element(*self.input_contrato_prestador).get_attribute('value')
+        numero_capa_lote: str = self.driver.find_element(*self.input_numero_capa_lote).get_attribute('value')
+        numero_lote: str = self.driver.find_element(*self.input_numero_lote).get_attribute('value')
+        codigo_empresa: str = self.driver.find_element(*self.input_codigo_empresa).get_attribute('value')
+        last_selected: str = self.driver.find_element(*self.input_last_selected).get_attribute('value')
+        controle: str = td_controle.get_attribute('title')
+        data_pagamento: str = self.driver.find_element(*self.input_data_pagamento).get_attribute('value')
+        numero_item: str = tr_proc.get_attribute('id')
+        dia: str = data_pagamento.split('/')[0]
+        mes: str = data_pagamento.split('/')[1]
+        ano: str = data_pagamento.split('/')[2]
 
-    def is_recurso(self, procedimento: str, valor_glosado: str, valor_recurso: str) -> bool:
-        table_procedimentos_outer: str = self.driver.find_element(*self.table_proc).get_attribute('outerHTML')
-        xaover_essa_table_meno = read_html(table_procedimentos_outer)[0]
-        table_procedimentos_lenth: int = len(read_html(table_procedimentos_outer)[0])
+        return f'https://wwwt.connectmed.com.br/Connectmed/extratoItensRecursoGlosaLote/listarItensOutrasDespesas/?codigoUsuario={codigo_usuario}&codigoSistema={codigo_sistema}&codigoOperadoraConnect={codigo_operadora}&codigoOperadora={codigo_op_processys}&referID={refer_id}&contratoPrestador={contrato_prestador}&numeroCapaLote={numero_capa_lote}&numeroLote={numero_lote}&codigoEmpresa={codigo_empresa}&propertiesGetPathSaveFileDefault=recursoglosa.path.file.upload.glosa&_search=false&nd=&rows=2000&page=1&sidx=DAT_REALIZACAO&sord=asc&flagDenyItem=&numeroConta={last_selected}&numeroItem={numero_item}&controle={controle}&numeroItemPrincipal={numero_item}&dataCronogramaLote={dia}%2F{mes}%2F{ano}&classAglutinador=-aglutinador&motivoGlosa='
+    
+    def get_request_response(self, url: str):
+        response = requests.get(url=url, proxies=self.proxies, verify=False)
+        return response.json()
+    
+    @staticmethod
+    def remove_zeroes(procedimento: str) -> str:
+        for k, v in enumerate(procedimento):
+            if procedimento[0] != "0":
+                return procedimento
+            if procedimento[k] != "0":
+                procedimento = str(procedimento[k:])
+                return procedimento
+            
+    def inicializar_atributos_enviar_recurso(self, tipo: str) -> None:
+        if tipo == 'Aberto':
+            self.text_area_resposta = (By.ID, 'dadosLotesRecursoAberto_mensagem')
+            self.input_file = (By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[3]/div[1]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/form/div/div[4]/input')
+            self.salvar_recurso = (By.ID, 'dadosLotesRecursoAberto_btnRecursarSelecionados')
+        else:
+            self.text_area_resposta = (By.ID, 'dialogRecursoGlosaAglutinados_mensagem')
+            self.input_file = (By.XPATH, '/html/body/div[4]/div[2]/div/div/div[2]/div[2]/div[2]/div/fieldset/div/div/div[2]/fieldset/div/div/div/div/form/div/div[4]/input')
+            self.salvar_recurso = (By.ID, 'dadosLotesRecursoAberto_btnRecursarSelecionados')
 
-        for i in range(2, table_procedimentos_lenth + 1):
-            tr_proc = (By.XPATH, 
-            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[21]/div')
-
-            procedimento_portal: WebElement = self.driver.find_element(*tr_proc)
-
-            valor_glosado_portal: str = self.driver.find_element(By.XPATH,
-            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[39]').text
-
-            checkbox_procedimento: tuple = (By.XPATH,
-            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[1]/input')
-
-            valor_a_recursar_proc: WebElement = self.driver.find_element(By.XPATH,
-            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[41]')
-
-            valor_a_recursar_editabel: tuple = (By.XPATH,
-            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[41]/input')
-
-
-            if procedimento_portal.text == procedimento and valor_glosado_portal.replace('R$ ', '') == valor_glosado and valor_a_recursar_proc.text == 'R$0.00':
-                self.get_element_visible(tr_proc)
-                time.sleep(2)
-                self.driver.find_element(*checkbox_procedimento).click()
-                time.sleep(1)
-                valor_a_recursar_proc.click()
-                time.sleep(1)
-                valor_a_recursar_proc.find_element(*valor_a_recursar_editabel).clear()
-                valor_a_recursar_proc.find_element(*valor_a_recursar_editabel).send_keys(valor_recurso)
-                time.sleep(1)
+    def procedimento_in_agrupado(self, lista_de_dados: list[dict], procedimento: str) -> bool:
+        if len(lista_de_dados) == 0:
+            return False
+        
+        for dado in lista_de_dados:
+            procedimento_agrupado = self.remove_zeroes(dado['codigoItem'])
+            if procedimento == procedimento_agrupado:
                 return True
         
         return False
+    
+    def send_values(self, checkbox: tuple, valor_recurso: WebElement, input_valor_recursar: tuple, vl_recurso: str, justificativa: str, anexo: str) -> None:
+        self.get_element_visible(element=checkbox)
+        time.sleep(1.5)
+        valor_recurso.click()
+        time.sleep(1.5)
+        self.driver.find_element(*input_valor_recursar).clear()
+        self.driver.find_element(*input_valor_recursar).send_keys(vl_recurso)
+        time.sleep(1.5)
+        self.driver.find_element(*self.text_area_resposta).send_keys(justificativa)
+        time.sleep(1.5)
+        self.driver.find_element(*self.input_file).send_keys(r"C:\Users\lucas.paz\Documents\16 - RAFAEL.pdf")
+        time.sleep(1.5)
+        # self.driver.find_element(*self.salvar_recurso).click()
+        # time.sleep(1.5)
+    
+    def recursar_proc_aberto(self, num: str, vl_recurso: str, justificativa: str, anexo: str):
+        self.inicializar_atributos_enviar_recurso('Aberto')
+        checkbox = (By.XPATH, 
+        f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{num}]/td[1]/input')
+        valor_recurso = self.driver.find_element(By.XPATH, 
+        f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{num}]/td[41]')
+        input_valor_recursar = (By.XPATH,
+        f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{num}]/td[41]/input')
 
-    def to_be_named(self):
+        self.send_values(checkbox, valor_recurso, input_valor_recursar, vl_recurso, justificativa, anexo)
+
+    def recursar_proc_agrupado(self, procedimento: str, valor_glosado: str, justificativa: str, anexo: str):
+        self.inicializar_atributos_enviar_recurso('Agrupado')
+        quantidade_proc_agrupados = len(read_html(self.driver.find_element(*self.table_procedimentos_agrupados).get_attribute('outerHTML'))[0]) + 3
+
+        for i in range(2, quantidade_proc_agrupados):
+            procedimento_agrupado = self.driver.find_element(By.XPATH,
+            f'/html/body/div[4]/div[2]/div/div/div[2]/div[2]/div[1]/div/fieldset/div/div[1]/div/div[1]/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[21]/div').text
+            procedimento_agrupado = self.remove_zeroes(procedimento_agrupado)
+            td_valor_glosado = self.driver.find_element(By.XPATH,
+            f'/html/body/div[4]/div[2]/div/div/div[2]/div[2]/div[1]/div/fieldset/div/div[1]/div/div[1]/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[39]')
+            valor_glosado_portal = td_valor_glosado.text.replace('R$ ', '').replace('.', '')
+            td_valor_recurso = self.driver.find_element(By.XPATH,
+            f'/html/body/div[4]/div[2]/div/div/div[2]/div[2]/div[1]/div/fieldset/div/div[1]/div/div[1]/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[41]')
+            valor_recurso_portal = td_valor_recurso.text
+            checkbox = (By.XPATH,
+            f'/html/body/div[4]/div[2]/div/div/div[2]/div[2]/div[1]/div/fieldset/div/div[1]/div/div[1]/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[1]/input')
+            input_valor_recurso = (By.XPATH,
+            f'/html/body/div[4]/div[2]/div/div/div[2]/div[2]/div[1]/div/fieldset/div/div[1]/div/div[1]/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[41]/input')
+
+            if procedimento_agrupado == procedimento and valor_glosado_portal == valor_glosado and valor_recurso_portal == 'R$0.00':
+                self.send_values(checkbox, td_valor_recurso, input_valor_recurso, valor_glosado, justificativa, anexo)
+                return
+            
+    def salvar_valor_planilha(self, path_planilha: str, valor, coluna: int, linha: int):
+        if isinstance(valor, list) or isinstance(valor, tuple):
+            dados = {"Recursado no Portal" : valor}
+        else:
+            dados = {"Recursado no Portal" : [valor]}
+
+        df_dados = DataFrame(dados)
+        book = load_workbook(path_planilha)
+        writer = ExcelWriter(path_planilha, engine='openpyxl')
+        writer.book = book
+        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+        df_dados.to_excel(writer, 'Recurso', startrow=linha, startcol=coluna, header=False, index=False)
+        writer.save()
+        writer.close()
+
+    def lancar_recurso(self, codigo_proc: str, vl_glosa: str, vl_recurso: str, justificativa: str, anexo: str, path: str, row: str) -> None:
+        quantidade_proc = len(read_html(self.driver.find_element(*self.table_proc).get_attribute('outerHTML'))[0]) + 1
+
+        for i in range(2, quantidade_proc):
+            procedimento_portal = self.driver.find_element(By.XPATH,
+            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[21]/div').text
+            procedimento_portal = self.remove_zeroes(procedimento_portal)
+
+            valor_glosa_portal = self.driver.find_element(By.XPATH,
+            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[39]').text
+            valor_glosa_portal = valor_glosa_portal.replace('R$ ', '').replace('.', '')
+
+            valor_recursado = self.driver.find_element(By.XPATH,
+            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[41]').text
+
+            if procedimento_portal == codigo_proc and valor_glosa_portal == vl_glosa and valor_recursado == 'R$0.00':
+                self.recursar_proc_aberto(i, vl_recurso, justificativa, anexo)
+                self.salvar_valor_planilha(
+                    path_planilha=path,
+                    valor='Sim',
+                    coluna=...,
+                    linha=row
+                )
+                return
+
+            if codigo_proc in self.driver.find_element(*self.table_proc).text:
+                continue
+
+            td_controle = self.driver.find_element(By.XPATH,
+            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[12]')
+
+            tr_proc = self.driver.find_element(By.XPATH,
+            f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]')
+
+            if self.img_in_element(tr_proc):
+                url = self.get_query_params_str(td_controle, tr_proc)
+                data_agrupado = self.get_request_response(url)
+
+                if self.procedimento_in_agrupado(data_agrupado['rows'], codigo_proc):
+                    img_lapis = (By.XPATH, 
+                    f'/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[2]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/div/div[3]/div[3]/div/table/tbody/tr[{i}]/td[6]/img')
+                    self.get_element_visible(element=img_lapis)
+                    time.sleep(2)
+                    while 'Procedimento' not in self.driver.find_element(*self.div_recurso_agrupado).text:
+                        time.sleep(1)
+                    self.recursar_proc_agrupado(codigo_proc, vl_glosa, justificativa, anexo)
+                    self.salvar_valor_planilha(
+                        path_planilha=path,
+                        valor='Sim',
+                        coluna=...,
+                        linha=row
+                    )   
+                    return
+
+        self.salvar_valor_planilha(
+            path_planilha=path,
+            valor='Não',
+            coluna=...,
+            linha=row
+        )
+
+    def renomear_planilha(self, path_planilha: str, msg: str):
+        novo_nome: str = path_planilha.replace('.xlsx', '') + f'_{msg}.xlsx'
+        rename(path_planilha, novo_nome)
+
+    def encontrar_anexo_guia(self, numero_guia):
+        for dado in self.dados_anexos:
+            if dado['numero_guia'] == numero_guia:
+                return dado['caminho']
+                
+    def exec_recurso(self):
         self.driver.implicitly_wait(30)
         self.open()
         self.login()
@@ -222,7 +414,7 @@ class ConnectMed(PageElement):
         for index, linha in df_extrato.iterrows():
             mes_extrato: int = int(f"{linha['Extrato']}".split('/')[1])
 
-            if not mes_extrato == self.data_atual.month - 1:
+            if not mes_extrato == self.data_atual.month - 1: #TODO essa lógica do mês está errada
                 continue
 
             lupa_extrato = (By.XPATH, f'/html/body/div[2]/div/div/div[2]/div[1]/table/tbody/tr[{index+1}]/td[5]/form/a')
@@ -236,14 +428,20 @@ class ConnectMed(PageElement):
                 caminho = dado['caminho']
                 lote = dado['lote']
 
+                if 'Enviado' in caminho or 'Não_Enviado' in caminho:
+                    continue
+
                 id = f'formularioBuscarLote_{lote}'
 
-                self.driver.find_element(By.ID, id).click()
+                self.get_element_visible(element=(By.ID, id))
                 time.sleep(2)
 
                 df_planilha = read_excel(caminho)
 
                 for i, l in df_planilha.iterrows():
+                    if l['Recursado no Portal'] == 'Sim' or l['Recursado no Portal'] == 'Não':
+                        continue
+
                     numero_guia = f"{l['Nro. Guia']}".replace('.0', '')
                     codigo_procedimento = f'{l["Procedimento"]}'.replace('.0', '')
                     justificativa = f'{l["Recurso Glosa"]}'.replace('\t', ' ')
@@ -251,31 +449,49 @@ class ConnectMed(PageElement):
                     valor_recurso = self.converter_numero_para_string(l['Valor Recursado'])
                     tabela_guias = self.driver.find_element(*self.table_guias)
 
+                    anexo = self.encontrar_anexo_guia(numero_guia)
+
                     if numero_guia not in tabela_guias.text:
                         continue
 
                     self.filtrar_guia(numero_guia)
+                    time.sleep(2)
                     self.driver.find_element(*self.td_guia).click()
+                    time.sleep(2)
 
-                    if not self.is_recurso(codigo_procedimento, valor_glosa, valor_recurso):
-                        ... #TODO lançar na planilha que o procedimento não passou pela validação
-                    
-                    self.driver.find_element(*self.text_area_resposta).send_keys(justificativa)
-                    time.sleep(1)
-                    self.driver.find_element(*self.input_file).send_keys() #ver como fazer para enviar o arquivo da guia
-                    time.sleep(1)
-                    ...
+                    self.lancar_recurso(codigo_procedimento, valor_glosa, valor_recurso, justificativa, anexo, caminho, i + 1)
+                    time.sleep(2)
 
-def recursar(user, password):
-    diretorio = askdirectory()
+                self.driver.back()
+                self.driver.refresh()
+                time.sleep(2)
+                self.driver.find_element(*self.button_detalhar_extrato)
+                time.sleep(1)
+                self.renomear_planilha(caminho, 'Enviado')
+
+            self.acessar_extrato()
+            time.sleep(1.5)
+            self.driver.find_element(*self.abrir_filtro_extrato).click()
+            time.sleep(2)
+            self.driver.find_element(*self.opt_60_dias).click()
+            time.sleep(2)
+            self.driver.find_element(*self.btn_consultar).click()
+
+def recursar(user: str, password: str) -> None:
+    showinfo('', 'Selecione a pasta com as planilhas.')
+    diretorio_planilhas = askdirectory()
+    showinfo('', 'Selecione a pasta com os anexos')
+    diretorio_anexos = askdirectory()
 
     url = 'https://wwwt.connectmed.com.br/conectividade/prestador/home.htm'
 
-    options = {
-        'proxy' : {
+    proxies = {
             'http': f'http://{user}:{password}@10.0.0.230:3128',
             'https': f'http://{user}:{password}@10.0.0.230:3128'
         }
+
+    options = {
+        'proxy' : proxies
     }
 
     chrome_options = Options()
@@ -291,8 +507,8 @@ def recursar(user, password):
     usuario = "glosaamhp"
     senha = "D8nEUqb!"
 
-    connect_med = ConnectMed(driver, url, usuario, senha, diretorio)
-    connect_med.to_be_named()
+    connect_med = ConnectMed(driver, url, usuario, senha, proxies, diretorio_planilhas, diretorio_anexos)
+    connect_med.exec_recurso()
 
 if __name__ == '__main__':
     recursar('lucas.paz', 'WheySesc2024*')
