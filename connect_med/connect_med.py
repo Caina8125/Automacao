@@ -280,8 +280,11 @@ class ConnectMed(PageElement):
         time.sleep(1.5)
         self.driver.find_element(*self.text_area_resposta).send_keys(justificativa)
         time.sleep(1.5)
-        self.driver.find_element(*self.input_file).send_keys(anexo)
-        time.sleep(1.5)
+
+        if anexo != None:
+            self.driver.find_element(*self.input_file).send_keys(anexo)
+            time.sleep(1.5)
+
         self.get_element_visible(element=self.salvar_recurso)
         time.sleep(1.5)
         self.driver.find_element(*self.btn_ok).click()
