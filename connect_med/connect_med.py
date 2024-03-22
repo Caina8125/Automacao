@@ -129,6 +129,7 @@ class ConnectMed(PageElement):
     table_procedimentos_agrupados = (By.ID, 'dadosLotesRecursoAberto-procedimentos_aglutinado_grid')
     fechar_procedimentos_agrupados = (By.XPATH, '/html/body/div[4]/div[1]/button')
     btn_ok = ...
+    ok_sucesso = ...
 
     def __init__(self, driver: WebDriver, url: str, usuario: str, senha: str, proxies: dict, diretorio: str='', diretorio_anexos: str='') -> None:
         super().__init__(driver, url)
@@ -285,6 +286,10 @@ class ConnectMed(PageElement):
         time.sleep(1.5)
         self.driver.find_element(*self.btn_ok).click()
         time.sleep(1.5)
+        while 'Sucesso' not in self.driver.find_element(*self.body).text:
+            time.sleep(1)
+        self.driver.find_element(*self.ok_sucesso).click()
+        time.sleep(2)
     
     def recursar_proc_aberto(self, num: str, vl_recurso: str, justificativa: str, anexo: str):
         self.inicializar_atributos_enviar_recurso('Aberto')
@@ -318,9 +323,6 @@ class ConnectMed(PageElement):
 
             if procedimento_agrupado == procedimento and valor_glosado_portal == valor_glosado and valor_recurso_portal == 'R$0.00':
                 self.send_values(checkbox, td_valor_recurso, input_valor_recurso, valor_glosado, justificativa, anexo)
-                time.sleep(1)
-                self.driver.find_element(*self.ok_sucesso).click()
-                self.get_click
                 time.sleep(1)
                 self.driver.find_element(*self.fechar_procedimentos_agrupados).click()
                 return

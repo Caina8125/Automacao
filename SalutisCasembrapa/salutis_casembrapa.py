@@ -71,6 +71,7 @@ class SalutisCasembrapa(PageElement):
     guia_pesquisada = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[3]/td[2]/table/tbody/tr/td[1]/input')
     ok_alerta_lote = (By.XPATH, '/html/body/div[10]/div[2]/table/tbody/tr[2]/td/div/button')
     ultimo_lote = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/form/table/thead/tr[2]/td[1]/table/tbody/tr/td[1]/table/tbody/tr/td[5]/div')
+    input_n_guia_operadora = (By.XPATH, '/html/body/table/tbody/tr/td/div/form/table/tbody/tr[1]/td[1]/table/tbody/tr[17]/td/table/tbody/tr/td[1]/table/tbody/tr/td[1]/div/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td/table/tbody/tr[1]/td[2]/table/tbody/tr/td[1]/input')
 
     def __init__(self, driver: Chrome, url: str, usuario: str, senha: str, diretorio: str) -> None:
         super().__init__(driver=driver, url=url)
@@ -256,7 +257,7 @@ class SalutisCasembrapa(PageElement):
             self.salvar_valor_planilha(
                 path_planilha=path_planilha,
                 valor="Valor de recurso maior que o valor glosado no portal",
-                coluna=25,
+                coluna=26,
                 linha=linha+1
             )
             return
@@ -301,7 +302,7 @@ class SalutisCasembrapa(PageElement):
                 self.salvar_valor_planilha(
                     path_planilha=path_planilha,
                     valor='Código de motivo de glosa inválido',
-                    coluna=25,
+                    coluna=26,
                     linha=linha+1
                 )
                 return
@@ -329,7 +330,7 @@ class SalutisCasembrapa(PageElement):
         self.salvar_valor_planilha(
             path_planilha=path_planilha,
             valor='Sim',
-            coluna=25,
+            coluna=26,
             linha=linha+1
         )
 
@@ -396,6 +397,9 @@ class SalutisCasembrapa(PageElement):
 
                 numero_guia = f'{linha["Nro. Guia"]}'.replace('.0', '')
                 codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
+                n_guia_operadora = self.driver.find_element(*self.input_n_guia_operadora).get_attribute('value')
+
+                self.salvar_valor_planilha(planilha, n_guia_operadora, 3, linha+1)
 
                 if isinstance(linha['Valor Glosa'], float) or isinstance(linha['Valor Glosa'], int):
                     valor_glosa = "{:.2f}".format(linha["Valor Glosa"])
@@ -425,7 +429,7 @@ class SalutisCasembrapa(PageElement):
                         self.salvar_valor_planilha(
                             path_planilha=planilha,
                             valor='Guia não encontrada',
-                            coluna=25,
+                            coluna=26,
                             linha=index + 1
                         )
                         self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
@@ -445,7 +449,7 @@ class SalutisCasembrapa(PageElement):
                     self.salvar_valor_planilha(
                         path_planilha=planilha,
                         valor='Procedimento não encontrado',
-                        coluna=25,
+                        coluna=26,
                         linha=index + 1
                     )
                     self.driver.find_element(*self.ok_alerta_inserir_recurso).click()
