@@ -130,6 +130,7 @@ class ConnectMed(PageElement):
     fechar_procedimentos_agrupados = (By.XPATH, '/html/body/div[4]/div[1]/button')
     btn_ok = ...
     ok_sucesso = ...
+    div_contas_medicas = (By.ID, 'dadosLotesRecursoAberto_divResultado-contas')
 
     def __init__(self, driver: WebDriver, url: str, usuario: str, senha: str, proxies: dict, diretorio: str='', diretorio_anexos: str='') -> None:
         super().__init__(driver, url)
@@ -186,13 +187,23 @@ class ConnectMed(PageElement):
         protocolos: str = self.get_lote_no_extrato()
         return [dado for dado in self.dados_planilhas if dado['lote'] in protocolos]
     
-    def filtrar_guia(self, numero_guia: str) -> None:
+    def filtrar_guia(self, numero_guia: str, numero_controle: str) -> None:
         self.driver.find_element(*self.option_glosados).click()
         time.sleep(2)
         self.driver.find_element(*self.input_conta_prestador).clear()
         self.driver.find_element(*self.input_conta_prestador).send_keys(numero_guia)
         time.sleep(2)
         self.driver.find_element(*self.input_buscar).click()
+        time.sleep(2)
+
+        if 'Nenhum recurso para visualizar!' in self.driver.find_element(*self.div_contas_medicas).text:
+            self.driver.find_element(*self.option_glosados).click()
+            time.sleep(2)
+            self.driver.find_element(*self.input_conta_prestador).clear()
+            self.driver.find_element(*self.input_conta_prestador).send_keys(numero_controle)
+            time.sleep(2)
+            self.driver.find_element(*self.input_buscar).click()
+            time.sleep(2)
 
     def converter_numero_para_string(self, valor: int | float | str) -> str:
         if isinstance(valor, float) or isinstance(valor, int):
@@ -473,13 +484,13 @@ class ConnectMed(PageElement):
                         if 'anex' in justificativa or 'Anex' in justificativa:
                             anexo = self.encontrar_anexo_guia(numero_ahmptiss)
                             if anexo == None:
-                                self.salvar_valor_planilha(caminho, 'Anexo não encontrado', coluna=53, linha=l + 1)
+                                self.salvar_valor_planilha(caminho, 'Anexo da guia não encontrado', coluna=53, linha=l + 1)
                                 continue
 
                         if numero_guia not in tabela_guias or numero_controle not in tabela_guias:
                             continue
 
-                        self.filtrar_guia(numero_guia)
+                        self.filtrar_guia(numero_guia, numero_controle)
                         time.sleep(2)
                         self.driver.find_element(*self.td_guia).click()
                         time.sleep(2)
