@@ -250,7 +250,7 @@ class ConnectMed(PageElement):
             self.input_file = (By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[3]/div[1]/fieldset/div[1]/div/div[2]/fieldset/div/div/div/div/form/div/div[4]/input')
             self.salvar_recurso = (By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div[2]/div[3]/div[1]/fieldset/div[2]/div[2]/input')
             self.btn_ok = (By.XPATH, '/html/body/div[4]/div[3]/div/button[1]/span')
-            self.ok_sucesso = (By.XPATH, '')
+            self.ok_sucesso = (By.XPATH, '/html/body/div[4]/div[3]/div/button/span')
         else:
             self.text_area_resposta = (By.ID, 'dialogRecursoGlosaAglutinados_mensagem')
             self.input_file = (By.XPATH, '/html/body/div[4]/div[2]/div/div/div[2]/div[2]/div[2]/div/fieldset/div/div/div[2]/fieldset/div/div/div/div/form/div/div[4]/input')
@@ -410,7 +410,7 @@ class ConnectMed(PageElement):
         novo_nome: str = path_planilha.replace('.xlsx', '') + f'_{msg}.xlsx'
         rename(path_planilha, novo_nome)
 
-    def encontrar_anexo_guia(self, numero_guia):
+    def encontrar_anexo_guia(self, numero_guia) -> str | None:
         for dado in self.dados_anexos:
             if dado['numero_guia'] == numero_guia:
                 return dado['caminho']
@@ -462,14 +462,21 @@ class ConnectMed(PageElement):
                             continue
 
                         numero_guia = f"{l['Nro. Guia']}".replace('.0', '')
+                        numero_ahmptiss = f"{l['Amhptiss']}"
+                        numero_controle = f"{l['Controle Inicial']}"
                         codigo_procedimento = f'{l["Procedimento"]}'.replace('.0', '')
                         justificativa = f'{l["Recurso Glosa"]}'.replace('\t', ' ')
                         valor_glosa = self.converter_numero_para_string(l['Valor Glosa']).replace('-', '')
                         valor_recurso = self.converter_numero_para_string(l['Valor Recursado'])
+                        anexo = None
 
-                        anexo = self.encontrar_anexo_guia(numero_guia)
+                        if 'anex' in justificativa or 'Anex' in justificativa:
+                            anexo = self.encontrar_anexo_guia(numero_ahmptiss)
+                            if anexo == None:
+                                self.salvar_valor_planilha(caminho, 'Anexo não encontrado', coluna=53, linha=l + 1)
+                                continue
 
-                        if numero_guia not in tabela_guias:
+                        if numero_guia not in tabela_guias or numero_controle not in tabela_guias:
                             continue
 
                         self.filtrar_guia(numero_guia)
@@ -535,7 +542,7 @@ def recursar(user: str, password: str) -> None:
     connect_med = ConnectMed(driver, url, usuario, senha, proxies, diretorio_planilhas, diretorio_anexos)
     connect_med.open()
     pyautogui.write(user.lower())
-    pyautogui.press("TAB") 
+    pyautogui.press("TAB")
     time.sleep(1)
     pyautogui.write(password)
     pyautogui.press("enter")

@@ -47,6 +47,7 @@ class Recurso(PageElement):
     botao_ok_enviar = (By.XPATH, '/html/body/div[1]/div/div/div[3]/button[2]')
 
     def caminho(self):
+        self.driver.implicitly_wait(30)
         self.driver.find_element(*self.reapresentacao).click()
         time.sleep(2)
         self.driver.find_element(*self.reapresentar_peg).click()
@@ -193,7 +194,13 @@ class Recurso(PageElement):
 
 
         time.sleep(3)
-        self.driver.find_element(*self.botao_ok).click()
+        for a in range(0, 5):
+            try:
+                self.driver.find_element(*self.botao_ok).click()
+                break
+            except:
+                time.sleep(3)
+
         time.sleep(1)
 
     def fazer_recurso(self):
