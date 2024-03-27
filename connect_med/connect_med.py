@@ -520,46 +520,48 @@ class ConnectMed(PageElement):
         #     showerror('Automação', f'Ocorreu uma exceção não tratada.\n{e.__class__.__name__}:\n{e}')
         #     self.driver.quit()
 
-def recursar(user: str, password: str) -> None:
-    showinfo('', 'Selecione a pasta com as planilhas.')
-    diretorio_planilhas = askdirectory()
-    showinfo('', 'Selecione a pasta com os anexos')
-    diretorio_anexos = askdirectory()
+def recursar_gama(user: str, password: str) -> None:
+    try:
+        showinfo('', 'Selecione a pasta com as planilhas.')
+        diretorio_planilhas = askdirectory()
+        showinfo('', 'Selecione a pasta com os anexos')
+        diretorio_anexos = askdirectory()
 
-    url = 'https://wwwt.connectmed.com.br/conectividade/prestador/home.htm'
+        url = 'https://wwwt.connectmed.com.br/conectividade/prestador/home.htm'
 
-    proxies = {
-            'http': f'http://{user}:{password}@10.0.0.230:3128',
-            'https': f'http://{user}:{password}@10.0.0.230:3128'
+        proxies = {
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
+            }
+
+        options = {
+            'proxy' : proxies
         }
 
-    options = {
-        'proxy' : proxies
-    }
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
+        # chrome_options.add_argument('--ignore-certificate-errors')
+        # chrome_options.add_argument('--ignore-ssl-errors')
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, options = chrome_options)
+        except:
+            driver = webdriver.Chrome(options = chrome_options)
 
-    chrome_options = Options()
-    chrome_options.add_argument("--start-maximized")
-    # chrome_options.add_argument('--ignore-certificate-errors')
-    # chrome_options.add_argument('--ignore-ssl-errors')
-    try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, options = chrome_options)
-    except:
-        driver = webdriver.Chrome(options = chrome_options)
+        usuario = "glosaamhp"
+        senha = "D8nEUqb!"
 
-    usuario = "glosaamhp"
-    senha = "D8nEUqb!"
+        connect_med = ConnectMed(driver, url, usuario, senha, proxies, diretorio_planilhas, diretorio_anexos)
+        connect_med.open()
+        pyautogui.write(user.lower())
+        pyautogui.press("TAB")
+        time.sleep(1)
+        pyautogui.write(password)
+        pyautogui.press("enter")
+        time.sleep(4)
+        connect_med.login()
+        connect_med.exec_recurso()
+        showinfo('Automação', 'Recurso finalizado!')
 
-    connect_med = ConnectMed(driver, url, usuario, senha, proxies, diretorio_planilhas, diretorio_anexos)
-    connect_med.open()
-    pyautogui.write(user.lower())
-    pyautogui.press("TAB")
-    time.sleep(1)
-    pyautogui.write(password)
-    pyautogui.press("enter")
-    time.sleep(4)
-    connect_med.login()
-    connect_med.exec_recurso()
-
-if __name__ == '__main__':
-    recursar('lucas.paz', 'WheySesc2024*')
+    except Exception as e :
+        showerror('Automação', f'Ocorreu uma exceção não trata\n{e.__class__.__name__}:\n{e}')

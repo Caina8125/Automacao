@@ -4,6 +4,7 @@ from tkinter import ttk
 import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
+from connect_med.connect_med import recursar_gama
 from lista_automacoes import LISTA_DE_AUTOMACOES
 from SalutisCasembrapa.salutis_casembrapa import recursar_casembrapa
 from filtro_matricula import filtrar_matricula
@@ -484,6 +485,9 @@ class Application:
 
             case "Glosa - Recursar Fascal":
                 self.inserir_login(recursar_fascal)
+
+            case "Glosa - Recursar Gama":
+                self.inserir_login(recursar_gama)
 
             case "Glosa - Recursar Real Grandeza":
                 self.inserir_login(recursar_real)
