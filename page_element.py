@@ -1,5 +1,6 @@
 from abc import ABC
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from time import sleep
 
@@ -45,13 +46,18 @@ class PageElement(ABC):
         except Exception as e:
             raise Exception(e)
         
-    def get_element_visible(self, element: tuple) -> bool:
+    def get_element_visible(self, element: tuple | None = None,  web_element: WebElement | None = None) -> bool:
         """Este método observa se irá ocorrer ElementClickInterceptedException. Caso ocorra
         irá dar um scroll até 10x na página conforme o comando passado até achar o click do elemento"""
         for i in range(10):
             try:
-                self.driver.find_element(*element).click()
-                return True
+                if element != None:
+                    self.driver.find_element(*element).click()
+                    return True
+                
+                elif web_element != None:
+                    web_element.click()
+                    return True
             
             except:
                 if i == 10:

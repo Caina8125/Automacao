@@ -91,6 +91,7 @@ class Benner(PageElement):
         sleep(2)
 
     def lote_existe(cls, numero_fatura: str) -> bool:
+        cls.driver.find_element(*cls.input_n_lote).clear()
         cls.driver.find_element(*cls.input_n_lote).send_keys(numero_fatura)
         sleep(2)
         cls.get_click(cls.pesquisar)
@@ -219,7 +220,7 @@ class Benner(PageElement):
                         self.arquivos_anexados.append(numero_fatura)
                         continue
                     
-                    self.adicionar_anexo(caminho, convenio)
+                    self.adicionar_anexo(caminho)
                     page_content: str = self.driver.find_element(*self.body).text
 
                     while "Aguarde" in page_content:
