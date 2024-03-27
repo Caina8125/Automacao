@@ -13,6 +13,7 @@ class Benner(PageElement):
     botao_fechar: tuple = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
     check_box: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/tbody[1]/tr[1]/td[2]/input')
     confirm_fechar_lote: tuple = (By.XPATH, '/html/body/div[8]/div/div/div[3]/button[2]')
+    guias_digitalizadas: tuple = (By.XPATH, '/html/body/div[10]/div/div/div[2]/bc-anexo-dropzone/div/div/div/div[2]/div[7]/select/option[6]')
     contador_fatura: int = 0
     detalhes_do_lote: tuple = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div[2]/div/div/div[2]/div/bc-smart-table/div[2]/table/thead/tr[1]/th/div[1]/div/div/a[3]/span')
     email_input: tuple = (By.XPATH, '//*[@id="Email"]')
@@ -114,19 +115,12 @@ class Benner(PageElement):
         except:
             pass
 
-    def adicionar_anexo(cls, caminho: str, convenio: str) -> None:
+    def adicionar_anexo(cls, caminho: str) -> None:
         cls.get_click(cls.incluir_anexo)
         sleep(2)
         cls.driver.find_element(*cls.input_file).send_keys(caminho)
         sleep(2)
-
-        match convenio:
-            case 'POSTAL SAÚDE | 419133':
-                cls.driver.find_element(*cls.exames_complementares_opt).click()
-
-            case 'CÂMARA DOS DEPUTADOS | 888888':
-                cls.driver.find_element(*cls.exames_de_analises_clinicas_opt).click()
-
+        cls.driver.find_element(*cls.guias_digitalizadas).click()
         sleep(2)
         cls.driver.find_element(*cls.incluir).click()
         sleep(2)
