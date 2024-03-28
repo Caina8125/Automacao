@@ -406,7 +406,8 @@ def recursar_fascal(user, password):
         try:
             servico = Service(ChromeDriverManager().install())
             driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
-        except:
+        except Exception as err:
+            print(err)
             driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
         
         global usuario, senha, login_page
