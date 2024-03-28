@@ -1,5 +1,5 @@
 from abc import ABC
-from datetime import date
+from datetime import date, timedelta
 from os import listdir, rename
 from tkinter.filedialog import askdirectory
 from openpyxl import load_workbook
@@ -384,8 +384,9 @@ class ConnectMed(PageElement):
 
         for index, linha in df_extrato.iterrows():
             mes_extrato: int = int(f"{linha['Extrato']}".split('/')[1])
+            mes_anterior = (self.data_atual - timedelta(days=1)).replace(day=1).month
 
-            if not mes_extrato == self.data_atual.month - 1: #TODO essa lógica do mês está errada
+            if not mes_extrato == mes_anterior:
                 continue
 
             lupa_extrato = (By.XPATH, f'/html/body/div[2]/div/div/div[2]/div[1]/table/tbody/tr[{index+1}]/td[5]/form/a')
