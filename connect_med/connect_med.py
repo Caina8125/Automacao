@@ -26,6 +26,7 @@ class ConnectMed(PageElement):
     visualizar = (By.LINK_TEXT, 'Visualizar')
     abrir_filtro_extrato = (By.ID, 'abrir-fechar')
     opt_60_dias = (By.XPATH, '//*[@id="cmbPeriodo"]/option[3]')
+    opcao_gama = (By.XPATH, '/html/body/div[6]/div[2]/div/div[1]/div/div/a/img')
     btn_consultar = (By.ID, 'btnConsultarExtratoPeriodo')
     button_detalhar_extrato = (By.ID, 'linkDetalharExtrato')
     option_glosados = (By.XPATH, '//*[@id="dadosLotesRecursoAberto_statusRecurso"]/option[2]')
@@ -53,8 +54,9 @@ class ConnectMed(PageElement):
     btn_ok = ...
     ok_sucesso = ...
     div_contas_medicas = (By.ID, 'dadosLotesRecursoAberto_divResultado-contas')
+    fechar_comunicado = (By.XPATH, '/html/body/div[6]/div[2]/div/div/div[2]/div/a')
 
-    def __init__(self, driver: WebDriver, url: str, usuario: str, senha: str, proxies: dict, diretorio: str='', diretorio_anexos: str='') -> None:
+    def __init__(self, driver: WebDriver, url: str, usuario: str, senha: str, proxies: dict, diretorio: str='', diretorio_anexos: str='', convenio: str='') -> None:
         super().__init__(driver, url)
         self.diretorio: str = diretorio
         self.diretorio_anexos: str = diretorio_anexos
@@ -77,6 +79,7 @@ class ConnectMed(PageElement):
             if arquivo.endswith('.pdf')
             ]
         self.proxies = proxies
+        self.convenio = convenio
 
     def login(self) -> None:
         self.driver.find_element(*self.input_usuario).send_keys(self.usuario)
@@ -85,8 +88,21 @@ class ConnectMed(PageElement):
         time.sleep(2)
         self.driver.find_element(*self.button_entrar).click()
 
+        if self.convenio == 'Gama':
+            self.driver.find_element(*self.opcao_gama).click()
+            time.sleep(2)
+
     def acessar_extrato(self) -> None:
-        self.driver.find_element(*self.extrato).click()
+        if 'COMUNICADO' in self.driver.find_element(*self.body).text:
+            self.driver.find_element(*self.fechar_comunicado).click()
+        
+        try:
+            self.driver.find_element(*self.extrato).click()
+        except:
+            if 'COMUNICADO' in self.driver.find_element(*self.body).text:
+                self.driver.find_element(*self.fechar_comunicado).click()
+                time.sleep(2)
+                self.driver.find_element(*self.extrato).click()
         # time.sleep(2)
         self.driver.find_element(*self.visualizar).click()
         time.sleep(2)
@@ -109,7 +125,14 @@ class ConnectMed(PageElement):
         protocolos: str = self.get_lote_no_extrato()
         return [dado for dado in self.dados_planilhas if dado['lote'] in protocolos]
     
+    def acrescenta_zeros(self, numero: str) -> str:
+        while len(numero) < 20:
+            numero = '0' + numero
+        return numero
+    
     def filtrar_guia(self, numero_guia: str, numero_controle: str) -> None:
+        if self.convenio == 'Petrobras':
+            numero_guia = self.acrescenta_zeros(numero_guia)
         self.driver.find_element(*self.option_glosados).click()
         time.sleep(2)
         self.driver.find_element(*self.input_conta_prestador).clear()
@@ -349,98 +372,93 @@ class ConnectMed(PageElement):
                 return dado['caminho']
                 
     def exec_recurso(self):
-        # try:
-            self.driver.implicitly_wait(30)
+        self.driver.implicitly_wait(30)
+        self.acessar_extrato()
+        self.driver.find_element(*self.abrir_filtro_extrato).click()
+        time.sleep(2)
+        self.driver.find_element(*self.opt_60_dias).click()
+        time.sleep(2)
+        self.driver.find_element(*self.btn_consultar).click()
+        time.sleep(2)
+        df_extrato = self.get_extrato_df()
+
+        for index, linha in df_extrato.iterrows():
+            mes_extrato: int = int(f"{linha['Extrato']}".split('/')[1])
+
+            if not mes_extrato == self.data_atual.month - 1: #TODO essa lógica do mês está errada
+                continue
+
+            lupa_extrato = (By.XPATH, f'/html/body/div[2]/div/div/div[2]/div[1]/table/tbody/tr[{index+1}]/td[5]/form/a')
+            self.driver.find_element(*lupa_extrato).click()
+            time.sleep(2)
+            self.driver.find_element(*self.button_detalhar_extrato).click()
+            time.sleep(2)
+            while 'Capa de Lote' not in self.driver.find_element(*self.body).text:
+                time.sleep(1)
+            lista_de_dados_no_extrato = self.get_planilhas_dos_protocolos()
+
+            for dado in lista_de_dados_no_extrato:
+                caminho = dado['caminho']
+                lote = dado['lote']
+
+                if 'Enviado' in caminho or 'Não_Enviado' in caminho:
+                    continue
+
+                id = f'formularioBuscarLote_{lote}'
+
+                self.get_element_visible(element=(By.ID, id))
+                time.sleep(2)
+
+                df_planilha = read_excel(caminho)
+                tabela_guias = self.driver.find_element(*self.table_guias).text
+
+                for i, l in df_planilha.iterrows():
+                    if l['Recursado no Portal'] == 'Sim' or l['Recursado no Portal'] == 'Não':
+                        continue
+
+                    numero_guia = f"{l['Nro. Guia']}".replace('.0', '')
+                    numero_ahmptiss = f"{l['Amhptiss']}"
+                    numero_controle = f"{l['Controle Inicial']}"
+                    codigo_procedimento = f'{l["Procedimento"]}'.replace('.0', '')
+                    justificativa = f'{l["Recurso Glosa"]}'.replace('\t', ' ')
+                    valor_glosa = self.converter_numero_para_string(l['Valor Glosa']).replace('-', '')
+                    valor_recurso = self.converter_numero_para_string(l['Valor Recursado'])
+                    anexo = None
+
+                    if 'anex' in justificativa or 'Anex' in justificativa:
+                        anexo = self.encontrar_anexo_guia(numero_ahmptiss)
+                        if anexo == None:
+                            self.salvar_valor_planilha(caminho, 'Anexo da guia não encontrado', coluna=53, linha=l + 1)
+                            continue
+
+                    if numero_guia not in tabela_guias and numero_controle not in tabela_guias:
+                        continue
+
+                    self.filtrar_guia(numero_guia, numero_controle)
+                    time.sleep(2)
+                    self.driver.find_element(*self.td_guia).click()
+                    time.sleep(2)
+
+                    self.lancar_recurso(codigo_procedimento, valor_glosa, valor_recurso, justificativa, anexo, caminho, i + 1)
+                    time.sleep(2)
+
+                self.driver.back()
+                self.driver.refresh()
+                time.sleep(2)
+                self.driver.find_element(*self.button_detalhar_extrato)
+                time.sleep(1)
+                self.renomear_planilha(caminho, 'Enviado')
+
             self.acessar_extrato()
+            time.sleep(1.5)
             self.driver.find_element(*self.abrir_filtro_extrato).click()
             time.sleep(2)
             self.driver.find_element(*self.opt_60_dias).click()
             time.sleep(2)
             self.driver.find_element(*self.btn_consultar).click()
-            time.sleep(2)
-            df_extrato = self.get_extrato_df()
-
-            for index, linha in df_extrato.iterrows():
-                mes_extrato: int = int(f"{linha['Extrato']}".split('/')[1])
-
-                if not mes_extrato == self.data_atual.month - 1: #TODO essa lógica do mês está errada
-                    continue
-
-                lupa_extrato = (By.XPATH, f'/html/body/div[2]/div/div/div[2]/div[1]/table/tbody/tr[{index+1}]/td[5]/form/a')
-                self.driver.find_element(*lupa_extrato).click()
-                time.sleep(2)
-                self.driver.find_element(*self.button_detalhar_extrato).click()
-                time.sleep(2)
-                while 'Capa de Lote' not in self.driver.find_element(*self.body).text:
-                    time.sleep(1)
-                lista_de_dados_no_extrato = self.get_planilhas_dos_protocolos()
-
-                for dado in lista_de_dados_no_extrato:
-                    caminho = dado['caminho']
-                    lote = dado['lote']
-
-                    if 'Enviado' in caminho or 'Não_Enviado' in caminho:
-                        continue
-
-                    id = f'formularioBuscarLote_{lote}'
-
-                    self.get_element_visible(element=(By.ID, id))
-                    time.sleep(2)
-
-                    df_planilha = read_excel(caminho)
-                    tabela_guias = self.driver.find_element(*self.table_guias).text
-
-                    for i, l in df_planilha.iterrows():
-                        if l['Recursado no Portal'] == 'Sim' or l['Recursado no Portal'] == 'Não':
-                            continue
-
-                        numero_guia = f"{l['Nro. Guia']}".replace('.0', '')
-                        numero_ahmptiss = f"{l['Amhptiss']}"
-                        numero_controle = f"{l['Controle Inicial']}"
-                        codigo_procedimento = f'{l["Procedimento"]}'.replace('.0', '')
-                        justificativa = f'{l["Recurso Glosa"]}'.replace('\t', ' ')
-                        valor_glosa = self.converter_numero_para_string(l['Valor Glosa']).replace('-', '')
-                        valor_recurso = self.converter_numero_para_string(l['Valor Recursado'])
-                        anexo = None
-
-                        if 'anex' in justificativa or 'Anex' in justificativa:
-                            anexo = self.encontrar_anexo_guia(numero_ahmptiss)
-                            if anexo == None:
-                                self.salvar_valor_planilha(caminho, 'Anexo da guia não encontrado', coluna=53, linha=l + 1)
-                                continue
-
-                        if numero_guia not in tabela_guias or numero_controle not in tabela_guias:
-                            continue
-
-                        self.filtrar_guia(numero_guia, numero_controle)
-                        time.sleep(2)
-                        self.driver.find_element(*self.td_guia).click()
-                        time.sleep(2)
-
-                        self.lancar_recurso(codigo_procedimento, valor_glosa, valor_recurso, justificativa, anexo, caminho, i + 1)
-                        time.sleep(2)
-
-                    self.driver.back()
-                    self.driver.refresh()
-                    time.sleep(2)
-                    self.driver.find_element(*self.button_detalhar_extrato)
-                    time.sleep(1)
-                    self.renomear_planilha(caminho, 'Enviado')
-
-                self.acessar_extrato()
-                time.sleep(1.5)
-                self.driver.find_element(*self.abrir_filtro_extrato).click()
-                time.sleep(2)
-                self.driver.find_element(*self.opt_60_dias).click()
-                time.sleep(2)
-                self.driver.find_element(*self.btn_consultar).click()
-                
-            showinfo('Automação', 'Recurso realizado!')
-            self.driver.quit()
-
-        # except Exception as e:
-        #     showerror('Automação', f'Ocorreu uma exceção não tratada.\n{e.__class__.__name__}:\n{e}')
-        #     self.driver.quit()
+            
+        showinfo('Automação', 'Recurso realizado!')
+        self.driver.quit()
 
 def recursar_gama(user: str, password: str) -> None:
     try:
@@ -473,7 +491,7 @@ def recursar_gama(user: str, password: str) -> None:
         usuario = "glosaamhp"
         senha = "D8nEUqb!"
 
-        connect_med = ConnectMed(driver, url, usuario, senha, proxies, diretorio_planilhas, diretorio_anexos)
+        connect_med = ConnectMed(driver, url, usuario, senha, proxies, diretorio_planilhas, diretorio_anexos, "Gama")
         connect_med.open()
         pyautogui.write(user.lower())
         pyautogui.press("TAB")
@@ -483,7 +501,7 @@ def recursar_gama(user: str, password: str) -> None:
         time.sleep(4)
         connect_med.login()
         connect_med.exec_recurso()
-        showinfo('Automação', 'Recurso finalizado!')
 
     except Exception as e :
         showerror('Automação', f'Ocorreu uma exceção não trata\n{e.__class__.__name__}:\n{e}')
+        driver.quit()

@@ -10,6 +10,7 @@ from SalutisCasembrapa.salutis_casembrapa import recursar_casembrapa
 from filtro_matricula import filtrar_matricula
 from orizon.orizon import inciar_envio_de_anexos
 from planilha_serpro import exec_planilha
+from recursar_petrobras import recursar_petrobras
 from user_authentication import UserLogin
 from Recursar_Duplicado import *
 from login_clinicas_bradesco import get_login_data
@@ -488,6 +489,9 @@ class Application:
 
             case "Glosa - Recursar Gama":
                 self.inserir_login(recursar_gama)
+
+            case "Glosa - Recursar Petrobras":
+                self.inserir_login(recursar_petrobras)
 
             case "Glosa - Recursar Real Grandeza":
                 self.inserir_login(recursar_real)
