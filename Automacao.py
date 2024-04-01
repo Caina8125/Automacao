@@ -4,6 +4,7 @@ from tkinter import ttk
 import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
+from bacen_envio_pdf import enviar_pdf_bacen
 from connect_med.connect_med import recursar_gama
 from lista_automacoes import LISTA_DE_AUTOMACOES
 from SalutisCasembrapa.salutis_casembrapa import recursar_casembrapa
@@ -348,7 +349,7 @@ class Application:
                 self.inserir_login(conferir_bacen)
 
             case "Faturamento - Enviar PDF Bacen":
-                self.reiniciar()
+                self.inserir_login(enviar_pdf_bacen)
 
             case "Faturamento - Enviar PDF Benner":
                 self.inserir_login(enviar_pdf_benner)

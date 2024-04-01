@@ -37,9 +37,6 @@ class BuscarProtocolo(PageElement):
         sleep(2)
 
     def buscar_protocolo(self, numero_fatura):
-        self.open()
-        self.login_layout_novo()
-        self.caminho()
         self.driver.implicitly_wait(30)
         self.driver.find_element(*self.input_numero_lote).send_keys(numero_fatura)
         sleep(2)

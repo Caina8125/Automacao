@@ -1,5 +1,6 @@
 from datetime import datetime
 from time import sleep
+from tkinter.messagebox import showerror, showinfo
 import pandas as pd
 from selenium import webdriver
 from seleniumwire import webdriver
@@ -36,6 +37,7 @@ class BacenMapa(PageElement):
     lupa_conta_fisica = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]/a[1]')
     processar_anexo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/div[1]/div/div/div/div/div/div/div/div[3]/div/table/tbody/tr/td/div/nobr/a')
     a_numero_protocolo = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr/td/div[1]/div/div/div/div/div/div/div/div[1]/a[2]')
+    tbody_conta_fisica_anexada = (By.XPATH, '/html/body/table/tbody/tr[1]/td/div/table/tbody/tr[2]/td/table/tbody/tr/td[2]/table/tbody/tr/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td/div/div/div/div/div/div/div/div/div[2]/table/tbody')
 
     def __init__(self, driver, url, usuario, senha, dir_planilha, dir_processos, buscar_protocolo):
         super().__init__(driver, url)
@@ -66,8 +68,6 @@ class BacenMapa(PageElement):
         sleep(2)
         self.driver.find_element(*self.lupa_pesquisa).click()
         sleep(2)
-        self.driver.find_element(*self.lupa_ver_fatura).click()
-        sleep(2)
 
     def zipar_arquivos(self, pasta, nome_arquivo_zip) -> str:
         lista_de_arquivos = [f"{pasta}/{arquivo}" for arquivo in os.listdir(pasta) if arquivo.endswith('.pdf')]
@@ -78,10 +78,10 @@ class BacenMapa(PageElement):
                     return f"{pasta}/{nome_arquivo_zip}"
 
     def anexar_guias(self, arquivo, numero_processo, numero_protocolo):
-        tbody_guia_com_anexo = self.driver.find_element(*self.tbody_guia_com_anexo).text
+        tbody_conta_fisica_anexada = self.driver.find_element(*self.tbody_conta_fisica_anexada).text
 
-        if "Nenhum registro cadastrado." not in tbody_guia_com_anexo:
-            informacoes = [numero_processo, numero_protocolo, "Já há um envio neste processo"]
+        if "Nenhum registro cadastrado." not in tbody_conta_fisica_anexada:
+            informacoes = [numero_processo, numero_protocolo, "Já há um envio neste processo", '', '']
             return informacoes
         
         self.driver.find_element(*self.botao_novo).click()
@@ -98,14 +98,21 @@ class BacenMapa(PageElement):
         sleep(1)
         self.driver.find_element(*self.botao_salvar).click()
         sleep(1)
-        self.driver.find_element(*self.detalhes).click()
-        sleep(2)
-        self.driver.find_element(*self.lupa_conta_fisica).click()
-        sleep(1.5)
-        self.driver.find_element(*self.processar_anexo).click()
-        sleep(1.5)
-        self.driver.find_element(*self.a_numero_protocolo).click()
-        sleep(2)
+        tbody_guia_sem_anexo = self.driver.find_element(*self.tbody_guia_sem_anexo).text
+        count = 0
+
+        while "Nenhum registro cadastrado." not in tbody_guia_sem_anexo and count!= 3:
+            self.driver.find_element(*self.detalhes).click()
+            sleep(2)
+            self.driver.find_element(*self.lupa_conta_fisica).click()
+            sleep(1.5)
+            self.driver.find_element(*self.processar_anexo).click()
+            sleep(1.5)
+            self.driver.find_element(*self.a_numero_protocolo).click()
+            sleep(2)
+            tbody_guia_sem_anexo = self.driver.find_element(*self.tbody_guia_sem_anexo).text
+            count +=1
+
         tbody_guia_com_anexo = self.driver.find_element(*self.tbody_guia_com_anexo).text
 
         if "Nenhum registro cadastrado." not in tbody_guia_com_anexo:
@@ -133,13 +140,19 @@ class BacenMapa(PageElement):
         return informacoes
         
     def encontrar_protocolo(self, numero_processo):
+        if not self.planilhas:
+            return None
+
         for planilha in self.planilhas:
             df_planilha = pd.read_excel(planilha)
-            for _, linha in df_planilha.iterrows():
-                if str(numero_processo) in str(linha['N° Fatura']).replace(".0", ''):
-                    protocolo = str(linha['N° Protocolo']).replace(".0", '')
-                    if protocolo.isdigit():
-                        return protocolo
+            try:
+                for _, linha in df_planilha.iterrows():
+                    if str(numero_processo) in str(linha['N° Fatura']).replace(".0", ''):
+                        protocolo = str(linha['N° Protocolo']).replace(".0", '')
+                        if protocolo.isdigit():
+                            return protocolo
+            except:
+                continue
                     
     def renomear_arquivo(self, pasta, arquivo, protocolo, amhptiss):
         os.rename(arquivo, f"{pasta}\\PEG{protocolo}_GUIAPRESTADOR{amhptiss}.pdf")
@@ -157,7 +170,13 @@ class BacenMapa(PageElement):
         self.open()
         self.login()
         lista_de_dados = []
-        envio_bacen.exe_caminho()
+        self.exe_caminho()
+        self.driver.execute_script("window.open('');") 
+        self.driver.switch_to.window(self.driver.window_handles[-1])
+        self.buscar_protocolo.open()
+        self.buscar_protocolo.login_layout_novo()
+        self.buscar_protocolo.caminho()
+        self.driver.switch_to.window(self.driver.window_handles[0])
         
         for pasta in self.lista_de_pastas:
             numero_processo = pasta['numero_processo']
@@ -165,16 +184,14 @@ class BacenMapa(PageElement):
             protocolo = self.encontrar_protocolo(numero_processo)
 
             if protocolo == None:
-                self.driver.execute_script("window.open('');") 
                 self.driver.switch_to.window(self.driver.window_handles[-1])
                 protocolo = self.buscar_protocolo.buscar_protocolo(numero_processo)
 
                 if protocolo == 'Nenhum registro encontrado.':
-                    informacoes = [numero_processo, protocolo, "Não Enviado, protocolo não encontrado"]
+                    informacoes = [numero_processo, protocolo, "Não Enviado, protocolo não encontrado", '', '']
                     lista_de_dados.append(informacoes)
                     continue
 
-                self.driver.close()
                 self.driver.switch_to.window(self.driver.window_handles[0])
                 
             self.confere_nome_arquivos(path_pasta_processo, protocolo)
@@ -183,16 +200,25 @@ class BacenMapa(PageElement):
             sz = (os.path.getsize(arquivo_zip) / 1024) / 1024
 
             if sz >= 25.00:
-                informacoes = [numero_processo, protocolo, "Não Enviado, arquivo .zip maior que 25MB"]
+                informacoes = [numero_processo, protocolo, "Não Enviado, arquivo .zip maior que 25MB", '', '']
                 lista_de_dados.append(informacoes)
                 continue
 
-            envio_bacen.pesquisar_protocolo(protocolo)
-            informacoes = envio_bacen.anexar_guias(arquivo_zip, numero_processo, protocolo)
+            self.pesquisar_protocolo(protocolo)
+
+            if 'Nenhum registro foi encontrado.' in self.driver.find_element(*self.body).text:
+                informacoes = [numero_processo, protocolo, "Não Enviado, protocolo não encontrado em Aguardando Físico", '', '']
+                lista_de_dados.append(informacoes)
+                self.exe_caminho()
+                continue
+
+            self.driver.find_element(*self.lupa_ver_fatura).click()
+            sleep(2)
+            informacoes = self.anexar_guias(arquivo_zip, numero_processo, protocolo)
             lista_de_dados.append(informacoes)
             self.exe_caminho()
 
-        cabecalho = ["N° Fatura", "N° Protocolo", "Enviado"]
+        cabecalho = ["N° Fatura", "N° Protocolo", "Enviado", 'Erro Matricula', 'Guia sem anexo']
         df = pd.DataFrame(lista_de_dados, columns=cabecalho)
         data_e_hora_atuais = datetime.now()
         data_e_hora_em_texto = data_e_hora_atuais.strftime('%d_%m_%Y_%H_%M')
@@ -201,32 +227,37 @@ class BacenMapa(PageElement):
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-if __name__ == '__main__':
-    diretorio = askdirectory()
-    planilhas = askopenfilenames()
-
-    url = 'https://www3.bcb.gov.br/pasbcmapa/login.aspx'
-
-    # options = {
-    #             'proxy' : {
-    #                 'http': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128',
-    #                 'https': 'http://lucas.paz:RDRsoda90901@@10.0.0.230:3128'
-    #             }
-    #         }
-
-    chrome_options = Options()
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
-
+def enviar_pdf_bacen(user, password):
     try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, options=chrome_options)
-    except:
-        driver = webdriver.Chrome(options=chrome_options)
+        diretorio = askdirectory()
+        planilhas = askopenfilenames()
 
-    url_bc_saude = 'https://www3.bcb.gov.br/portalbcsaude/Login'
-    buscar_protocolo = BuscarProtocolo('00735860000173', '2024)Amhpdf!', driver, url_bc_saude)
+        url = 'https://www3.bcb.gov.br/pasbcmapa/login.aspx'
 
-    envio_bacen = BacenMapa(driver, url, '00735860000173', '2024)Amhpdf!', planilhas, diretorio, buscar_protocolo)
-    envio_bacen.enviar_pdf_bacen()
+        options = {
+                    'proxy' : {
+                        'http': f'http://{user}:{password}@10.0.0.230:3128',
+                        'https': f'http://{user}:{password}@10.0.0.230:3128'
+                    }
+                }
+
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
+
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, options=chrome_options, seleniumwire_options=options)
+        except:
+            driver = webdriver.Chrome(options=chrome_options, seleniumwire_options=options)
+
+        url_bc_saude = 'https://www3.bcb.gov.br/portalbcsaude/Login'
+        buscar_protocolo = BuscarProtocolo('00735860000173', '2024)Amhpdf!', driver, url_bc_saude)
+
+        envio_bacen = BacenMapa(driver, url, '00735860000173', '2024)Amhpdf!', planilhas, diretorio, buscar_protocolo)
+        envio_bacen.enviar_pdf_bacen()
+        showinfo('', 'Envio realizado com sucesso!')
+
+    except Exception as e:
+        showerror('', f'Ocorreu uma exceção não tratada\n{e.__class__.__name__}:\n{e}')

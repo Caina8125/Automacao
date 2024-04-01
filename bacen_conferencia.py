@@ -59,7 +59,7 @@ class ConferirFatura(PageElement):
         url = 'https://www3.bcb.gov.br/portalbcsaude/Login'
         busca_de_protocolo = BuscarProtocolo(driver=driver, url=url)
         busca_de_protocolo.open()
-        busca_de_protocolo.login_layout_novo(usuario = "00735860000173", senha = "Amhpdf!2023")
+        busca_de_protocolo.login_layout_novo()
         busca_de_protocolo.caminho()
         arquivo = pd.ExcelFile(planilha)
         sheet_names = arquivo.sheet_names
