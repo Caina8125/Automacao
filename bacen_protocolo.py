@@ -1,4 +1,5 @@
 from time import sleep
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from page_element import PageElement
 
@@ -13,12 +14,17 @@ class BuscarProtocolo(PageElement):
     input_numero_lote = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/span/div/div/div/div[3]/div/div/div[2]/div[1]/span/input')
     lupa_pesquisar = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/span/div/div/div/div[2]/a[2]')
     a_numero_protocolo = (By.XPATH, '/html/body/form/div[3]/div[3]/div[3]/div/div/div[1]/div/div/div[2]/div/div[2]/div[4]/table/tbody/tr/td[4]/a')
+
+    def __init__(self, usuario, senha, driver: WebDriver = None, url: str = '') -> None:
+        super().__init__(driver, url)
+        self.usuario = usuario
+        self.senha = senha
     
-    def login_layout_novo(self, usuario, senha):
+    def login_layout_novo(self):
         self.driver.implicitly_wait(30)
-        self.driver.find_element(*self.usuario_input).send_keys(usuario)
+        self.driver.find_element(*self.usuario_input).send_keys(self.usuario)
         sleep(2)
-        self.driver.find_element(*self.senha_input).send_keys(senha)
+        self.driver.find_element(*self.senha_input).send_keys(self.senha)
         sleep(2)
         self.driver.find_element(*self.login_button).click()
         sleep(2)
@@ -31,6 +37,9 @@ class BuscarProtocolo(PageElement):
         sleep(2)
 
     def buscar_protocolo(self, numero_fatura):
+        self.open()
+        self.login_layout_novo()
+        self.caminho()
         self.driver.implicitly_wait(30)
         self.driver.find_element(*self.input_numero_lote).send_keys(numero_fatura)
         sleep(2)
