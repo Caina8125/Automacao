@@ -1,9 +1,10 @@
 from selenium.webdriver.chrome.options import Options
-from Benner.benner import Benner
 from seleniumwire.webdriver import Chrome
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from tkinter.filedialog import askopenfilenames
+
+from classes.benner import Benner
 
 def enviar_xml_benner(user, password) -> None:
     URL: str = r'https://portalconectasaude.com.br/Account/Login?ReturnUrl=%2FHome%2FIndex'

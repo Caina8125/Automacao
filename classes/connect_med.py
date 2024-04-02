@@ -1,4 +1,3 @@
-from abc import ABC
 from datetime import date, timedelta
 from os import listdir, rename
 from tkinter.filedialog import askdirectory

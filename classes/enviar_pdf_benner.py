@@ -2,9 +2,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from seleniumwire.webdriver import Chrome
 from webdriver_manager.chrome import ChromeDriverManager
-from Benner.benner import Benner
 from tkinter.filedialog import askdirectory
 from datetime import date
+
+from classes.benner import Benner
 
 def enviar_pdf_benner(user: str, password: str) -> None:
     chrome_options: Options = Options()          
