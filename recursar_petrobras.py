@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 
-from connect_med.connect_med import ConnectMed
+from classes.connect_med import ConnectMed
 
 
 def recursar_petrobras(user: str, password: str) -> None:
