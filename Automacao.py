@@ -5,19 +5,19 @@ import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
 from bacen_envio_pdf import enviar_pdf_bacen
-from connect_med.connect_med import recursar_gama
+from classes.connect_med import recursar_gama
+from classes.enviar_pdf_benner import enviar_pdf_benner
+from classes.enviar_xml_benner import enviar_xml_benner
+from classes.orizon import inciar_envio_de_anexos
+from classes.salutis_casembrapa import recursar_casembrapa
 from lista_automacoes import LISTA_DE_AUTOMACOES
-from SalutisCasembrapa.salutis_casembrapa import recursar_casembrapa
 from filtro_matricula import filtrar_matricula
-from orizon.orizon import inciar_envio_de_anexos
 from planilha_serpro import exec_planilha
 from recursar_petrobras import recursar_petrobras
 from user_authentication import UserLogin
 from Recursar_Duplicado import *
 from login_clinicas_bradesco import get_login_data
 from Buscar_fatura import iniciar
-from Benner.enviar_pdf_benner import enviar_pdf_benner
-from Benner.enviar_xml_benner import enviar_xml_benner
 from Atualiza_Local import *
 from Anexar_Guia_Geap import anexar_guias
 from Enviar_Xml_Caixa import Enviar_caixa
