@@ -66,45 +66,53 @@ class capturar_protocolo(PageElement):
     elemento3 = (By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[3]/td[5]')
 
     def exe_capturar(self):
-        global count
-        # global resposta
-        global protocolo_plan
 
+        global count
+        global protocolo_plan
         count = 0
 
         faturas_df = pd.read_excel(planilha)
-        for index, linha in faturas_df.iterrows():
-            count = count + 1
+        for _ in range(0, 10):
+            try:
+                for _, linha in faturas_df.iterrows():
+                    count = count + 1
 
-            protocolo_plan =  f"{linha['Protocolo']}".replace(".0","")
-            fatura_plan =  f"{linha['Faturas']}".replace(".0","")
-            if ((f"{linha['Verificação']}" == "Fatura encontrada") or (protocolo_plan == "Total Geral")):
-                print(f"{count}){protocolo_plan} : Fatura encontrada => {fatura_plan}")
-                continue
+                    protocolo_plan =  f"{linha['Protocolo']}".replace(".0","")
+                    fatura_plan =  f"{linha['Faturas']}".replace(".0","")
+                    if ((f"{linha['Verificação']}" == "Fatura encontrada") or (protocolo_plan == "Total Geral")):
+                        print(f"{count}){protocolo_plan} : Fatura encontrada => {fatura_plan}")
+                        continue
 
-            print(f"{count}) Buscando a fatura do Protocolo => {protocolo_plan}")
+                    print(f"{count}) Buscando a fatura do Protocolo => {protocolo_plan}")
+                    
+                    self.driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
+                    self.driver.find_element(*self.baixar).click()
+                    time.sleep(0.3)
+
+                    #Bloco de código que insere o número da fatura na planilha
+                    fatura_site = self.driver.find_element(By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[3]').text
+                    n_fatura = [fatura_site]
+                    df = pd.DataFrame(n_fatura)
+                    book = load_workbook(planilha)
+                    writer = pd.ExcelWriter(planilha, engine='openpyxl')
+                    writer.book = book
+                    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                    df.to_excel(writer, 'Faturas', startrow = count, startcol = 1, header=False, index=False)
+                    writer.save()
+
+                    capturar_protocolo(driver,url).confere()
+
+                    self.driver.back()
+                    time.sleep(3)
+                    self.driver.find_element(*self.inserir_protocolo).clear()
+                    time.sleep(2)
+                break
             
-            self.driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
-            self.driver.find_element(*self.baixar).click()
-            time.sleep(0.3)
-
-            #Bloco de código que insere o número da fatura na planilha
-            fatura_site = self.driver.find_element(By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[3]').text
-            n_fatura = [fatura_site]
-            df = pd.DataFrame(n_fatura)
-            book = load_workbook(planilha)
-            writer = pd.ExcelWriter(planilha, engine='openpyxl')
-            writer.book = book
-            writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-            df.to_excel(writer, 'Faturas', startrow = count, startcol = 1, header=False, index=False)
-            writer.save()
-
-            capturar_protocolo(driver,url).confere()
-
-            self.driver.back()
-            time.sleep(3)
-            self.driver.find_element(*self.inserir_protocolo).clear()
-            time.sleep(2)
+            except:
+                self.open()
+                login_page.exe_login(cpf = '66661692120', senha = "Amhp2023")
+                caminho(driver, url).exe_caminho()
+                self.exe_capturar()
 
     def confere(self):
 
@@ -167,7 +175,7 @@ def iniciar(user, password):
         chrome_options.add_argument('--ignore-certificate-errors')
         chrome_options.add_argument('--ignore-ssl-errors')
 
-        global driver
+        global driver, login_page
         try:
             servico = Service(ChromeDriverManager().install())
             driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
