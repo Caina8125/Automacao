@@ -28,7 +28,7 @@ class ConnectMed(PageElement):
     opt_90_dias = (By.XPATH, '/html/body/div[2]/div/div/div[2]/form/div/div[2]/div/fieldset/div[1]/select/option[4]')
     opcao_gama = (By.XPATH, '/html/body/div[6]/div[2]/div/div[1]/div/div/a/img')
     btn_consultar = (By.ID, 'btnConsultarExtratoPeriodo')
-    button_detalhar_extrato = (By.ID, 'linkDetalharExtrato')
+    button_detalhar_extrato = (By.XPATH, '/html/body/div[2]/div[1]/div/div[2]/div[1]/div[2]/div[3]/fieldset/div/div[2]/a[3]')
     option_glosados = (By.XPATH, '//*[@id="dadosLotesRecursoAberto_statusRecurso"]/option[2]')
     input_conta_prestador = (By.ID, 'dadosLotesRecursoAberto_numeroContaPrestador')
     input_buscar = (By.ID, 'dadosLotesRecursoAberto_btnBuscar')
@@ -142,6 +142,8 @@ class ConnectMed(PageElement):
         time.sleep(2)
 
         if 'Nenhum recurso para visualizar!' in self.driver.find_element(*self.div_contas_medicas).text:
+            if self.convenio == 'Petrobras':
+                numero_controle = self.acrescenta_zeros(numero_controle)
             self.driver.find_element(*self.option_glosados).click()
             time.sleep(2)
             self.driver.find_element(*self.input_conta_prestador).clear()
