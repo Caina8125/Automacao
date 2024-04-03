@@ -8,6 +8,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.chrome.options import Options
+from datetime import datetime
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
@@ -24,7 +25,7 @@ class ConnectMed(PageElement):
     extrato = (By.LINK_TEXT, 'Extrato')
     visualizar = (By.LINK_TEXT, 'Visualizar')
     abrir_filtro_extrato = (By.ID, 'abrir-fechar')
-    opt_60_dias = (By.XPATH, '//*[@id="cmbPeriodo"]/option[3]')
+    opt_90_dias = (By.XPATH, '/html/body/div[2]/div/div/div[2]/form/div/div[2]/div/fieldset/div[1]/select/option[4]')
     opcao_gama = (By.XPATH, '/html/body/div[6]/div[2]/div/div[1]/div/div/a/img')
     btn_consultar = (By.ID, 'btnConsultarExtratoPeriodo')
     button_detalhar_extrato = (By.ID, 'linkDetalharExtrato')
@@ -369,23 +370,28 @@ class ConnectMed(PageElement):
         for dado in self.dados_anexos:
             if dado['numero_guia'] == numero_guia:
                 return dado['caminho']
+            
+    def is_mes_para_recursar(self, mes_extrato: datetime, mes_anterior: int, dois_meses_atras: int):
+
+        return mes_extrato.month == mes_anterior or mes_extrato.month == dois_meses_atras
                 
     def exec_recurso(self):
         self.driver.implicitly_wait(30)
         self.acessar_extrato()
         self.driver.find_element(*self.abrir_filtro_extrato).click()
         time.sleep(2)
-        self.driver.find_element(*self.opt_60_dias).click()
+        self.driver.find_element(*self.opt_90_dias).click()
         time.sleep(2)
         self.driver.find_element(*self.btn_consultar).click()
         time.sleep(2)
         df_extrato = self.get_extrato_df()
 
         for index, linha in df_extrato.iterrows():
-            mes_extrato: int = int(f"{linha['Extrato']}".split('/')[1])
-            mes_anterior = (self.data_atual - timedelta(days=1)).replace(day=1).month
+            mes_extrato = datetime.strptime(f"{linha['Extrato']}", "%d/%m/%Y").date()
+            mes_anterior = (self.data_atual - timedelta(days=30))
+            dois_meses_atras = (mes_anterior - timedelta(days=30))
 
-            if not mes_extrato == mes_anterior:
+            if not self.is_mes_para_recursar(mes_extrato, mes_anterior.month, dois_meses_atras.month):
                 continue
 
             lupa_extrato = (By.XPATH, f'/html/body/div[2]/div/div/div[2]/div[1]/table/tbody/tr[{index+1}]/td[5]/form/a')
@@ -453,7 +459,7 @@ class ConnectMed(PageElement):
             time.sleep(1.5)
             self.driver.find_element(*self.abrir_filtro_extrato).click()
             time.sleep(2)
-            self.driver.find_element(*self.opt_60_dias).click()
+            self.driver.find_element(*self.opt_90_dias).click()
             time.sleep(2)
             self.driver.find_element(*self.btn_consultar).click()
             
