@@ -105,6 +105,7 @@ class Tst(PageElement):
     adicionar_guias = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div[1]/fieldset/table/tbody/tr/td/fieldset[2]/table/tbody/tr/td/input')
     table_guias = (By.ID, 'guia')
     btn_adicionar = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div[2]/div[11]/div/button[2]/span')
+    btn_salvar = (By.ID, 'botaoSalvar')
 
     def __init__(self, driver: WebDriver, usuario: str, senha: str, diretorio: str, url: str = '') -> None:
         super().__init__(driver, url)
@@ -142,7 +143,7 @@ class Tst(PageElement):
             path_planilha = arquivo['path']
             df_processo = read_excel(path_planilha)
             lista_de_guias = set(df_processo['Controle Inicial'].astype(str).values.tolist())
-            tipo_guia = self.pegar_xpath_tipo_guia(int(df_processo['Tipo Guia'][0]))
+            xpath_tipo_guia = self.pegar_xpath_tipo_guia(int(df_processo['Tipo Guia'][0]))
             self.driver.find_element(*self.input_numero_lote).send_keys(numero_processo)
             sleep(1.5)
             self.driver.find_element(*self.btn_consultar).click()
@@ -153,7 +154,7 @@ class Tst(PageElement):
             sleep(1.5)
             self.driver.find_element(*self.select_tipo_guia).click()
             sleep(1.5)
-            self.driver.find_element(By.PARTIAL_LINK_TEXT, tipo_guia).click()
+            self.driver.find_element(By.XPATH, xpath_tipo_guia).click()
             sleep(1.5)
             self.driver.find_element(*self.adicionar_guias).click()
             sleep(1.5)
@@ -172,11 +173,16 @@ class Tst(PageElement):
 
             self.driver.find_element(*self.btn_adicionar).click()
             sleep(2)
-            count = 1
-            self.driver.find_element(*self.input_numero_lote).send_keys(f'{numero_processo}-{count}')
+            count = 10
+            while 'Lote de Guias incluído(a) com sucesso.' not in self.driver.find_element(*self.body).text:
+                self.driver.find_element(*self.input_numero_lote).send_keys(f'{numero_processo}-{count}')
+                sleep(1)
+                self.driver.find_element(*self.btn_salvar).click()
 
-            while 'Aguarde, processando...' in self.driver.find_element(*self.body).text:
-                sleep(2)
+                while 'Aguarde, processando...' in self.driver.find_element(*self.body).text:
+                    sleep(2)
+                    
+                count += 1
     
     def pegar_xpath_tipo_guia(self, codigo_tipo_guia):
         match codigo_tipo_guia:

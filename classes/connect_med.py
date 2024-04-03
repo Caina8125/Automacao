@@ -320,7 +320,7 @@ class ConnectMed(PageElement):
                 self.salvar_valor_planilha(
                     path_planilha=path,
                     valor='Sim',
-                    coluna=53,
+                    coluna=21,
                     linha=row
                 )
                 return
@@ -349,7 +349,7 @@ class ConnectMed(PageElement):
                     self.salvar_valor_planilha(
                         path_planilha=path,
                         valor='Sim',
-                        coluna=53,
+                        coluna=21,
                         linha=row
                     )   
                     return
@@ -357,7 +357,7 @@ class ConnectMed(PageElement):
         self.salvar_valor_planilha(
             path_planilha=path,
             valor='Não',
-            coluna=53,
+            coluna=21,
             linha=row
         )
 
@@ -428,7 +428,7 @@ class ConnectMed(PageElement):
                     if 'anex' in justificativa or 'Anex' in justificativa:
                         anexo = self.encontrar_anexo_guia(numero_ahmptiss)
                         if anexo == None:
-                            self.salvar_valor_planilha(caminho, 'Anexo da guia não encontrado', coluna=53, linha=l + 1)
+                            self.salvar_valor_planilha(caminho, 'Anexo da guia não encontrado', coluna=21, linha=l + 1)
                             continue
 
                     if numero_guia not in tabela_guias and numero_controle not in tabela_guias:
