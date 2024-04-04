@@ -106,6 +106,11 @@ class Tst(PageElement):
     table_guias = (By.ID, 'guia')
     btn_adicionar = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div[2]/div[11]/div/button[2]/span')
     btn_salvar = (By.ID, 'botaoSalvar')
+    input_numero_guia = (By.ID, 'numeroGuia')
+    alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr[1]/td[11]/a[3]/img')
+    fieldset_procedimentos = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[7]')
+    fieldset_opms = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[8]')
+    fieldset_outras_despesas = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]')
 
     def __init__(self, driver: WebDriver, usuario: str, senha: str, diretorio: str, url: str = '') -> None:
         super().__init__(driver, url)
@@ -173,7 +178,7 @@ class Tst(PageElement):
 
             self.driver.find_element(*self.btn_adicionar).click()
             sleep(2)
-            count = 10
+            count = 1
             while 'Lote de Guias incluído(a) com sucesso.' not in self.driver.find_element(*self.body).text:
                 self.driver.find_element(*self.input_numero_lote).send_keys(f'{numero_processo}-{count}')
                 sleep(1)
@@ -183,6 +188,45 @@ class Tst(PageElement):
                     sleep(2)
                     
                 count += 1
+
+            self.driver.find_element(*self.alterar_guia).click()
+            sleep(2)
+            
+            fieldset_proc_element = self.driver.find_element(*self.fieldset_procedimentos)
+            fieldset_opms_element = self.driver.find_element(*self.fieldset_opms)
+            fieldset_outras_dis_element = self.driver.find_element(*self.fieldset_outras_despesas)
+
+            xpath_procedimento = self.xpath_proc(fieldset_proc_element, fieldset_opms_element, fieldset_outras_dis_element)
+
+    def xpath_proc(self, proc, *args):
+        for fieldset_element in args:
+            if not self.table_in_element(fieldset_element):
+                continue
+
+            df_tabela = read_html(fieldset_element.find_element(*self.table).get_attribute('outerHTML'), header=0)[0]
+            nome_quarta_coluna = df_tabela.columns.values.tolist()[3]
+            for i, linha in df_tabela.iterrows():
+                numero_proc_portal = self.remove_zeroes(f'{linha[nome_quarta_coluna]}'.replace('.0', ''))
+
+                if numero_proc_portal == proc:
+                    return
+
+    @staticmethod
+    def remove_zeroes(procedimento: str) -> str:
+        for k, _ in enumerate(procedimento):
+            if procedimento[0] != "0":
+                return procedimento
+            if procedimento[k] != "0":
+                procedimento = str(procedimento[k:])
+                return procedimento
+
+    def table_in_element(self, element):
+        self.driver.implicitly_wait(2)
+        try:
+            element.find_element(*self.table)
+            return True
+        except:
+            return False
     
     def pegar_xpath_tipo_guia(self, codigo_tipo_guia):
         match codigo_tipo_guia:

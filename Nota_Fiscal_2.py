@@ -388,7 +388,7 @@ def subirNF2(user, password):
         
         planilha = filedialog.askopenfilename()
 
-        url = 'https://www.amhp.com.br/'
+        url = 'https://www2.geap.org.br/auth/prestadorVue.asp'
         refresh = "https://df.issnetonline.com.br/online/Login/Login.aspx#"
         driver = webdriver.Chrome()
 

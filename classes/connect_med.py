@@ -133,6 +133,7 @@ class ConnectMed(PageElement):
     def filtrar_guia(self, numero_guia: str, numero_controle: str) -> None:
         if self.convenio == 'Petrobras':
             numero_guia = self.acrescenta_zeros(numero_guia)
+
         self.driver.find_element(*self.option_glosados).click()
         time.sleep(2)
         self.driver.find_element(*self.input_conta_prestador).clear()
@@ -144,6 +145,7 @@ class ConnectMed(PageElement):
         if 'Nenhum recurso para visualizar!' in self.driver.find_element(*self.div_contas_medicas).text:
             if self.convenio == 'Petrobras':
                 numero_controle = self.acrescenta_zeros(numero_controle)
+                
             self.driver.find_element(*self.option_glosados).click()
             time.sleep(2)
             self.driver.find_element(*self.input_conta_prestador).clear()
@@ -195,7 +197,7 @@ class ConnectMed(PageElement):
     
     @staticmethod
     def remove_zeroes(procedimento: str) -> str:
-        for k, v in enumerate(procedimento):
+        for k, _ in enumerate(procedimento):
             if procedimento[0] != "0":
                 return procedimento
             if procedimento[k] != "0":
