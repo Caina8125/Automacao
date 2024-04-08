@@ -156,7 +156,7 @@ class Tst(PageElement):
             numero_processo = arquivo['numero_processo']
             path_planilha = arquivo['path']
             df_processo = read_excel(path_planilha)
-            lote_tst = df_processo['Lote'][0]
+            lote_tst = f"{df_processo['Lote'][0]}".replace('.0', '')
 
             if self.is_nan(lote_tst):
                 lista_de_guias = set(df_processo['Controle Inicial'].astype(str).values.tolist())
@@ -239,12 +239,19 @@ class Tst(PageElement):
             nome_quarta_coluna = df_tabela.columns.values.tolist()[4]
             num = 1
 
-            for _, linha in df_tabela.iterrows():
-                num = 1
+            for i, linha in df_tabela.iterrows():
+                if i % 2 != 0:
+                    continue
+
                 numero_proc_portal = self.remove_zeroes(f'{linha[nome_quarta_coluna]}'.replace('.0', ''))
 
                 if numero_proc_portal == proc:
-                    self.driver.find_element(By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num}]/td[1]/input[5]').click()
+                    checkbox = By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num}]/td[1]/input[5]'
+                    checkbox_checked = self.driver.find_element(*checkbox).get_attribute('checked')
+
+                    if not checkbox_checked == 'true':
+                        self.driver.find_element(*checkbox).click()
+
                     sleep(2)
                     input_v_recurso = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[10]/input')
                     motivo_do_recurso = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[13]/input')
@@ -252,7 +259,9 @@ class Tst(PageElement):
                     class_motivo_do_recurso = self.driver.find_element(*motivo_do_recurso).get_attribute('class')
 
                     if self.guia_recursada(class_motivo_do_recurso):
-                        ...
+                        self.driver.find_element(*checkbox).click()
+                        print('Já recursado')
+                        return
 
                     input_qtd = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[7]/input')
                     input_porcentagem = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[9]/div/input')
@@ -275,6 +284,7 @@ class Tst(PageElement):
                     self.driver.find_element(*self.btn_ok_salvar).click()
                     sleep(1)
                     self.driver.find_element(By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num}]/td[1]/input[5]').click()
+                    return
 
                 num += 2
 
@@ -287,19 +297,6 @@ class Tst(PageElement):
         except:
             self.driver.implicitly_wait(30)
             return False
-    
-    def pegar_xpath_tipo_guia(self, codigo_tipo_guia):
-        match codigo_tipo_guia:
-            case 1:
-                return '/html/body/div[2]/div[2]/div/form/div[1]/fieldset/table/tbody/tr/td/fieldset[1]/select/option[2]'
-            case 2:
-                return '/html/body/div[2]/div[2]/div/form/div[1]/fieldset/table/tbody/tr/td/fieldset[1]/select/option[3]'
-            case 3:
-                return '/html/body/div[2]/div[2]/div/form/div[1]/fieldset/table/tbody/tr/td/fieldset[1]/select/option[4]'
-            case 4:
-                return '/html/body/div[2]/div[2]/div/form/div[1]/fieldset/table/tbody/tr/td/fieldset[1]/select/option[5]'
-            case _:
-                raise Exception('Tipo de guia inválido!')
             
     def ajustar_valor(self, valor_recurso, valor_recurso_default, input_qtd, input_porcentagem):
         if valor_recurso > valor_recurso_default:
@@ -314,6 +311,23 @@ class Tst(PageElement):
             self.driver.find_element(*input_porcentagem).send_keys(porcentagem)
             sleep(1)
 
+    def desmarcar_checkboxes(self, tamanho):
+        ...
+
+    @staticmethod
+    def pegar_xpath_tipo_guia(codigo_tipo_guia):
+        match codigo_tipo_guia:
+            case 1:
+                return '/html/body/div[2]/div[2]/div/form/div[1]/fieldset/table/tbody/tr/td/fieldset[1]/select/option[2]'
+            case 2:
+                return '/html/body/div[2]/div[2]/div/form/div[1]/fieldset/table/tbody/tr/td/fieldset[1]/select/option[3]'
+            case 3:
+                return '/html/body/div[2]/div[2]/div/form/div[1]/fieldset/table/tbody/tr/td/fieldset[1]/select/option[4]'
+            case 4:
+                return '/html/body/div[2]/div[2]/div/form/div[1]/fieldset/table/tbody/tr/td/fieldset[1]/select/option[5]'
+            case _:
+                raise Exception('Tipo de guia inválido!')
+            
     @staticmethod
     def guia_recursada(class_motivo_do_recurso):
         match class_motivo_do_recurso:
