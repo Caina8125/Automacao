@@ -134,6 +134,7 @@ class Tst(PageElement):
              if arquivo.endswith('.xlsx')]
 
     def login(self):
+        self.driver.implicitly_wait(30)
         self.driver.find_element(*self.input_usuario).send_keys(self.usuario)
         sleep(1.5)
         self.driver.find_element(*self.input_senha).send_keys(self.senha)
@@ -158,7 +159,7 @@ class Tst(PageElement):
             df_processo = read_excel(path_planilha)
             lote_tst = f"{df_processo['Lote'][0]}".replace('.0', '')
 
-            if self.is_nan(lote_tst):
+            if lote_tst == 'nan':
                 lista_de_guias = set(df_processo['Controle Inicial'].astype(str).values.tolist())
                 xpath_tipo_guia = self.pegar_xpath_tipo_guia(int(df_processo['Tipo Guia'][0]))
                 self.driver.find_element(*self.input_numero_lote).clear()
@@ -253,9 +254,15 @@ class Tst(PageElement):
                         self.driver.find_element(*checkbox).click()
 
                     sleep(2)
-                    input_v_recurso = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[10]/input')
+                    input_valor_total = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[10]/input')
+                    input_v_recurso = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[12]/input')
                     motivo_do_recurso = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[13]/input')
-                    valor_recurso_default = float(self.driver.find_element(*input_v_recurso).get_attribute('value').replace(',', '.'))
+                    input_valor_pago = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[11]/input')
+                    input_valor_unitario = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[8]/input')
+                    valor_recurso_default = float(self.driver.find_element(*input_valor_total).get_attribute('value').replace(',', '.'))
+                    valor_recurso_portal = float(self.driver.find_element(*input_v_recurso).get_attribute('value').replace(',', '.'))
+                    valor_pago = float(self.driver.find_element(*input_valor_pago).get_attribute('value').replace(',', '.'))
+                    valor_unitario = float(self.driver.find_element(*input_valor_unitario).get_attribute('value').replace(',', '.'))
                     class_motivo_do_recurso = self.driver.find_element(*motivo_do_recurso).get_attribute('class')
 
                     if self.guia_recursada(class_motivo_do_recurso):
@@ -267,7 +274,7 @@ class Tst(PageElement):
                     input_porcentagem = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[9]/div/input')
 
 
-                    self.ajustar_valor(valor_recurso,  valor_recurso_default, input_qtd, input_porcentagem)
+                    self.ajustar_valor(valor_recurso, valor_recurso_portal,  valor_recurso_default, valor_unitario, valor_pago, input_porcentagem, input_qtd)
                     self.driver.find_element(*motivo_do_recurso).click()
                     sleep(1.5)
                     self.driver.find_element(*self.input_campo_motivo).send_keys(justificativa)
@@ -298,15 +305,15 @@ class Tst(PageElement):
             self.driver.implicitly_wait(30)
             return False
             
-    def ajustar_valor(self, valor_recurso, valor_recurso_default, input_qtd, input_porcentagem):
-        if valor_recurso > valor_recurso_default:
-            quantidade = self.pegar_quantidade(valor_recurso, valor_recurso_default)
+    def ajustar_valor(self, valor_recurso, valor_recurso_portal, valor_recurso_default, valor_unitario, valor_pago, input_porcentagem, input_qtd):
+        if valor_recurso > valor_recurso_portal:
+            quantidade = self.pegar_quantidade(valor_recurso, valor_unitario, valor_pago)
             self.driver.find_element(*input_qtd).clear()
             self.driver.find_element(*input_qtd).send_keys(quantidade)
             sleep(1)
 
-        elif valor_recurso < valor_recurso_default:
-            porcentagem = self.pegar_porcentagem(valor_recurso, valor_recurso_default)
+        elif valor_recurso < valor_recurso_portal:
+            porcentagem = self.pegar_porcentagem(valor_recurso, valor_recurso_default, valor_pago)
             self.driver.find_element(*input_porcentagem).clear()
             self.driver.find_element(*input_porcentagem).send_keys(porcentagem)
             sleep(1)
@@ -348,12 +355,12 @@ class Tst(PageElement):
                 return procedimento
 
     @staticmethod    
-    def pegar_quantidade(valor: float, valor_default_portal: float):
-        return str(1 + ((valor - valor_default_portal) / valor_default_portal)).replace('.', ',')
+    def pegar_quantidade(valor: float, valor_unitario: float, valor_pago):
+        return str((valor + valor_pago)/valor_unitario).replace('.', ',')
     
     @staticmethod
-    def pegar_porcentagem(valor: float, valor_default_portal: float):
-        return str(1 - ((valor_default_portal - valor) / valor_default_portal)).replace('.', ',')
+    def pegar_porcentagem(valor: float, valor_default_portal: float, valor_pago):
+        return str(1 - ((valor_default_portal - (valor + valor_pago)) / valor_default_portal)).replace('.', ',')
     
     @staticmethod
     def is_nan(valor):
