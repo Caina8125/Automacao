@@ -3,7 +3,8 @@ import math
 from os import listdir
 from time import sleep
 from tkinter import filedialog
-from pandas import read_excel, read_html
+from openpyxl import load_workbook
+from pandas import DataFrame, ExcelWriter, read_excel, read_html
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium import webdriver
 from seleniumwire import webdriver
@@ -118,8 +119,9 @@ class Tst(PageElement):
     input_campo_motivo = (By.ID, 'idCampoMotivoTemp')
     btn_ok_motivo = (By.XPATH, '/html/body/div[4]/div[11]/div/button')
     botao_salvar_guia = (By.ID, 'botaoSalvarAjax')
-    btn_nao_adiciona = (By.XPATH, '/html/body/div[8]/div[10]/div/button[1]')
+    # modal = (By.CSS_SELECTOR, 'body > div:nth-child(11)')
     btn_ok_salvar = (By.XPATH, '/html/body/div[6]/div[10]/div/button')
+    btn_voltar = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/div/input[3]')
 
     def __init__(self, driver: WebDriver, usuario: str, senha: str, diretorio: str, url: str = '') -> None:
         super().__init__(driver, url)
@@ -160,50 +162,24 @@ class Tst(PageElement):
             lote_tst = f"{df_processo['Lote'][0]}".replace('.0', '')
 
             if lote_tst == 'nan':
-                lista_de_guias = set(df_processo['Controle Inicial'].astype(str).values.tolist())
+                lista_de_guias = list(set(df_processo['Controle Inicial'].astype(str).values.tolist()))
                 xpath_tipo_guia = self.pegar_xpath_tipo_guia(int(df_processo['Tipo Guia'][0]))
-                self.driver.find_element(*self.input_numero_lote).clear()
-                self.driver.find_element(*self.input_numero_lote).send_keys(numero_processo)
-                sleep(1.5)
-                self.driver.find_element(*self.btn_consultar).click()
-                sleep(1.5)
-                self.driver.find_element(*self.visualizar_demonst_pagamento).click()
-                sleep(1.5)
-                self.driver.find_element(*self.clique_aqui).click()
-                sleep(1.5)
-                self.driver.find_element(*self.select_tipo_guia).click()
-                sleep(1.5)
-                self.driver.find_element(By.XPATH, xpath_tipo_guia).click()
-                sleep(1.5)
-                self.driver.find_element(*self.adicionar_guias).click()
-                sleep(1.5)
+                self.acessar_lote(numero_processo, xpath_tipo_guia)
 
                 while 'Aguarde, consultando...' in self.driver.find_element(*self.body).text:
                     sleep(2)
                 
-                df_tabela_guia = read_html(self.driver.find_element(*self.table_guias).get_attribute('outerHTML'), header=0)[0]
+                self.click_checkbox_guia(lista_de_guias)
 
-                for ind, l in df_tabela_guia.iterrows():
-                    n_guia_prestador = f"{l['N° da Guia do Prestador']}".replace('.0', '')
+                n_lote = self.gera_novo_lote(numero_processo)
 
-                    if n_guia_prestador in lista_de_guias:
-                        self.driver.find_element(By.XPATH, f'/html/body/div[2]/div[2]/div/form/div[2]/div[2]/fieldset/div/div/table/tbody/tr[{ind+1}]/td[1]/input[2]').click()
-                        sleep(1)
-
-                self.driver.find_element(*self.btn_adicionar).click()
-                sleep(2)
-                count = 1
-
-                while 'Lote de Guias incluído(a) com sucesso.' not in self.driver.find_element(*self.body).text:
-                    self.driver.find_element(*self.input_numero_lote).clear()
-                    self.driver.find_element(*self.input_numero_lote).send_keys(f'{numero_processo}-{count}')
-                    sleep(1)
-                    self.driver.find_element(*self.btn_salvar).click()
-
-                    while 'Aguarde, processando...' in self.driver.find_element(*self.body).text:
-                        sleep(2)
-                        
-                    count += 1
+                df_processo['Lote'] = n_lote
+                self.salvar_valor_planilha(
+                    path_planilha=path_planilha,
+                    valor=df_processo['Lote'].values.tolist(),
+                    coluna=4,
+                    linha=1
+                )
 
             else:
                 self.driver.get('https://aplicacao7.tst.jus.br/tstsaude/LotesRecursoConsultar.do?load=1')
@@ -213,68 +189,62 @@ class Tst(PageElement):
                 self.driver.find_element(*self.btn_consultar_recurso).click()
                 sleep(1.5)
                 self.driver.find_element(*self.visualizar_lote).click()
-        
-            for index, linha in df_processo.iterrows():
-                controle_inicial = f"{linha['Controle Inicial']}".replace('.0', '')
-                procedimento = f"{linha['Procedimento']}".replace('.0', '')
-                valor_recurso = float(f"{linha['Valor Recursado']}".replace(',','.'))
-                justificativa = linha['Recurso Glosa']
+                
+            numero_anterior = ''
+            for i, linha in df_processo.iterrows():
 
+                if linha['Recursado no Portal'] == 'Sim' or linha['Recursado no Portal'] == 'Não encontrado':
+                    continue
+
+                controle_inicial = f"{linha['Controle Inicial']}".replace('.0', '')
+
+                if controle_inicial == numero_anterior:
+                    continue
+
+                numero_anterior = f"{linha['Controle Inicial']}".replace('.0', '')
                 self.driver.find_element(*self.input_numero_guia).send_keys(controle_inicial)
                 sleep(1)
                 self.driver.find_element(*self.alterar_guia).click()
                 sleep(2)
+
+                df_guia = self.df_guia(df_processo, controle_inicial)
+
+                for num, l in df_guia.iterrows():
+
+                    if l['Recursado no Portal'] == 'Sim' or l['Recursado no Portal'] == 'Não encontrado':
+                        continue
+
+                    linha_na_planilha = i + num + 1
+                    procedimento = f"{l['Procedimento']}".replace('.0', '')
+                    valor_recurso = float(f"{l['Valor Recursado']}".replace(',','.'))
+                    justificativa = l['Recurso Glosa']
                 
-                fieldset_proc_element = self.driver.find_element(*self.fieldset_procedimentos)
-                fieldset_opms_element = self.driver.find_element(*self.fieldset_opms)
-                fieldset_outras_dis_element = self.driver.find_element(*self.fieldset_outras_despesas)
+                    dict_procedimento = self.encontra_id_e_table_do_codigo(procedimento)
 
-                xpath_procedimento = self.xpath_proc(procedimento, valor_recurso, justificativa, fieldset_proc_element, fieldset_opms_element, fieldset_outras_dis_element)
-
-    def xpath_proc(self, proc, valor_recurso, justificativa, *args):
-        for fieldset_element in args:
-            if not self.table_in_element(fieldset_element):
-                continue
-
-            df_tabela = read_html(fieldset_element.find_element(*self.table).get_attribute('outerHTML'), header=0)[0]
-            nome_quarta_coluna = df_tabela.columns.values.tolist()[4]
-            num = 1
-
-            for i, linha in df_tabela.iterrows():
-                if i % 2 != 0:
-                    continue
-
-                numero_proc_portal = self.remove_zeroes(f'{linha[nome_quarta_coluna]}'.replace('.0', ''))
-
-                if numero_proc_portal == proc:
-                    checkbox = By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num}]/td[1]/input[5]'
-                    checkbox_checked = self.driver.find_element(*checkbox).get_attribute('checked')
-
-                    if not checkbox_checked == 'true':
-                        self.driver.find_element(*checkbox).click()
-
+                    if not dict_procedimento:
+                        self.salvar_valor_planilha(
+                            path_planilha,
+                            'Não encontrado',
+                            6,
+                            linha_na_planilha
+                        )
+                        df_processo['Recursado no Portal'][linha + l] = 'Não encontrado'
+                        continue
+                    
+                    id_parcial_tag = self.pegar_id_parcial_tag(dict_procedimento['fieldset'], dict_procedimento['id_proc'])
+                    id_motivo_glosa = self.pegar_id_motivo_glosa(dict_procedimento['fieldset'], dict_procedimento['id_proc'])
+                    self.driver.find_element(By.ID, 'ckb' + id_parcial_tag).click()
                     sleep(2)
-                    input_valor_total = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[10]/input')
-                    input_v_recurso = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[12]/input')
-                    motivo_do_recurso = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[13]/input')
-                    input_valor_pago = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[11]/input')
-                    input_valor_unitario = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[8]/input')
-                    valor_recurso_default = float(self.driver.find_element(*input_valor_total).get_attribute('value').replace(',', '.'))
-                    valor_recurso_portal = float(self.driver.find_element(*input_v_recurso).get_attribute('value').replace(',', '.'))
-                    valor_pago = float(self.driver.find_element(*input_valor_pago).get_attribute('value').replace(',', '.'))
-                    valor_unitario = float(self.driver.find_element(*input_valor_unitario).get_attribute('value').replace(',', '.'))
-                    class_motivo_do_recurso = self.driver.find_element(*motivo_do_recurso).get_attribute('class')
+                    valor_total = float(self.driver.find_element(By.ID, 'tot' + id_parcial_tag).get_attribute('value').replace(',', '.'))
+                    valor_recurso_portal = float(self.driver.find_element(By.ID, 'rec' + id_parcial_tag).get_attribute('value').replace(',', '.'))
+                    valor_pago = float(self.driver.find_element(By.ID, 'pago' + id_parcial_tag).get_attribute('value').replace(',', '.'))
+                    valor_unitario = float(self.driver.find_element(By.ID, 'valor' + id_parcial_tag).get_attribute('value').replace(',', '.'))
 
-                    if self.guia_recursada(class_motivo_do_recurso):
-                        self.driver.find_element(*checkbox).click()
-                        print('Já recursado')
-                        return
+                    input_qtd = (By.ID, 'qtd' + id_parcial_tag)
+                    input_porcentagem = (By.ID, 'perc' + id_parcial_tag)
+                    motivo_do_recurso = (By.ID, id_motivo_glosa)
 
-                    input_qtd = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[7]/input')
-                    input_porcentagem = (By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num+1}]/td[9]/div/input')
-
-
-                    self.ajustar_valor(valor_recurso, valor_recurso_portal,  valor_recurso_default, valor_unitario, valor_pago, input_porcentagem, input_qtd)
+                    self.ajustar_valor(valor_recurso, valor_recurso_portal,  valor_total, valor_unitario, valor_pago, input_porcentagem, input_qtd)
                     self.driver.find_element(*motivo_do_recurso).click()
                     sleep(1.5)
                     self.driver.find_element(*self.input_campo_motivo).send_keys(justificativa)
@@ -286,14 +256,25 @@ class Tst(PageElement):
                     while 'Aguarde, processando...' in self.driver.find_element(*self.body).text:
                         sleep(2)
 
-                    self.driver.find_element(*self.btn_nao_adiciona).click()
-                    sleep(1)
-                    self.driver.find_element(*self.btn_ok_salvar).click()
-                    sleep(1)
-                    self.driver.find_element(By.XPATH, f'/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]/table/tbody/tr[{num}]/td[1]/input[5]').click()
-                    return
+                    self.salvar_valor_planilha(
+                        path_planilha,
+                        'Sim',
+                        6,
+                        linha_na_planilha
+                    )
+                    df_processo['Recursado no Portal'][i + num] = 'Sim'
 
-                num += 2
+                    sleep(1)
+                    self.clickar_btn('Não')
+                    sleep(1)
+                    self.clickar_btn('Ok')
+                    sleep(1)
+
+                self.driver.find_element(*self.btn_voltar).click()
+            
+            self.caminho()
+        
+        ...
 
     def table_in_element(self, element):
         self.driver.implicitly_wait(2)
@@ -305,7 +286,7 @@ class Tst(PageElement):
             self.driver.implicitly_wait(30)
             return False
             
-    def ajustar_valor(self, valor_recurso, valor_recurso_portal, valor_recurso_default, valor_unitario, valor_pago, input_porcentagem, input_qtd):
+    def ajustar_valor(self, valor_recurso, valor_recurso_portal, valor_total, valor_unitario, valor_pago, input_porcentagem, input_qtd):
         if valor_recurso > valor_recurso_portal:
             quantidade = self.pegar_quantidade(valor_recurso, valor_unitario, valor_pago)
             self.driver.find_element(*input_qtd).clear()
@@ -313,14 +294,130 @@ class Tst(PageElement):
             sleep(1)
 
         elif valor_recurso < valor_recurso_portal:
-            porcentagem = self.pegar_porcentagem(valor_recurso, valor_recurso_default, valor_pago)
+            porcentagem = self.pegar_porcentagem(valor_recurso, valor_total, valor_pago)
             self.driver.find_element(*input_porcentagem).clear()
             self.driver.find_element(*input_porcentagem).send_keys(porcentagem)
             sleep(1)
 
-    def desmarcar_checkboxes(self, tamanho):
-        ...
+    def acessar_lote(self, numero_processo, xpath_tipo_guia):
+        self.driver.find_element(*self.input_numero_lote).clear()
+        self.driver.find_element(*self.input_numero_lote).send_keys(numero_processo)
+        sleep(1.5)
+        self.driver.find_element(*self.btn_consultar).click()
+        sleep(1.5)
+        self.driver.find_element(*self.visualizar_demonst_pagamento).click()
+        sleep(1.5)
+        self.driver.find_element(*self.clique_aqui).click()
+        sleep(1.5)
+        self.driver.find_element(*self.select_tipo_guia).click()
+        sleep(1.5)
+        self.driver.find_element(By.XPATH, xpath_tipo_guia).click()
+        sleep(1.5)
+        self.driver.find_element(*self.adicionar_guias).click()
+        sleep(1.5)
 
+    def click_checkbox_guia(self, lista_de_guias):
+        df_tabela_guia = read_html(self.driver.find_element(*self.table_guias).get_attribute('outerHTML'), header=0)[0]
+        for ind, l in df_tabela_guia.iterrows():
+            n_guia_prestador = f"{l['N° da Guia do Prestador']}".replace('.0', '')
+
+            if n_guia_prestador in lista_de_guias:
+                self.driver.find_element(By.XPATH, f'/html/body/div[2]/div[2]/div/form/div[2]/div[2]/fieldset/div/div/table/tbody/tr[{ind+1}]/td[1]/input[2]').click()
+                sleep(1)
+
+        self.driver.find_element(*self.btn_adicionar).click()
+        sleep(2)
+
+    def gera_novo_lote(self, numero_processo):
+        count = 1
+        while 'Lote de Guias incluído(a) com sucesso.' not in self.driver.find_element(*self.body).text:
+            numero_lote = f'{numero_processo}-{count}'
+            self.driver.find_element(*self.input_numero_lote).clear()
+            self.driver.find_element(*self.input_numero_lote).send_keys(numero_lote)
+            sleep(1)
+            self.driver.find_element(*self.btn_salvar).click()
+
+            while 'Aguarde, processando...' in self.driver.find_element(*self.body).text:
+                sleep(2)
+            
+            count += 1
+
+        return numero_lote
+
+    def encontra_id_e_table_do_codigo(self, codigo_proc):
+        fieldsets = [
+            self.driver.find_element(*self.fieldset_procedimentos),
+            self.driver.find_element(*self.fieldset_opms),
+            self.driver.find_element(*self.fieldset_outras_despesas)
+        ]
+
+        for fieldset_element in fieldsets:
+            if not self.table_in_element(fieldset_element):
+                continue
+            nome_fieldset = fieldset_element.find_element(By.TAG_NAME, 'legend').text
+            td_elements = fieldset_element.find_elements(By.TAG_NAME, 'td')
+            for td_element in td_elements:
+                text_element = self.remove_zeroes(td_element.text)
+
+                if text_element == codigo_proc:
+                    id_proc = td_element.find_element(By.TAG_NAME, 'input').get_attribute('id').split('_')[1]
+                    return {
+                        'fieldset': nome_fieldset,
+                        'id_proc': id_proc,
+                    }
+                
+        return {}
+    
+    def pegar_id_parcial_tag(self, nome_fieldset, id_proc):
+        match nome_fieldset:
+            case 'Procedimentos Realizados':
+                return f'Proc_{id_proc}'
+            case 'OPMs Realizados':
+                return f'Opm_{id_proc}'
+            case 'Outras Despesas':
+                return f'Desp_{id_proc}'
+            
+    def pegar_id_motivo_glosa(self, nome_fieldset, id_proc):
+        match nome_fieldset:
+            case 'Procedimentos Realizados':
+                return f'bot_sem_motivo_proc_{id_proc}'
+            case 'OPMs Realizados':
+                return f'bot_sem_motivo_opm_{id_proc}'
+            case 'Outras Despesas':
+                return f'bot_sem_motivo_desp_{id_proc}'
+            
+    def clickar_btn(self, btn_text):
+        botoes = self.driver.find_elements(By.TAG_NAME, 'button')
+
+        for botao in botoes:
+            if botao.text == btn_text:
+                botao.click()
+                return
+            
+    def salvar_valor_planilha(self, path_planilha: str, valor, coluna: int, linha: int):
+        if isinstance(valor, list) or isinstance(valor, tuple):
+            dados = {"Recursado no Portal" : valor}
+        else:
+            dados = {"Recursado no Portal" : [valor]}
+
+        df_dados = DataFrame(dados)
+        book = load_workbook(path_planilha)
+        writer = ExcelWriter(path_planilha, engine='openpyxl')
+        writer.book = book
+        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+        df_dados.to_excel(writer, 'Recurso', startrow=linha, startcol=coluna, header=False, index=False)
+        writer.save()
+        writer.close()
+            
+    @staticmethod
+    def df_guia(df_processo:DataFrame, controle_inicial):
+        df_guia = df_processo.loc[(df_processo["Controle Inicial"] == int(controle_inicial))]
+
+        if df_guia.empty:
+            df_guia = df_processo.loc[(df_processo["Controle Inicial"] == controle_inicial)]
+        
+        return df_guia
+            
     @staticmethod
     def pegar_xpath_tipo_guia(codigo_tipo_guia):
         match codigo_tipo_guia:
@@ -359,8 +456,8 @@ class Tst(PageElement):
         return str((valor + valor_pago)/valor_unitario).replace('.', ',')
     
     @staticmethod
-    def pegar_porcentagem(valor: float, valor_default_portal: float, valor_pago):
-        return str(1 - ((valor_default_portal - (valor + valor_pago)) / valor_default_portal)).replace('.', ',')
+    def pegar_porcentagem(valor: float, valor_total: float, valor_pago):
+        return str(1 - ((valor_total - (valor + valor_pago)) / valor_total)).replace('.', ',')
     
     @staticmethod
     def is_nan(valor):
