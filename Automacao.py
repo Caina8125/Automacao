@@ -10,6 +10,7 @@ from classes.enviar_pdf_benner import enviar_pdf_benner
 from classes.enviar_xml_benner import enviar_xml_benner
 from classes.orizon import inciar_envio_de_anexos
 from classes.salutis_casembrapa import recursar_casembrapa
+from classes.tst import iniciar_recursar_tst
 from lista_automacoes import LISTA_DE_AUTOMACOES
 from filtro_matricula import filtrar_matricula
 from planilha_serpro import exec_planilha
@@ -512,6 +513,9 @@ class Application:
             case "Glosa - Recursar TJDFT":
                 self.inserir_login(recursar_tjdft)
 
+            case "Glosa - Recursar TST":
+                self.inserir_login(iniciar_recursar_tst)
+
             case "Integralis - Enviar anexos Bradesco":
                 self.inserir_combobox_clinicas()
 
@@ -615,7 +619,6 @@ class ImageLabel(tk.Label):
         if self.frames:
             self.config(image=next(self.frames))
             self.after(self.delay, self.next_frame)
-
 
 #-------------------------------------------------------------------------------------------
 def data_valida(date_string1, date_string2, date_format="%d/%m/%Y"):

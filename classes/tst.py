@@ -3,6 +3,7 @@ import math
 from os import listdir
 from time import sleep
 from tkinter import filedialog
+from tkinter.messagebox import showerror, showinfo
 from openpyxl import load_workbook
 from pandas import DataFrame, ExcelWriter, read_excel, read_html
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -150,7 +151,7 @@ class Tst(PageElement):
         self.driver.find_element(*self.manter_demonstrativo_de_pag).click()
         sleep(1.5)
 
-    def to_be_named(self):
+    def recursar_tst(self):
         self.open()
         self.login()
         self.caminho()
@@ -274,7 +275,7 @@ class Tst(PageElement):
             
             self.caminho()
         
-        ...
+        self.driver.quit()
 
     def table_in_element(self, element):
         self.driver.implicitly_wait(2)
@@ -466,30 +467,34 @@ class Tst(PageElement):
         except:
             return False
 
-if __name__ == '__main__':
-    user = 'lucas.paz'
-    password = 'WheySesc2024*'
-    url = ' http://aplicacao7.tst.jus.br/tstsaude'
-    pasta = filedialog.askdirectory()
-
-    options = {
-        'proxy' : {
-            'http': f'http://{user}:{password}@10.0.0.230:3128',
-            'https': f'http://{user}:{password}@10.0.0.230:3128'
-        },
-        'verify_ssl': False
-    }
-
-    chrome_options = Options()
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument('--ignore-certificate-errors')
+def iniciar_recursar_tst(user, password):
     try:
-        servico = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
-    except:
-        driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
-    usuario = "U000971"
-    senha = "X11254S"
-    tst = Tst(driver, usuario, senha, pasta, url)
-    tst.to_be_named()
-    driver.quit()
+        url = ' http://aplicacao7.tst.jus.br/tstsaude'
+        pasta = filedialog.askdirectory()
+
+        options = {
+            'proxy' : {
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+                'https': f'http://{user}:{password}@10.0.0.230:3128'
+            },
+            'verify_ssl': False
+        }
+
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
+        usuario = "U000971"
+        senha = "X11254S"
+        tst = Tst(driver, usuario, senha, pasta, url)
+        tst.recursar_tst()
+        driver.quit()
+        showinfo('', 'Recursos finalizados!')
+    
+    except Exception as e:
+        showerror('Automação', f'Ocorreu uma exceção não trata\n{e.__class__.__name__}:\n{e}')
+        driver.quit()

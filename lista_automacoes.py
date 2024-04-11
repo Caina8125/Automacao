@@ -53,6 +53,7 @@ LISTA_DE_AUTOMACOES = [ "Faturamento - Anexar Guia Geap",
                         "Glosa - Recursar STF",
                         "Glosa - Recursar STM",
                         "Glosa - Recursar TJDFT",
+                        "Glosa - Recursar TST",
                         "Integralis - Enviar anexos Bradesco",
                         "Relatório - Brindes",
                         "Tesouraria - Nota Fiscal"
