@@ -97,14 +97,13 @@ def fazer_envio_xml(user, password):
         driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
     try:
+        usuario = "00735860000173",
+        senha = "2024)Amhpdf!"
         global acessar_portal
-        acessar_portal = BuscarProtocolo(driver, url)
+        acessar_portal = BuscarProtocolo(usuario, senha,driver, url)
         acessar_portal.open()
 
-        acessar_portal.login_layout_novo(
-            usuario = "00735860000173",
-            senha = "2024)Amhpdf!"
-        )
+        acessar_portal.login_layout_novo()
         enviar_xml = EnviarXML(driver, url='')
         enviar_xml.caminho()
         lista_de_processos = enviar_xml.enviar_arquivo(lista_de_arquivos)
