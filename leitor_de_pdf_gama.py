@@ -158,7 +158,7 @@ class PDFReader():
             word_dict: dict = {}
 
             for pagina_numero in range(len(leitor_pdf.pages)):
-                pagina: int = leitor_pdf.pages[pagina_numero]
+                pagina = leitor_pdf.pages[pagina_numero]
                 texto_sem_quebra: str = ' '.join(pagina.extract_text().split('\n'))
                 if 'PROTOCOLO ENVIO LOTE DE CONTAS MÉDICAS' in texto_sem_quebra:
                     word_dict['peg'] = texto_sem_quebra.split(' ')
