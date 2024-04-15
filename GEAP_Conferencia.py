@@ -227,7 +227,7 @@ def conferencia(user, password):
 
         time.sleep(2)
 
-        Conferencia(driver, url).pesquisar_envio()
+        Conferencia(driver, url).pesquisar_envio(planilha)
 
         showinfo( 'Automação' , f"Arquivos anexados!" )
 

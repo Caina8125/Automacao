@@ -4,26 +4,28 @@ import PyPDF2
 class ConferenciaProtocolos():
     lista_convenios_guias_digitalizadas = ['(433)', '(457)', '(381)', '(319)', '(225)', '(056)', '(023)']
 
-    def procurar_arquivo(self, nome_arquivo, diretorio, processo):
+    def remessa_em_arquivo_unico(self, nome_arquivo, diretorio, processo):
         for root, dirs, files in os.walk(diretorio):
-            arquivo = self.file_is_in_list(nome_arquivo, files)
+            arquivo = self.name_is_in_list(nome_arquivo, files)
             if arquivo:
                 path_arquivo = os.path.join(root, arquivo)
                 if self.ler_pdfs(path_arquivo, processo):
                     return True
         return False
     
-    def file_is_in_list(self, nome, list_of_files):
-        for file in list_of_files:
-            if nome in file:
-                return file
-            
-        return None
-    
-    def procurar_sub_dir(nome_dir, diretorio):
+    def remessa_is_diretorio(self, diretorio, remessa, lista_processos):
         for root, dirs, files in os.walk(diretorio):
-            if nome_dir in dirs:
-                return os.path.join(root, nome_dir)
+            print(root)
+            if remessa in root.split('/')[-1]:
+                for processo in lista_processos:
+                    if self.name_is_in_list():
+                        ...
+    
+    def name_is_in_list(self, nome, str_list):
+        for name in str_list:
+            if nome in name:
+                return name
+            
         return None
     
     def ler_pdfs(self, arquivo: str, processo) -> bool:
@@ -52,11 +54,16 @@ class ConferenciaProtocolos():
                 return False
         return True
     
-    def _():
+    def _(self):
+        dir = ...
         n_remessa = ...
         nome_convenio = ...
+        processo = ...
 
-        if ... in ...:
+        if self.remessa_em_arquivo_unico(n_remessa, dir, processo):
+            ...
+        
+        elif self.remessa_is_diretorio():
             ...
 
-print(ConferenciaProtocolos().procurar_arquivo('46160', r'\\10.0.0.239\financeiro - faturamento\Protocolos de Convênios - Aceite', '2237821'))
+ConferenciaProtocolos().remessa_is_diretorio(r'\\10.0.0.239\financeiro - faturamento\Protocolos de Convênios - Aceite\(20) CONAB\2024', '45271')
