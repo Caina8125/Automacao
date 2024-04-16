@@ -1,4 +1,5 @@
 LISTA_DE_AUTOMACOES = [ "Faturamento - Anexar Guia Geap",
+                        "Faturamento - Conferência de Protocolos",
                         "Faturamento - Conferência GEAP",
                         "Faturamento - Conferência Bacen",
                         "Faturamento - Enviar PDF Bacen",

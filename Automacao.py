@@ -5,6 +5,7 @@ import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
 from bacen_envio_pdf import enviar_pdf_bacen
+from classes.conferencia_protocolos import executar_conferencia_arquivos
 from classes.connect_med import recursar_gama
 from classes.enviar_pdf_benner import enviar_pdf_benner
 from classes.enviar_xml_benner import enviar_xml_benner
@@ -342,6 +343,11 @@ class Application:
         match automacao:
             case "Faturamento - Anexar Guia Geap":
                 self.inserir_login(anexar_guias)
+
+            case "Faturamento - Conferência de Protocolos":
+                self.gif()
+                executar_conferencia_arquivos()
+                self.reiniciar()
 
             case "Faturamento - Conferência GEAP":
                 self.inserir_login(conferencia)
