@@ -57,11 +57,11 @@ class ConferenciaProtocolos():
                 return False
         return True
     
-    def n_remessa(self, path):
-        return f"{read_excel(path, engine='xlrd')['Unnamed: 19'][8]}".replace('.0', '')
+    def n_remessa(self, path: str):
+        return path.split('/')[-1].replace('.xlsx', '').replace('.xls', '')
     
     def cod_convenio(self, path):
-        codigo_convenio = read_excel(path, engine='xlrd')['Unnamed: 1'][4].split(' - ')[-1].replace('(', '').replace(')', '')
+        codigo_convenio = read_excel(path, engine='xlrd')['Unnamed: 2'][9].split(' - ')[-1].replace('(', '').replace(')', '')
         for k, _ in enumerate(codigo_convenio):
             if codigo_convenio[k] != "0":
                 codigo_convenio = str(codigo_convenio[k:])
@@ -70,14 +70,13 @@ class ConferenciaProtocolos():
         return f'({codigo_convenio})'
     
     def conferir_pasta(self, path_planilha):
-        df_plan = read_excel(path_planilha, engine='xlrd', header=13).iloc[:-8]
-        df_plan = df_plan.loc[:, ['Unnamed: 5', 'Valor']].dropna()
-        df_plan = df_plan.rename(columns={'Unnamed: 5': 'Fatura'})
+        df_plan = read_excel(path_planilha, engine='xlrd')
+        df_plan = read_excel(path_planilha, engine='xlrd', header=23).iloc[:-6].dropna(axis=1)
         directorio_finan_fat = r'\\10.0.0.239\financeiro - faturamento\Protocolos de Convênios - Aceite'
         diretorio_guiasscaneadas = r'\\10.0.0.239\guiasscaneadas'
         n_remessa = self.n_remessa(path_planilha)
         codigo_convenio = self.cod_convenio(path_planilha)
-        lista_de_processos = df_plan['Fatura'].astype(str).values.tolist()
+        lista_de_processos = df_plan['Nº Fatura'].astype(str).values.tolist()
         dados = []
 
         if codigo_convenio in self.lista_convenios_guias_digitalizadas:
@@ -193,3 +192,6 @@ def executar_conferencia_arquivos():
 
         else:
             showinfo('', "Nenhum registro encontrado na pasta do convênio!")
+
+if __name__ == '__main__':
+    executar_conferencia_arquivos()
