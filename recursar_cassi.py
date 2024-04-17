@@ -90,7 +90,7 @@ class Recursar(PageElement):
                     if "P" in protocolo and not protocolo_pagamento.isdigit():    
                         self.driver.get('https://servicosonline.cassi.com.br/Prestador/RecursoRevisaoPagamento/TISS/DemonstrativoRecursoGlosa/Index')
                         time.sleep(2)
-                        self.driver.find_element(*self.protocolo_de_revisao_input).send_keys(protocolo)
+                        self.driver.find_element(*self.protocolo_de_revisao_input).send_keys(protocolo.replace('P', ''))
                         time.sleep(2)
                         self.driver.find_element(*self.consultar).click()
                         time.sleep(2)
