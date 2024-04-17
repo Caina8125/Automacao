@@ -28,12 +28,13 @@ class Login(PageElement):
 
 
 class caminho(PageElement):
-    recurso = (By.XPATH, '//*[@id="sidebar-menu"]/li[26]/a/span[1]')
-    novo = (By.XPATH, '//*[@id="sidebar-menu"]/li[26]/ul/li[1]/a/span[1]')
+    lotes_de_pagamento = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[23]/a/span[1]')
+    pesquisar_lotes = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[23]/ul/li[3]/a/span')
     proximo = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
     fechar = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[3]')
     fechar_botao = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
     fechar_alerta = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
+    filtro = (By.XPATH, '//*[@id="Filtrar"]/span')
 
     def exe_caminho(self):
         try:
@@ -57,10 +58,11 @@ class caminho(PageElement):
         except:
             print("Não teve Modal")
             pass
-        self.driver.find_element(*self.recurso).click()
+        self.driver.find_element(*self.lotes_de_pagamento).click()
         time.sleep(2)
-        self.driver.find_element(*self.novo).click()
-        time.sleep(3)
+        self.driver.find_element(*self.pesquisar_lotes).click()
+        time.sleep(2)
+        
         try:
             modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
             self.driver.find_element(*self.fechar_botao).click()
@@ -82,9 +84,8 @@ class caminho(PageElement):
             print("Não teve Modal")
             pass
 
-    def novo_rec(self):
-        self.driver.find_element(*self.novo).click()
-        print('Dentro de novo recurso')
+        self.driver.find_element(*self.filtro).click()
+        time.sleep(2)
 
     def Alert(self):
         self.driver.find_element(*self.proximo).click()
@@ -94,7 +95,7 @@ class caminho(PageElement):
 class inserir_dados(PageElement):
     protocolo = (By.XPATH, '//*[@id="Protocolo"]')
     pesquisar = (By.XPATH, '//*[@id="btn-Pesquisar"]/span')
-    selecionar = (By.XPATH, '//*[@id="DataGrid"]/tbody[1]/tr[1]/td[2]/input')
+    selecionar = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div/bc-smart-table-manager/div/div/div[2]/div/bc-smart-table/div[2]/table/tbody[1]/tr[1]/td[2]/input')
     atualizar = (By.XPATH, '//*[@id="atualizar-situacao-lote"]')
     recursoclick = (By.XPATH, '//*[@id="recurso-glosa"]/span')
     controle = (By.XPATH, '//*[@id="GuiasGlosadasTable"]/thead/tr[1]/th/div[2]/input')
@@ -120,28 +121,22 @@ class inserir_dados(PageElement):
     fechar_recurso = (By.XPATH, '/html/body/bc-modal-evolution/bc-modal-justificar-glosa/div/div/div/div[1]/button')
     fechar_botao = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
     fechar_alerta = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
-
-
+    filtro = (By.XPATH, '//*[@id="Filtrar"]/span')
 
     def Protocolo(self):
         nomesarquivos = os.listdir(pasta)
+
         for nome in nomesarquivos:
+
             if "Enviado" in nome:
                 print("PEG já enviado")
                 continue
+
             sem_extensao = nome.replace('.xlsx', '')
             planilha = os.path.join(pasta, nome)
             faturas_df1 = pd.read_excel(planilha)
+
             for index, linha in faturas_df1.iterrows():
-                try:
-                    elemen2 = WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="sidebar-menu"]/li[26]/ul/li[1]/a/span[1]')))
-                    self.driver.find_element(By.XPATH,'//*[@id="sidebar-menu"]/li[26]/ul/li[1]/a/span[1]').click()
-                except:
-                    self.driver.find_element(By.XPATH,'//*[@id="sidebar-menu"]/li[26]/a/span[1]').click()
-                    time.sleep(1)
-                    self.driver.find_element(By.XPATH,'//*[@id="sidebar-menu"]/li[26]/ul/li[1]/a/span[1]').click()
-                    
-                time.sleep(2)
                 try:
                     modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
                     self.driver.find_element(*self.fechar_botao).click()
@@ -198,15 +193,15 @@ class inserir_dados(PageElement):
                 self.driver.find_element(*self.selecionar).click()
                 
                 time.sleep(2)
-                situacao = WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="DataGrid"]/tbody[1]/tr[1]/td[7]')))
+                situacao = WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="LotesDePagamento"]/tbody[1]/tr[1]/td[8]')))
                 if situacao == "Faturado":
                     self.driver.find_element(*self.recursoclick).click()
                     time.sleep(6)
                 else:
                     self.driver.find_element(*self.atualizar).click()
                     time.sleep(6)
-                    self.driver.find_element(*self.pesquisar).click()
-                    time.sleep(2)
+                    while self.driver.find_element(*self.atualizar).get_attribute('checked'):
+                        time.sleep(1)
                     try:
                         for contador in range(3):
                             self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
@@ -1377,6 +1372,9 @@ class inserir_dados(PageElement):
             except:
                 print("Erro ao renomear arquivo")
             self.driver.get('https://portalconectasaude.com.br/Pagamentos/PesquisaLote/PesquisaComValorGlosado')
+            time.sleep(2)
+            self.driver.find_element(*self.filtro).click()
+
         self.driver.quit()
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def recursar_benner(user, password):
