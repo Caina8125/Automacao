@@ -76,7 +76,7 @@ class Recursar(PageElement):
 
                 for planilha in lista_de_planilhas:
                     df = pd.read_excel(planilha)
-                    protocolo = f"{df['Protocolo Aceite'][0]}".replace('.0', '')
+                    protocolo = f"{df['Protocolo Aceite'][0]}".replace('.0', '').strip()
 
                     if "P" in protocolo:
                         protocolo_pagamento = f"{df['Protocolo Pagamento'][0]}".replace('.0', '')
