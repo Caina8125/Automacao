@@ -14,85 +14,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 
-# from page_element import PageElement
-
-class PageElement(ABC):
-    body: tuple = (By.XPATH, '/html/body')
-    a: tuple = (By.TAG_NAME, 'a')
-    p: tuple = (By.TAG_NAME, 'p')
-    h1: tuple = (By.TAG_NAME, 'h1')
-    h2: tuple = (By.TAG_NAME, 'h2')
-    h3: tuple = (By.TAG_NAME, 'h3')
-    h4: tuple = (By.TAG_NAME, 'h4')
-    h5: tuple = (By.TAG_NAME, 'h5')
-    h6: tuple = (By.TAG_NAME, 'h6')
-    table: tuple = (By.TAG_NAME, 'table')
-
-    def __init__(self, driver: WebDriver, url: str = '') -> None:
-        self.driver: WebDriver = driver
-        self._url:str = url
-
-    def open(self) -> None:
-        self.driver.get(self._url)
-
-    def get_attribute_value(self, element: tuple, atributo: str) -> str | None:
-        return self.driver.find_element(*element).get_attribute(atributo)
-
-    def confirma_valor_inserido(self, element: tuple, valor: str) -> None:
-        """Este método verifica se um input recebeu os valores que foram enviados.
-           Caso não tenha recebido, tenta enviar novamente até 10x."""
-        try:
-            self.driver.find_element(*element).clear()
-            valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
-            count: int = 0
-
-            while valor_inserido == '':
-                self.driver.find_element(*element).send_keys(valor)
-                sleep(0.5)
-                valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
-                count += 1
-
-                if count == 10:
-                    raise Exception("Element not interactable")
-
-        except Exception as e:
-            raise Exception(e)
-        
-    def get_element_visible(self, element: tuple | None = None,  web_element = None) -> bool:
-        """Este método observa se irá ocorrer ElementClickInterceptedException. Caso ocorra
-        irá dar um scroll até 10x na página conforme o comando passado até achar o click do elemento"""
-        for i in range(10):
-            try:
-                if element != None:
-                    self.driver.find_element(*element).click()
-                    return True
-                
-                elif web_element != None:
-                    web_element.click()
-                    return True
-            
-            except:
-                if i == 10:
-                    return False
-                
-                self.driver.execute_script('scrollBy(0,100)')
-                continue
-
-    def get_click(self, element: tuple, valor: str) -> None:
-        for i in range(10):
-            self.driver.find_element(*element).click()
-            sleep(3)
-            content: str = self.driver.find_element(*self.body).text
-
-            if valor in content:
-                break
-            
-            else:
-                if i == 10:
-                    raise Exception('Element not interactable')
-                
-                sleep(2)
-                continue
+from page_element import PageElement
 
 class Tst(PageElement):
     input_usuario = (By.XPATH, '/html/body/div[2]/div[2]/form/table/tbody/tr[2]/td[2]/input')
@@ -113,7 +35,8 @@ class Tst(PageElement):
     btn_adicionar = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div[2]/div[11]/div/button[2]/span')
     btn_salvar = (By.ID, 'botaoSalvar')
     input_numero_guia = (By.ID, 'numeroGuia')
-    alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr/td[11]/a[1]/img')
+    #TODO Alguns XPATHS precisam ser ajustados conforme o tipo de guia
+    alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr[4]/td[11]/a[1]/img')
     fieldset_procedimentos = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[7]')
     fieldset_opms = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[8]')
     fieldset_outras_despesas = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]')
@@ -157,9 +80,10 @@ class Tst(PageElement):
         self.caminho()
 
         for arquivo in self.lista_de_arquivos:
-            numero_processo = arquivo['numero_processo']
+            # numero_processo = arquivo['numero_processo']
             path_planilha = arquivo['path']
             df_processo = read_excel(path_planilha)
+            numero_processo = f"{df_processo['Fatura Inicial'][0]}".replace('.0', '')
             lote_tst = f"{df_processo['Lote'][0]}".replace('.0', '')
 
             if lote_tst == 'nan':
@@ -226,7 +150,7 @@ class Tst(PageElement):
                         self.salvar_valor_planilha(
                             path_planilha,
                             'Não encontrado',
-                            6,
+                            23,
                             linha_na_planilha
                         )
                         df_processo['Recursado no Portal'][linha + l] = 'Não encontrado'
@@ -260,7 +184,7 @@ class Tst(PageElement):
                     self.salvar_valor_planilha(
                         path_planilha,
                         'Sim',
-                        6,
+                        23,
                         linha_na_planilha
                     )
                     df_processo['Recursado no Portal'][i + num] = 'Sim'
