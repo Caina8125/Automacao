@@ -216,6 +216,8 @@ class inserir_dados(PageElement):
                 except:
                     print('Limpar Nº Guia')
 
+                break
+
             try:
                 self.driver.implicitly_wait(3)
                 modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
