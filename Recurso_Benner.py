@@ -202,23 +202,22 @@ class inserir_dados(PageElement):
                 time.sleep(6)
 
                 try:
+                    self.driver.implicitly_wait(3)
                     element = WebDriverWait(self.driver, 50).until(EC.presence_of_element_located((self.novo_recurso)))
                     self.driver.find_element(*self.novo_recurso).click()
                 except:
                     print('Recurso Normal')
+
+                self.driver.implicitly_wait(30)
                 time.sleep(2)
                 try:
                     element = WebDriverWait(self.driver, 50).until(EC.presence_of_element_located((self.controle)))
                     self.driver.find_element(*self.controle).clear()
                 except:
                     print('Limpar Nº Guia')
-                try:
-                    self.driver.find_element(*self.alerta2).click()
-                except:
-                    print('Alerta2 não apareceu')
-                break
 
             try:
+                self.driver.implicitly_wait(3)
                 modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
                 self.driver.find_element(*self.fechar_botao).click()
 
@@ -239,6 +238,7 @@ class inserir_dados(PageElement):
             except:
                 print("Não teve Modal")
                 pass
+            self.driver.implicitly_wait(30)
 
             count = 0
             faturas_df1 = pd.read_excel(planilha)
