@@ -113,9 +113,10 @@ class Geap(PageElement):
             self.driver.find_element(*self.fechar).click()
         except:
             pass
-        self.driver.find_element(*self.acessar_portal).click()
         sleep(2)
         try:
+            self.driver.implicitly_wait(15)
+            self.driver.find_element(*self.acessar_portal).click()
             self.driver.implicitly_wait(4)
             self.driver.find_element(*self.usuario).send_keys(self.cpf)
             self.driver.find_element(*self.input_senha).click()
@@ -126,46 +127,14 @@ class Geap(PageElement):
             self.driver.find_element(*self.entrar).click()
             sleep(2)
             self.driver.find_element(*self.portal_tiss).click()
-            sleep(5)
+            sleep(2)
 
         except Exception as e:
             self.driver.implicitly_wait(180)
             self.driver.find_element(*self.portal_tiss).click()
-            sleep(5)
-
-        if "Login" in self.driver.find_element(*self.body).text:
-            self.driver.switch_to.window(self.driver.window_handles[0])
-            self.driver.close()
-            self.driver.switch_to.window(self.driver.window_handles[-1])
-            self.driver.find_element(*self.div_prestador).click()
-            try:
-                self.driver.find_element(*self.fechar).click()
-            except:
-                pass
-            self.driver.find_element(*self.acessar_portal).click()
             sleep(2)
-            try:
-                self.driver.implicitly_wait(4)
-                self.driver.find_element(*self.usuario).send_keys(self.cpf)
-                self.driver.find_element(*self.input_senha).click()
-                sleep(2)
-                self.driver.find_element(*self.input_senha).send_keys(self.senha)
-                sleep(2)
-                self.driver.find_element(*self.entrar).click()
-                self.driver.find_element(*self.entrar).click()
-                sleep(2)
-                self.driver.find_element(*self.portal_tiss).click()
-                sleep(2)
+            self.driver.implicitly_wait(15)
 
-            except Exception as e:
-                self.driver.implicitly_wait(180)
-                self.driver.find_element(*self.portal_tiss).click()
-
-    def passar_tela_login(self):
-        self.driver.find_element(*self.div_prestador).click()
-        sleep(2)
-        self.exe_login()
-        self.exe_caminho()
 
     def exe_caminho(self):
         self.driver.switch_to.window(self.driver.window_handles[-1])
@@ -184,9 +153,6 @@ class Geap(PageElement):
         self.open()
         self.exe_login()
         self.exe_caminho()
-
-        if 'LOGIN' in self.driver.find_element(*self.body).text:
-            self.passar_tela_login()
         
         self.driver.find_element(*self.input_lote_prestador).send_keys('95611')
         sleep(1)
@@ -201,8 +167,9 @@ class Geap(PageElement):
         for guia in lista_de_guia:
 
             for i, linha in df_table_guias.iterrows():
-                if linha['Cód Guia Prestador'] == guia:
-                    f'/html/body/main/div/div/div/table/tbody/tr[{i+2}]/td[7]/a'
+                if f"{linha['Cód Guia Prestador']}" == guia:
+                    self.driver.find_element(By.XPATH, f'/html/body/main/div/div/div/table/tbody/tr[{i+2}]/td[7]/a').click()
+                    print(self.driver.window_handles)
 
 if __name__ == '__main__':
     user = 'lucas.paz'

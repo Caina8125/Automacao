@@ -127,6 +127,7 @@ class inserir_dados(PageElement):
         nomesarquivos = os.listdir(pasta)
 
         for nome in nomesarquivos:
+            self.driver.implicitly_wait(30)
 
             if "Enviado" in nome:
                 print("PEG já enviado")
@@ -138,6 +139,7 @@ class inserir_dados(PageElement):
 
             for index, linha in faturas_df1.iterrows():
                 try:
+                    self.driver.implicitly_wait(3)
                     modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
                     self.driver.find_element(*self.fechar_botao).click()
 
@@ -157,6 +159,7 @@ class inserir_dados(PageElement):
                 except:
                     print("Não teve Modal")
                     pass
+                self.driver.implicitly_wait(30)
                 self.driver.find_element(*self.protocolo).send_keys(f"{linha['Protocolo Glosa']}")
                 print('Protocolo: ' + f"{linha['Protocolo Glosa']}")
         
@@ -170,6 +173,7 @@ class inserir_dados(PageElement):
                     None
 
                 try:
+                    self.driver.implicitly_wait(3)
                     modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
                     self.driver.find_element(*self.fechar_botao).click()
 
@@ -189,28 +193,13 @@ class inserir_dados(PageElement):
                 except:
                     print("Não teve Modal")
                     pass
+                self.driver.implicitly_wait(30)
 
                 self.driver.find_element(*self.selecionar).click()
                 
                 time.sleep(2)
-                situacao = WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.XPATH,'//*[@id="LotesDePagamento"]/tbody[1]/tr[1]/td[8]')))
-                if situacao == "Faturado":
-                    self.driver.find_element(*self.recursoclick).click()
-                    time.sleep(6)
-                else:
-                    self.driver.find_element(*self.atualizar).click()
-                    time.sleep(6)
-                    while self.driver.find_element(*self.atualizar).get_attribute('checked'):
-                        time.sleep(1)
-                    try:
-                        for contador in range(3):
-                            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-                    except:
-                        None
-                    self.driver.find_element(*self.selecionar).click()
-                    time.sleep(2)
-                    self.driver.find_element(*self.recursoclick).click()
-                    time.sleep(6)
+                self.driver.find_element(*self.recursoclick).click()
+                time.sleep(6)
 
                 try:
                     element = WebDriverWait(self.driver, 50).until(EC.presence_of_element_located((self.novo_recurso)))
