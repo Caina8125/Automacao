@@ -101,6 +101,9 @@ class Geap(PageElement):
     btn_baixar = By.XPATH, '/html/body/main/div/div/div[2]/div[2]/article/form/div/a'
     detalhe = By.XPATH, '/html/body/main/div/div/div/table/tbody/tr[2]/td[9]/a/i'
     div_prestador = By.XPATH, '/html/body/main/div/div[1]/div[2]'
+    input_file = By.XPATH, '/html/body/form/table/tbody/tr[7]/td/input'
+    table_arquivo = By.XPATH, '/html/body/form/table/tbody/tr[9]/td/table'
+    btn_salvar = By.XPATH, '/html/body/form/table/tbody/tr[11]/td/table/tbody/tr/td[1]/input'
 
     def __init__(self, driver: WebDriver, cpf: str, senha: str, url: str = '') -> None:
         super().__init__(driver, url)
@@ -162,6 +165,7 @@ class Geap(PageElement):
         self.driver.find_element(*self.detalhe).click()
         sleep(2)
         self.driver.switch_to.window(self.driver.window_handles[-1])
+        self.driver.maximize_window()
         df_table_guias = read_html(self.driver.find_element(*self.table).get_attribute('outerHTML'), header=0)[0]
 
         for guia in lista_de_guia:
@@ -170,6 +174,20 @@ class Geap(PageElement):
                 if f"{linha['Cód Guia Prestador']}" == guia:
                     self.driver.find_element(By.XPATH, f'/html/body/main/div/div/div/table/tbody/tr[{i+2}]/td[7]/a').click()
                     print(self.driver.window_handles)
+                    sleep(1)
+                    self.driver.switch_to.window(self.driver.window_handles[-1])
+                    table_content = self.driver.find_element(*self.table_arquivo).text
+
+                    if '.pdf' in table_content:
+                        ...
+                        #TODO colocar nos não enviados
+                    self.driver.find_element(*self.input_file).send_keys(...)
+                    sleep(1)
+                    self.driver.find_element(*self.btn_salvar).click()
+                    sleep(2)
+                    self.driver.close()
+                    print(self.driver.window_handles)
+                    self.driver.switch_to.window(self.driver.window_handles[-1])
 
 if __name__ == '__main__':
     user = 'lucas.paz'
