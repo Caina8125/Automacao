@@ -36,10 +36,12 @@ class Tst(PageElement):
     btn_salvar = (By.ID, 'botaoSalvar')
     input_numero_guia = (By.ID, 'numeroGuia')
     #TODO Alguns XPATHS precisam ser ajustados conforme o tipo de guia
-    alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr[4]/td[11]/a[1]/img')
+    alterar_guia = ()
     fieldset_procedimentos = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[7]')
     fieldset_opms = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[8]')
     fieldset_outras_despesas = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]')
+    fieldset_proc_consulta = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[5]')
+    fieldset_proc_honorario = (By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/form/fieldset/fieldset[6]')
     input_campo_motivo = (By.ID, 'idCampoMotivoTemp')
     btn_ok_motivo = (By.XPATH, '/html/body/div[4]/div[11]/div/button')
     botao_salvar_guia = (By.ID, 'botaoSalvarAjax')
@@ -85,10 +87,11 @@ class Tst(PageElement):
             df_processo = read_excel(path_planilha)
             numero_processo = f"{df_processo['Fatura Inicial'][0]}".replace('.0', '')
             lote_tst = f"{df_processo['Lote'][0]}".replace('.0', '')
+            tipo_guia = int(df_processo['Tipo Guia'][0])
 
             if lote_tst == 'nan':
                 lista_de_guias = list(set(df_processo['Controle Inicial'].astype(str).values.tolist()))
-                xpath_tipo_guia = self.pegar_xpath_tipo_guia(int(df_processo['Tipo Guia'][0]))
+                xpath_tipo_guia = self.pegar_xpath_tipo_guia(tipo_guia)
                 self.acessar_lote(numero_processo, xpath_tipo_guia)
 
                 while 'Aguarde, consultando...' in self.driver.find_element(*self.body).text:
@@ -114,7 +117,8 @@ class Tst(PageElement):
                 self.driver.find_element(*self.btn_consultar_recurso).click()
                 sleep(1.5)
                 self.driver.find_element(*self.visualizar_lote).click()
-                
+
+            self.inicializar_atributos(tipo_guia)          
             numero_anterior = ''
             for i, linha in df_processo.iterrows():
 
@@ -144,7 +148,10 @@ class Tst(PageElement):
                     valor_recurso = float(f"{l['Valor Recursado']}".replace(',','.'))
                     justificativa = l['Recurso Glosa']
                 
-                    dict_procedimento = self.encontra_id_e_table_do_codigo(procedimento)
+                    if tipo_guia == 2:    
+                        dict_procedimento = self.encontra_id_e_table_do_codigo(procedimento)
+                    else:
+                        dict_procedimento = self.encontra_id_e_table_do_codigo_restante(procedimento, tipo_guia)
 
                     if not dict_procedimento:
                         self.salvar_valor_planilha(
@@ -268,7 +275,31 @@ class Tst(PageElement):
             count += 1
 
         return numero_lote
+    
+    def encontra_id_e_table_do_codigo_restante(self, codigo_proc, tipo_guia):
+        match tipo_guia:
+            case 1:
+                fieldset_element = self.driver.find_element(*self.fieldset_proc_consulta)
+            case 2:
+                fieldset_element = self.driver.find_element(*self.fieldset_proc_honorario)
 
+        if not self.table_in_element(fieldset_element):
+            return {}
+        
+        nome_fieldset = fieldset_element.find_element(By.TAG_NAME, 'legend').text
+        td_elements = fieldset_element.find_elements(By.TAG_NAME, 'td')
+        for td_element in td_elements:
+            text_element = self.remove_zeroes(td_element.text)
+
+            if text_element == codigo_proc:
+                id_proc = td_element.find_element(By.TAG_NAME, 'input').get_attribute('id').split('_')[1]
+                return {
+                    'fieldset': nome_fieldset,
+                    'id_proc': id_proc,
+                }
+                
+        return {}
+        
     def encontra_id_e_table_do_codigo(self, codigo_proc):
         fieldsets = [
             self.driver.find_element(*self.fieldset_procedimentos),
@@ -333,6 +364,15 @@ class Tst(PageElement):
         df_dados.to_excel(writer, 'Recurso', startrow=linha, startcol=coluna, header=False, index=False)
         writer.save()
         writer.close()
+
+    def inicializar_atributos(self, tipo_guia: int):
+        match tipo_guia:
+            case 1: 
+                self.alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr[2]/td[11]/a[1]/img')
+            case 2:
+                self.alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr[4]/td[11]/a[1]/img')
+            case 4:
+                self.alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr[1]/td[11]/a[1]/img')
             
     @staticmethod
     def df_guia(df_processo:DataFrame, controle_inicial):
