@@ -27,9 +27,9 @@ class ConferenciaProtocolos():
                         texto_completo = ''
                         for pagina_numero in range(len(leitor_pdf.pages)):
                             pagina = leitor_pdf.pages[pagina_numero]
-                            texto_sem_quebra = ' '.join(pagina.extract_text().split('\n'))
-                            if 'Encaminhamos guias de atendimentos, referentes aos serviços prestados' not in texto_sem_quebra:
-                                texto_completo = texto_completo + ' ' + texto_sem_quebra
+                            if 'Encaminhamos guias de atendimentos, referentes aos serviços prestados' not in pagina.extract_text():
+                                texto = pagina.extract_text().replace(' ', '')
+                                texto_completo = texto_completo + ' ' + texto
 
                         return {'path': full_path, 'text': texto_completo}
         
@@ -131,7 +131,7 @@ class ConferenciaProtocolos():
                 return 'GDF'
             case '(457)':
                 return 'PMDF'
-            case '(481)':
+            case '(381)':
                 return 'PMDF'
             case '(319)':
                 return 'TJDFT'

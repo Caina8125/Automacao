@@ -14,85 +14,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 
-# from page_element import PageElement
-
-class PageElement(ABC):
-    body: tuple = (By.XPATH, '/html/body')
-    a: tuple = (By.TAG_NAME, 'a')
-    p: tuple = (By.TAG_NAME, 'p')
-    h1: tuple = (By.TAG_NAME, 'h1')
-    h2: tuple = (By.TAG_NAME, 'h2')
-    h3: tuple = (By.TAG_NAME, 'h3')
-    h4: tuple = (By.TAG_NAME, 'h4')
-    h5: tuple = (By.TAG_NAME, 'h5')
-    h6: tuple = (By.TAG_NAME, 'h6')
-    table: tuple = (By.TAG_NAME, 'table')
-
-    def __init__(self, driver: WebDriver, url: str = '') -> None:
-        self.driver: WebDriver = driver
-        self._url:str = url
-
-    def open(self) -> None:
-        self.driver.get(self._url)
-
-    def get_attribute_value(self, element: tuple, atributo: str) -> str | None:
-        return self.driver.find_element(*element).get_attribute(atributo)
-
-    def confirma_valor_inserido(self, element: tuple, valor: str) -> None:
-        """Este método verifica se um input recebeu os valores que foram enviados.
-           Caso não tenha recebido, tenta enviar novamente até 10x."""
-        try:
-            self.driver.find_element(*element).clear()
-            valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
-            count: int = 0
-
-            while valor_inserido == '':
-                self.driver.find_element(*element).send_keys(valor)
-                sleep(0.5)
-                valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
-                count += 1
-
-                if count == 10:
-                    raise Exception("Element not interactable")
-
-        except Exception as e:
-            raise Exception(e)
-        
-    def get_element_visible(self, element: tuple | None = None,  web_element = None) -> bool:
-        """Este método observa se irá ocorrer ElementClickInterceptedException. Caso ocorra
-        irá dar um scroll até 10x na página conforme o comando passado até achar o click do elemento"""
-        for i in range(10):
-            try:
-                if element != None:
-                    self.driver.find_element(*element).click()
-                    return True
-                
-                elif web_element != None:
-                    web_element.click()
-                    return True
-            
-            except:
-                if i == 10:
-                    return False
-                
-                self.driver.execute_script('scrollBy(0,100)')
-                continue
-
-    def get_click(self, element: tuple, valor: str) -> None:
-        for i in range(10):
-            self.driver.find_element(*element).click()
-            sleep(3)
-            content: str = self.driver.find_element(*self.body).text
-
-            if valor in content:
-                break
-            
-            else:
-                if i == 10:
-                    raise Exception('Element not interactable')
-                
-                sleep(2)
-                continue
+from page_element import PageElement
 
 class Tst(PageElement):
     input_usuario = (By.XPATH, '/html/body/div[2]/div[2]/form/table/tbody/tr[2]/td[2]/input')
@@ -113,10 +35,13 @@ class Tst(PageElement):
     btn_adicionar = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div[2]/div[11]/div/button[2]/span')
     btn_salvar = (By.ID, 'botaoSalvar')
     input_numero_guia = (By.ID, 'numeroGuia')
-    alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr/td[11]/a[1]/img')
+    #TODO Alguns XPATHS precisam ser ajustados conforme o tipo de guia
+    alterar_guia = ()
     fieldset_procedimentos = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[7]')
     fieldset_opms = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[8]')
     fieldset_outras_despesas = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[9]')
+    fieldset_proc_consulta = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[5]')
+    fieldset_proc_honorario = (By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/form/fieldset/fieldset[6]')
     input_campo_motivo = (By.ID, 'idCampoMotivoTemp')
     btn_ok_motivo = (By.XPATH, '/html/body/div[4]/div[11]/div/button')
     botao_salvar_guia = (By.ID, 'botaoSalvarAjax')
@@ -157,14 +82,16 @@ class Tst(PageElement):
         self.caminho()
 
         for arquivo in self.lista_de_arquivos:
-            numero_processo = arquivo['numero_processo']
+            # numero_processo = arquivo['numero_processo']
             path_planilha = arquivo['path']
             df_processo = read_excel(path_planilha)
+            numero_processo = f"{df_processo['Fatura Inicial'][0]}".replace('.0', '')
             lote_tst = f"{df_processo['Lote'][0]}".replace('.0', '')
+            tipo_guia = int(df_processo['Tipo Guia'][0])
 
             if lote_tst == 'nan':
                 lista_de_guias = list(set(df_processo['Controle Inicial'].astype(str).values.tolist()))
-                xpath_tipo_guia = self.pegar_xpath_tipo_guia(int(df_processo['Tipo Guia'][0]))
+                xpath_tipo_guia = self.pegar_xpath_tipo_guia(tipo_guia)
                 self.acessar_lote(numero_processo, xpath_tipo_guia)
 
                 while 'Aguarde, consultando...' in self.driver.find_element(*self.body).text:
@@ -190,7 +117,8 @@ class Tst(PageElement):
                 self.driver.find_element(*self.btn_consultar_recurso).click()
                 sleep(1.5)
                 self.driver.find_element(*self.visualizar_lote).click()
-                
+
+            self.inicializar_atributos(tipo_guia)          
             numero_anterior = ''
             for i, linha in df_processo.iterrows():
 
@@ -220,13 +148,16 @@ class Tst(PageElement):
                     valor_recurso = float(f"{l['Valor Recursado']}".replace(',','.'))
                     justificativa = l['Recurso Glosa']
                 
-                    dict_procedimento = self.encontra_id_e_table_do_codigo(procedimento)
+                    if tipo_guia == 2:    
+                        dict_procedimento = self.encontra_id_e_table_do_codigo(procedimento)
+                    else:
+                        dict_procedimento = self.encontra_id_e_table_do_codigo_restante(procedimento, tipo_guia)
 
                     if not dict_procedimento:
                         self.salvar_valor_planilha(
                             path_planilha,
                             'Não encontrado',
-                            6,
+                            23,
                             linha_na_planilha
                         )
                         df_processo['Recursado no Portal'][linha + l] = 'Não encontrado'
@@ -260,7 +191,7 @@ class Tst(PageElement):
                     self.salvar_valor_planilha(
                         path_planilha,
                         'Sim',
-                        6,
+                        23,
                         linha_na_planilha
                     )
                     df_processo['Recursado no Portal'][i + num] = 'Sim'
@@ -344,7 +275,31 @@ class Tst(PageElement):
             count += 1
 
         return numero_lote
+    
+    def encontra_id_e_table_do_codigo_restante(self, codigo_proc, tipo_guia):
+        match tipo_guia:
+            case 1:
+                fieldset_element = self.driver.find_element(*self.fieldset_proc_consulta)
+            case 2:
+                fieldset_element = self.driver.find_element(*self.fieldset_proc_honorario)
 
+        if not self.table_in_element(fieldset_element):
+            return {}
+        
+        nome_fieldset = fieldset_element.find_element(By.TAG_NAME, 'legend').text
+        td_elements = fieldset_element.find_elements(By.TAG_NAME, 'td')
+        for td_element in td_elements:
+            text_element = self.remove_zeroes(td_element.text)
+
+            if text_element == codigo_proc:
+                id_proc = td_element.find_element(By.TAG_NAME, 'input').get_attribute('id').split('_')[1]
+                return {
+                    'fieldset': nome_fieldset,
+                    'id_proc': id_proc,
+                }
+                
+        return {}
+        
     def encontra_id_e_table_do_codigo(self, codigo_proc):
         fieldsets = [
             self.driver.find_element(*self.fieldset_procedimentos),
@@ -409,6 +364,15 @@ class Tst(PageElement):
         df_dados.to_excel(writer, 'Recurso', startrow=linha, startcol=coluna, header=False, index=False)
         writer.save()
         writer.close()
+
+    def inicializar_atributos(self, tipo_guia: int):
+        match tipo_guia:
+            case 1: 
+                self.alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr[2]/td[11]/a[1]/img')
+            case 2:
+                self.alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr[4]/td[11]/a[1]/img')
+            case 4:
+                self.alterar_guia = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/fieldset/fieldset[3]/table[2]/tbody/tr[1]/td[11]/a[1]/img')
             
     @staticmethod
     def df_guia(df_processo:DataFrame, controle_inicial):
