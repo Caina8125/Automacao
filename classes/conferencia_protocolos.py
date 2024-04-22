@@ -28,9 +28,13 @@ class ConferenciaProtocolos():
                         for pagina_numero in range(len(leitor_pdf.pages)):
                             pagina = leitor_pdf.pages[pagina_numero]
                             if 'Encaminhamos guias de atendimentos, referentes aos serviços prestados' not in pagina.extract_text():
-                                texto = pagina.extract_text().replace(' ', '')
+                                ''.join(pagina.extract_text().split('\n'))
+                                texto = ''.join(pagina.extract_text().split('\n')).replace(' ', '')
                                 texto_completo = texto_completo + ' ' + texto
 
+                        if texto_completo == ' ':
+                            return None
+                        
                         return {'path': full_path, 'text': texto_completo}
         
         return None

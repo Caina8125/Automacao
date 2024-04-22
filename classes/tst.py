@@ -118,7 +118,7 @@ class Tst(PageElement):
                 sleep(1.5)
                 self.driver.find_element(*self.visualizar_lote).click()
 
-            self.inicializar_atributos(tipo_guia)          
+            # self.inicializar_atributos(tipo_guia)          
             numero_anterior = ''
             for i, linha in df_processo.iterrows():
 
@@ -133,8 +133,13 @@ class Tst(PageElement):
                 numero_anterior = f"{linha['Controle Inicial']}".replace('.0', '')
                 self.driver.find_element(*self.input_numero_guia).send_keys(controle_inicial)
                 sleep(1)
-                self.driver.find_element(*self.alterar_guia).click()
-                sleep(2)
+                table_guias = self.driver.find_element(*self.table_guias)
+                a = table_guias.find_elements(By.TAG_NAME, 'a')
+
+                for element in a:
+                    if element.get_attribute('title') == "Alterar Guia":
+                        element.click()
+                        break
 
                 df_guia = self.df_guia(df_processo, controle_inicial)
 
@@ -280,7 +285,7 @@ class Tst(PageElement):
         match tipo_guia:
             case 1:
                 fieldset_element = self.driver.find_element(*self.fieldset_proc_consulta)
-            case 2:
+            case 4:
                 fieldset_element = self.driver.find_element(*self.fieldset_proc_honorario)
 
         if not self.table_in_element(fieldset_element):
@@ -326,6 +331,8 @@ class Tst(PageElement):
     
     def pegar_id_parcial_tag(self, nome_fieldset, id_proc):
         match nome_fieldset:
+            case 'Dados do Atendimento / Procedimentos Realizados':
+                return f'Proc_{id_proc}'
             case 'Procedimentos Realizados':
                 return f'Proc_{id_proc}'
             case 'OPMs Realizados':
@@ -335,6 +342,8 @@ class Tst(PageElement):
             
     def pegar_id_motivo_glosa(self, nome_fieldset, id_proc):
         match nome_fieldset:
+            case 'Dados do Atendimento / Procedimentos Realizados':
+                return f'bot_sem_motivo_proc_{id_proc}'
             case 'Procedimentos Realizados':
                 return f'bot_sem_motivo_proc_{id_proc}'
             case 'OPMs Realizados':
