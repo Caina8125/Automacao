@@ -1,6 +1,7 @@
 from abc import ABC
 import math
 from os import listdir
+import os
 from time import sleep
 from tkinter import filedialog
 from tkinter.messagebox import showerror, showinfo
@@ -47,7 +48,7 @@ class Tst(PageElement):
     botao_salvar_guia = (By.ID, 'botaoSalvarAjax')
     # modal = (By.CSS_SELECTOR, 'body > div:nth-child(11)')
     btn_ok_salvar = (By.XPATH, '/html/body/div[6]/div[10]/div/button')
-    btn_voltar = (By.XPATH, '/html/body/div[2]/div[2]/div/form/div/div/input[3]')
+    btn_voltar = (By.ID, 'botaoVoltar')
 
     def __init__(self, driver: WebDriver, usuario: str, senha: str, diretorio: str, url: str = '') -> None:
         super().__init__(driver, url)
@@ -82,9 +83,14 @@ class Tst(PageElement):
         self.caminho()
 
         for arquivo in self.lista_de_arquivos:
-            # numero_processo = arquivo['numero_processo']
             path_planilha = arquivo['path']
-            df_processo = read_excel(path_planilha)
+            novo_path = path_planilha.replace('.xlsx', '_enviado.xlsx')
+
+            if 'enviado' in path_planilha:
+                continue
+
+            # numero_processo = arquivo['numero_processo']
+            df_processo =  read_excel(path_planilha)
             numero_processo = f"{df_processo['Fatura Inicial'][0]}".replace('.0', '')
             lote_tst = f"{df_processo['Lote'][0]}".replace('.0', '')
             tipo_guia = int(df_processo['Tipo Guia'][0])
@@ -137,13 +143,19 @@ class Tst(PageElement):
                 a = table_guias.find_elements(By.TAG_NAME, 'a')
 
                 for element in a:
+                    self.driver.implicitly_wait(2)
                     if element.get_attribute('title') == "Alterar Guia":
-                        element.click()
-                        break
+                        try:
+                            element.click()
+                            break
+                        except:
+                            continue
+                self.driver.implicitly_wait(30)
 
                 df_guia = self.df_guia(df_processo, controle_inicial)
+                num = 0
 
-                for num, l in df_guia.iterrows():
+                for _, l in df_guia.iterrows():
 
                     if l['Recursado no Portal'] == 'Sim' or l['Recursado no Portal'] == 'Não encontrado':
                         continue
@@ -165,7 +177,7 @@ class Tst(PageElement):
                             23,
                             linha_na_planilha
                         )
-                        df_processo['Recursado no Portal'][linha + l] = 'Não encontrado'
+                        df_processo['Recursado no Portal'][linha + num] = 'Não encontrado'
                         continue
                     
                     id_parcial_tag = self.pegar_id_parcial_tag(dict_procedimento['fieldset'], dict_procedimento['id_proc'])
@@ -206,9 +218,14 @@ class Tst(PageElement):
                     sleep(1)
                     self.clickar_btn('Ok')
                     sleep(1)
+                    num += 1
 
                 self.driver.find_element(*self.btn_voltar).click()
             
+            try:
+                os.rename(path_planilha, novo_path)
+            except:
+                print("Erro ao renomear arquivo")
             self.caminho()
         
         self.driver.quit()
@@ -293,15 +310,31 @@ class Tst(PageElement):
         
         nome_fieldset = fieldset_element.find_element(By.TAG_NAME, 'legend').text
         td_elements = fieldset_element.find_elements(By.TAG_NAME, 'td')
+
         for td_element in td_elements:
-            text_element = self.remove_zeroes(td_element.text)
+            if not td_element.text:
+                continue
+
+            text_element = self.remove_zeroes(f'{td_element.text}').replace('.', '').replace('-','')
 
             if text_element == codigo_proc:
                 id_proc = td_element.find_element(By.TAG_NAME, 'input').get_attribute('id').split('_')[1]
-                return {
-                    'fieldset': nome_fieldset,
-                    'id_proc': id_proc,
-                }
+                self.driver.implicitly_wait(1)
+
+                try:
+                    self.driver.find_element(By.ID, 'bot_motivo_' + id_proc)
+                    self.driver.implicitly_wait(30)
+                    continue
+                except:
+                    self.driver.implicitly_wait(30)
+                    motivo = self.driver.find_element(By.ID, 'bot_sem_motivo_proc_' + id_proc)
+                    if motivo.get_attribute('class') == 'btnMotivo':
+                        continue
+
+                    return {
+                        'fieldset': nome_fieldset,
+                        'id_proc': id_proc,
+                    }
                 
         return {}
         
@@ -318,16 +351,39 @@ class Tst(PageElement):
             nome_fieldset = fieldset_element.find_element(By.TAG_NAME, 'legend').text
             td_elements = fieldset_element.find_elements(By.TAG_NAME, 'td')
             for td_element in td_elements:
-                text_element = self.remove_zeroes(td_element.text)
+                if not td_element.text:
+                    continue
+
+                text_element = self.remove_zeroes(f'{td_element.text}').replace('.', '').replace('-','')
 
                 if text_element == codigo_proc:
                     id_proc = td_element.find_element(By.TAG_NAME, 'input').get_attribute('id').split('_')[1]
+                    self.driver.implicitly_wait(1)
+
+                    if self.procedimento_ja_recursado(id_proc, td_elements):
+                        continue
+
                     return {
                         'fieldset': nome_fieldset,
                         'id_proc': id_proc,
                     }
                 
         return {}
+    
+    def procedimento_ja_recursado(self, id_proc, td_elements):
+        self.driver.implicitly_wait(0)
+        for td in td_elements:
+            input_elements = td.find_elements(By.TAG_NAME, 'input')
+
+            for input_element in input_elements:
+                att_class = input_element.get_attribute('class')
+                att_onclick = input_element.get_attribute('onclick')
+
+                if att_class == 'btnMotivo' and id_proc in att_onclick:
+                    return True
+                
+        self.driver.implicitly_wait(30)
+        return False
     
     def pegar_id_parcial_tag(self, nome_fieldset, id_proc):
         match nome_fieldset:
