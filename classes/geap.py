@@ -1,4 +1,6 @@
 from abc import ABC
+from os import listdir
+from tkinter import filedialog
 from pandas import read_html
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -129,11 +131,15 @@ class Geap(PageElement):
             self.driver.find_element(*self.entrar).click()
             self.driver.find_element(*self.entrar).click()
             sleep(2)
+            self.driver.find_element(*self.portal_tiss)
+            sleep(2)
             self.driver.find_element(*self.portal_tiss).click()
             sleep(2)
 
         except Exception as e:
             self.driver.implicitly_wait(180)
+            self.driver.find_element(*self.portal_tiss)
+            sleep(2)
             self.driver.find_element(*self.portal_tiss).click()
             sleep(2)
             self.driver.implicitly_wait(15)
@@ -147,55 +153,78 @@ class Geap(PageElement):
         except:
             print('Alerta não apareceu')
         self.driver.implicitly_wait(15)
+        sleep(2)
         self.driver.find_element(*self.baixar_arquivo).click()
         sleep(2)
         self.driver.switch_to.window(self.driver.window_handles[-1])
     
     def exec_a_bagaca_toda(self):
-        lista_de_guia = ['6997']
+        path_anexos_bradesco = r"\\10.0.0.239\automacao_integralis\ANEXOS GEAP FECHAMENTO"
+        path_enviados = r"\\10.0.0.239\automacao_integralis\ANEXOS GEAP FECHAMENTO\Enviados"
+        lista_de_diretorios = [pasta for pasta in listdir(path_anexos_bradesco) if pasta.isdigit()]
         self.open()
         self.exe_login()
         self.exe_caminho()
         
-        self.driver.find_element(*self.input_lote_prestador).send_keys('95611')
-        sleep(1)
-        self.driver.find_element(*self.btn_baixar).click()
-        sleep(2)
-        self.driver.switch_to.window(self.driver.window_handles[-1])
-        self.driver.find_element(*self.detalhe).click()
-        sleep(2)
-        self.driver.switch_to.window(self.driver.window_handles[-1])
-        self.driver.maximize_window()
-        df_table_guias = read_html(self.driver.find_element(*self.table).get_attribute('outerHTML'), header=0)[0]
+        for diretorio in lista_de_diretorios:
+            path_diretorio = path_anexos_bradesco + '\\' + diretorio #Caminho do diretório do processo
+            path_diretorio_enviados = path_enviados + '\\' + diretorio #Caminho que o diretório será jogado após finalizá-lo
+            self.driver.find_element(*self.input_lote_prestador).send_keys(diretorio)
+            sleep(1)
+            self.driver.find_element(*self.btn_baixar).click()
+            sleep(2)
+            self.driver.switch_to.window(self.driver.window_handles[-1])
+            self.driver.find_element(*self.detalhe).click()
+            sleep(2)
+            self.driver.switch_to.window(self.driver.window_handles[-1])
+            self.driver.maximize_window()
+            df_table_guias = read_html(self.driver.find_element(*self.table).get_attribute('outerHTML'), header=0)[0]
+            dados_processo = self.get_dados_processo(path_diretorio)
 
-        for guia in lista_de_guia:
+            for dado in dados_processo:
+                guia = dado['guia']
+                path_arquivo = dado['path_arquivo']
+                path_arquivo_enviado = path_diretorio + '\\' + guia
 
-            for i, linha in df_table_guias.iterrows():
-                if f"{linha['Cód Guia Prestador']}" == guia:
-                    self.driver.find_element(By.XPATH, f'/html/body/main/div/div/div/table/tbody/tr[{i+2}]/td[7]/a').click()
-                    print(self.driver.window_handles)
-                    sleep(1)
-                    self.driver.switch_to.window(self.driver.window_handles[-1])
-                    table_content = self.driver.find_element(*self.table_arquivo).text
+                for i, linha in df_table_guias.iterrows():
+                    if f"{linha['Cód Guia Prestador']}" == guia:
+                        self.driver.find_element(By.XPATH, f'/html/body/main/div/div/div/table/tbody/tr[{i+2}]/td[7]/a').click()
+                        print(self.driver.window_handles)
+                        sleep(1)
+                        self.driver.switch_to.window(self.driver.window_handles[-1])
+                        table_content = self.driver.find_element(*self.table_arquivo).text
 
-                    if '.pdf' in table_content:
-                        ...
-                        #TODO colocar nos não enviados
-                    self.driver.find_element(*self.input_file).send_keys(...)
-                    sleep(1)
-                    self.driver.find_element(*self.btn_salvar).click()
-                    sleep(2)
-                    self.driver.close()
-                    print(self.driver.window_handles)
-                    self.driver.switch_to.window(self.driver.window_handles[-1])
+                        if '.pdf' in table_content:
+                            ...
+                            #TODO colocar nos não enviados
+                        self.driver.find_element(*self.input_file).send_keys(path_arquivo)
+                        sleep(1)
+                        self.driver.find_element(*self.btn_salvar).click()
+                        sleep(2)
+                        self.driver.close()
+                        print(self.driver.window_handles)
+                        self.driver.switch_to.window(self.driver.window_handles[-1])
+                        break
+                
+                self.driver.close()
+                self.driver.switch_to.window(self.driver.window_handles[-1])
+                self.driver.back()
+                self.driver.back()
+
+    def get_dados_processo(self, path: str) -> dict:
+        """Este método retorna um dict com as informações Nº Guia e o caminho do arquivo"""
+        return [
+            {
+                'guia': arquivo.replace('.pdf', ''),
+                'path_arquivo': path + '\\' + arquivo
+            }
+            for arquivo in listdir(path)
+        ]
 
 if __name__ == '__main__':
     user = 'lucas.paz'
     password = 'WheySesc2024*'
     url = 'https://www2.geap.com.br/auth/prestadorVue.asp'
-
-    # global pasta
-    # pasta = filedialog.askdirectory()
 
     chrome_options = Options()
     chrome_options.add_argument("--start-maximized")
