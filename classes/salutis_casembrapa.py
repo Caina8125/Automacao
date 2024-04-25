@@ -23,7 +23,7 @@ class SalutisCasembrapa(PageElement):
     websaude: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[7]/span[2]')
     credenciados: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[8]/span[2]')
     lotes: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[11]/span[2]')
-    lotes_de_credenciados: tuple = (By.XPATH, '/html/body/div[8]/div[2]/div[19]/span[2]')
+    lotes_de_credenciados: tuple = (By.XPATH, '/html/body/div[8]/div[2]/div[20]/span[2]')
     fechar_recurso_de_glosa: tuple = (By.XPATH, '/html/body/div[3]/div/table/tbody/tr/td[1]/table/tbody/tr/td[4]/span/div')
     fechar_lotes_de_credenciados: tuple = (By.XPATH, '//*[@id="tabs"]/td[1]/table/tbody/tr/td[4]/span')
     numero_lote_pesquisa: tuple = (By.XPATH, '//*[@id="grdPesquisa"]/tbody/tr[1]/td[1]/table/tbody/tr[2]/td/table/tbody/tr[5]/td[2]/table/tbody/tr/td[1]/input')
