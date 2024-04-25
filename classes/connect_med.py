@@ -92,7 +92,7 @@ class ConnectMed(PageElement):
             self.driver.find_element(*self.opcao_gama).click()
             time.sleep(2)
 
-    def acessar_extrato(self) -> None:
+    def acessar_extrato(self, count) -> None:
         if 'COMUNICADO' in self.driver.find_element(*self.body).text:
             self.driver.find_element(*self.fechar_comunicado).click()
         
@@ -104,8 +104,18 @@ class ConnectMed(PageElement):
                 time.sleep(2)
                 self.driver.find_element(*self.extrato).click()
         # time.sleep(2)
-        self.driver.find_element(*self.visualizar).click()
-        time.sleep(2)
+        count += 1
+        try:
+            self.driver.implicitly_wait(4)
+            self.driver.find_element(*self.visualizar).click()
+        except:
+            if count < 5:
+                self.acessar_extrato(count)
+
+        time.sleep(4)
+
+        while 'Filtro - Extrato de pagamento ao referenciado' not in self.driver.find_element(*self.body).text and count < 5:
+            self.acessar_extrato(count)
 
     def get_extrato_df(self) -> DataFrame:
         df_extrato: DataFrame = read_html(self.driver.find_element(*self.table).get_attribute('outerHTML'))[0]
@@ -381,7 +391,7 @@ class ConnectMed(PageElement):
                 
     def exec_recurso(self):
         self.driver.implicitly_wait(30)
-        self.acessar_extrato()
+        self.acessar_extrato(0)
         self.driver.find_element(*self.abrir_filtro_extrato).click()
         time.sleep(2)
         self.driver.find_element(*self.opt_90_dias).click()
@@ -438,8 +448,11 @@ class ConnectMed(PageElement):
                     if 'anex' in justificativa or 'Anex' in justificativa:
                         anexo = self.encontrar_anexo_guia(numero_ahmptiss)
                         if anexo == None:
-                            self.salvar_valor_planilha(caminho, 'Anexo da guia não encontrado', coluna=21, linha=l + 1)
+                            self.salvar_valor_planilha(caminho, 'Anexo da guia não encontrado', coluna=21, linha=i + 1)
                             continue
+                    
+                    else:
+                        self.salvar_valor_planilha(caminho, 'Guia sem anexo', coluna=22, linha=i + 1)
 
                     if numero_guia not in tabela_guias and numero_controle not in tabela_guias:
                         continue
@@ -457,9 +470,10 @@ class ConnectMed(PageElement):
                 time.sleep(2)
                 self.driver.find_element(*self.button_detalhar_extrato)
                 time.sleep(1)
+                self.driver.find_element(*self.button_detalhar_extrato).click()
                 self.renomear_planilha(caminho, 'Enviado')
 
-            self.acessar_extrato()
+            self.acessar_extrato(0)
             time.sleep(1.5)
             self.driver.find_element(*self.abrir_filtro_extrato).click()
             time.sleep(2)
