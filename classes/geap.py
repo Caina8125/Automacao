@@ -1,5 +1,5 @@
 from abc import ABC
-from os import listdir
+from os import listdir, rename
 from tkinter import filedialog
 from pandas import read_html
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -106,6 +106,7 @@ class Geap(PageElement):
     input_file = By.XPATH, '/html/body/form/table/tbody/tr[7]/td/input'
     table_arquivo = By.XPATH, '/html/body/form/table/tbody/tr[9]/td/table'
     btn_salvar = By.XPATH, '/html/body/form/table/tbody/tr[11]/td/table/tbody/tr/td[1]/input'
+    quantidade_de_nao_enviados = 0
 
     def __init__(self, driver: WebDriver, cpf: str, senha: str, url: str = '') -> None:
         super().__init__(driver, url)
@@ -159,20 +160,26 @@ class Geap(PageElement):
         self.driver.switch_to.window(self.driver.window_handles[-1])
     
     def exec_a_bagaca_toda(self):
-        path_anexos_bradesco = r"\\10.0.0.239\automacao_integralis\ANEXOS GEAP FECHAMENTO"
+        path_anexos_geap = r"\\10.0.0.239\automacao_integralis\ANEXOS GEAP FECHAMENTO"
         path_enviados = r"\\10.0.0.239\automacao_integralis\ANEXOS GEAP FECHAMENTO\Enviados"
-        lista_de_diretorios = [pasta for pasta in listdir(path_anexos_bradesco) if pasta.isdigit()]
+        lista_de_diretorios = [pasta for pasta in listdir(path_anexos_geap) if pasta.isdigit()]
         self.open()
         self.exe_login()
         self.exe_caminho()
         
         for diretorio in lista_de_diretorios:
-            path_diretorio = path_anexos_bradesco + '\\' + diretorio #Caminho do diretório do processo
+            path_diretorio = path_anexos_geap + '\\' + diretorio #Caminho do diretório do processo
             path_diretorio_enviados = path_enviados + '\\' + diretorio #Caminho que o diretório será jogado após finalizá-lo
             self.driver.find_element(*self.input_lote_prestador).send_keys(diretorio)
             sleep(1)
             self.driver.find_element(*self.btn_baixar).click()
             sleep(2)
+
+            if 'Sua pesquisa não retornou nenhum registro!' in self.driver.find_element(*self.body).text:
+                self.renomear_arquivo(path_diretorio, path_diretorio_enviados + "_nao_encontrado")
+                self.driver.back()
+                continue
+                
             self.driver.switch_to.window(self.driver.window_handles[-1])
             self.driver.find_element(*self.detalhe).click()
             sleep(2)
@@ -182,34 +189,39 @@ class Geap(PageElement):
             dados_processo = self.get_dados_processo(path_diretorio)
 
             for dado in dados_processo:
-                guia = dado['guia']
+                guia = dado['guia'].split('-')[0]
                 path_arquivo = dado['path_arquivo']
-                path_arquivo_enviado = path_diretorio + '\\' + guia
+                path_arquivo_enviado = path_diretorio + '\\' + dado['guia']
 
-                for i, linha in df_table_guias.iterrows():
-                    if f"{linha['Cód Guia Prestador']}" == guia:
-                        self.driver.find_element(By.XPATH, f'/html/body/main/div/div/div/table/tbody/tr[{i+2}]/td[7]/a').click()
-                        print(self.driver.window_handles)
-                        sleep(1)
-                        self.driver.switch_to.window(self.driver.window_handles[-1])
-                        table_content = self.driver.find_element(*self.table_arquivo).text
+                if not self.guia_na_table(df_table_guias, guia):
+                    self.renomear_arquivo(path_arquivo, path_arquivo_enviado + '_nao_encontrado.pdf')
+                    self.quantidade_de_nao_enviados += 1
+                    continue
 
-                        if '.pdf' in table_content:
-                            ...
-                            #TODO colocar nos não enviados
-                        self.driver.find_element(*self.input_file).send_keys(path_arquivo)
-                        sleep(1)
-                        self.driver.find_element(*self.btn_salvar).click()
-                        sleep(2)
-                        self.driver.close()
-                        print(self.driver.window_handles)
-                        self.driver.switch_to.window(self.driver.window_handles[-1])
-                        break
-                
+                self.driver.switch_to.window(self.driver.window_handles[-1])
+                table_content = self.driver.find_element(*self.table_arquivo).text
+
+                if '.pdf' in table_content:
+                    self.quantidade_de_nao_enviados += 1
+                    self.renomear_arquivo(path_arquivo, path_arquivo_enviado + '_enviado_anteriormente.pdf')
+                    continue
+
+                self.driver.find_element(*self.input_file).send_keys(path_arquivo)
+                sleep(1)
+                self.driver.find_element(*self.btn_salvar).click()
+                sleep(2)
                 self.driver.close()
                 self.driver.switch_to.window(self.driver.window_handles[-1])
-                self.driver.back()
-                self.driver.back()
+
+            if self.quantidade_de_nao_enviados > 0:
+                self.renomear_arquivo(path_diretorio, path_diretorio_enviados + '_parcialmente_enviado')
+            else:
+                self.renomear_arquivo(path_diretorio, path_diretorio_enviados)
+                
+            self.driver.close()
+            self.driver.switch_to.window(self.driver.window_handles[-1])
+            self.driver.back()
+            self.driver.back()
 
     def get_dados_processo(self, path: str) -> dict:
         """Este método retorna um dict com as informações Nº Guia e o caminho do arquivo"""
@@ -220,6 +232,17 @@ class Geap(PageElement):
             }
             for arquivo in listdir(path)
         ]
+    
+    def guia_na_table(self, df_table_guias, guia):
+        for i, linha in df_table_guias.iterrows():
+            if f"{linha['Cód Guia Prestador']}" == guia:
+                self.driver.find_element(By.XPATH, f'/html/body/main/div/div/div/table/tbody/tr[{i+2}]/td[7]/a').click()
+                return True
+        return False
+    
+    @staticmethod
+    def renomear_arquivo(path, path_novo) -> None:
+        rename(path, path_novo)
 
 if __name__ == '__main__':
     user = 'lucas.paz'
