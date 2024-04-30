@@ -1,5 +1,7 @@
 from abc import ABC
-from pandas import read_html
+from os import listdir
+from tkinter.filedialog import askdirectory
+from pandas import DataFrame, read_excel, read_html
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
@@ -96,6 +98,7 @@ class PageElement(ABC):
         sleep(tempo)
 
 class Amil(PageElement):
+    dict_guias_list = [{}]
     input_usuario = By.ID, 'login-usuario'
     input_senha = By.ID, 'login-senha'
     btn_entrar = By.XPATH, '/html/body/as-main-app/as-login-container/div[1]/div/as-login/div[2]/form/fieldset/button'
@@ -107,11 +110,15 @@ class Amil(PageElement):
     utlimo_mes = By.XPATH, '/html/body/div/div/form/div[4]/table/tbody/tr[1]/td[1]/input'
     table_primeiro_mes = By.XPATH, '/html/body/div/div/form/div[4]/table/tbody/tr[2]/td/div/table'
     btn_avancar = By.ID, 'btnavancar'
+    table_guias = By.XPATH, '/html/body/div/div/form/div[3]/div[4]/table'
+    td_n_guia_prestador = By.XPATH, '/html/body/form/table/tbody/tr[9]/td/table/tbody/tr[2]/td[1]/font'
 
-    def __init__(self, usuario: str, senha: str, driver: WebDriver, url: str = '') -> None:
+    def __init__(self, usuario: str, senha: str, diretorio: str, driver: WebDriver, url: str = '') -> None:
         super().__init__(driver, url)
         self.usuario = usuario
         self.senha = senha
+        self.diretorio = diretorio
+        self.lista_de_arquivos = [f"{diretorio}\\{arquivo}" for arquivo in listdir(diretorio) if arquivo.endswith('.xlsx')]
     
     def login(self):
         self.send_keys(self.input_usuario, self.usuario, 1.5)
@@ -126,20 +133,26 @@ class Amil(PageElement):
         self.driver.switch_to.frame('principal')
         self.click(self.solicitacao_de_recurso, 2)
 
-        for arquivo in ...:
-            numero_processo = ''
+        for arquivo in self.lista_de_arquivos:
+            df_fatura = read_excel(arquivo)
+            lista_de_guias = list(set(df_fatura['Controle'].values.tolist()))
+            numero_processo = arquivo.replace(self.diretorio, '').replace('.xlsx', '')
             self.click(self.option_amil, 2)
             self.click(self.utlimo_mes, 2)
 
-            qtd = self.tamanho_tabela() + 1
+            qtd = self.tamanho_tabela(self.table_primeiro_mes) + 1
 
             xpath_input_lote = self.encontrar_xpath_processo(numero_processo, qtd)
 
             if xpath_input_lote == '':
                 #TODO acrescentar não enviado no nome
                 continue
-
+            
+            self.click((By.XPATH, xpath_input_lote), 1)
             self.click(self.btn_avancar, 2)
+
+            tamanho_tabela_guias = self.tamanho_tabela(self.table_guias)
+
     
     def encontrar_xpath_processo(self, numero_processo, qtd):
         for i in range(1, qtd):
@@ -153,5 +166,63 @@ class Amil(PageElement):
         
         return ''
 
-    def tamanho_tabela(self):
-        return len(read_html(self.driver.find_element(*self.table_primeiro_mes).get_attribute('outerHTML')[0]))
+    def tamanho_tabela(self, tabela):
+        return len(read_html(self.driver.find_element(*tabela).get_attribute('outerHTML')[0]))
+    
+    def teste(self, lista, df_fatura: DataFrame):
+        dict_guias_list = []
+        for num in lista:
+            df: DataFrame = df_fatura.loc[(df_fatura["Controle"] == int(num))]
+            numero_amhptiss = f"{df['Amhptiss'].values.tolist()[0]}"
+            numero_nro_guia = f"{df['Nro. Guia'].values.tolist()[0]}"
+            numero_guia_prestador = f"{df['Guia Prestador'].values.tolist()[0]}"
+            numero_controle_inicial = f"{df['Controle Inicial'].values.tolist()[0]}"
+
+            dict_cols = {j: i for i, j in enumerate(df.columns)}
+            lista_procedimento = []
+
+            for row in df.values:
+                col = dict_cols["Procedimento"]
+                lista_procedimento.append(row[col])
+
+            dict_guias_list.append(
+                {num: {
+                    'numeros': [numero_amhptiss, numero_nro_guia, numero_guia_prestador, numero_controle_inicial],
+                    'procedimentos': lista_procedimento
+                }}
+            )
+        return dict_guias_list
+            
+    def teste2(self, qtd):
+        lista_numeros_clicar = []
+        for i in range(1, qtd):
+            td_guia = By.XPATH, f'/html/body/div/div/form/div[3]/div[4]/table/tbody/tr[{i}]/td[2]/a/u'
+            numero_na_table = self.driver.find_element(*td_guia).text
+
+            if self.num_in_dict(numero_na_table):
+                lista_numeros_clicar.append(numero_na_table)
+
+            else:
+                self.click(td_guia, 1.5)
+                self.driver.switch_to.window(-1)
+                self.driver.switch_to.frame('principal2')
+                num_guia_portal = self.driver.find_element(*self.td_n_guia_prestador).text
+
+                if self.num_in_dict(num_guia_portal):
+                    lista_numeros_clicar.append()
+
+    def num_in_dict(self, num):
+        for dictionary in self.dict_guias_list:
+
+            for _, value in dictionary.items():
+
+                if num in value:
+                    return True
+                
+        return False
+    
+diretorio = askdirectory()
+amil = Amil('', '', diretorio, '', '')
+df = read_excel(r"C:\Users\lucas.paz\Documents\Nova pasta\PEG_68523.xlsx")
+lista = list(set(df['Controle'].values.tolist()))
+amil.teste(lista, df)
