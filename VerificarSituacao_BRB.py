@@ -316,7 +316,7 @@ def verificacao_brb(user, password):
         login_page.open()
         login_page.logar(
             usuario = '00735860000173_2',
-            senha = 'AMHP1234!'
+            senha = 'AMHPDF00735@'
             )
 
         time.sleep(4)

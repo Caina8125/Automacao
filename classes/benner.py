@@ -195,7 +195,7 @@ class Benner(PageElement):
                 self.pegar_alerta()
                 df: pd.DataFrame = self.get_df(arquivo)
 
-                for index, linha in df.iterrows():
+                for _, linha in df.iterrows():
                     numero_fatura: str = f"{linha['Nº Fatura']}"
                     caminho: str = f"{linha['Observações']}".replace('"', '')
 

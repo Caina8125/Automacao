@@ -32,7 +32,7 @@ class ConferenciaProtocolos():
                                 texto = ''.join(pagina.extract_text().split('\n')).replace(' ', '')
                                 texto_completo = texto_completo + ' ' + texto
 
-                        if texto_completo == ' ' or texto_completo == '':
+                        if texto_completo.replace(' ', '') == '':
                             return None
                         
                         return {'path': full_path, 'text': texto_completo}

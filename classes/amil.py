@@ -1,4 +1,5 @@
 from abc import ABC
+from pandas import read_html
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
@@ -101,7 +102,11 @@ class Amil(PageElement):
     acessar_sis_amil = By.XPATH, '/html/body/as-main-app/as-home/as-base-layout/section/div/as-navbar/nav/div[2]/form/button'
     menu = By.ID, 'mostraMenu'
     input_menu = By.ID, 'txtProcuraMenu'
-
+    solicitacao_de_recurso = By.LINK_TEXT, 'Solicitação de Recurso de Glosas'
+    option_amil = By.XPATH, '/html/body/div/div/form/div[3]/div/div/select/option[2]'
+    utlimo_mes = By.XPATH, '/html/body/div/div/form/div[4]/table/tbody/tr[1]/td[1]/input'
+    table_primeiro_mes = By.XPATH, '/html/body/div/div/form/div[4]/table/tbody/tr[2]/td/div/table'
+    btn_avancar = By.ID, 'btnavancar'
 
     def __init__(self, usuario: str, senha: str, driver: WebDriver, url: str = '') -> None:
         super().__init__(driver, url)
@@ -114,4 +119,39 @@ class Amil(PageElement):
         self.click(self.btn_entrar, 1.5)
 
     def caminho(self):
-        ...
+        self.click(self.acessar_sis_amil, 2)
+        self.driver.switch_to.window(-1)
+        self.click(self.menu, 2)
+        self.send_keys(self.input_menu, 'Solicitação de Recurso de Glosas', 1)
+        self.driver.switch_to.frame('principal')
+        self.click(self.solicitacao_de_recurso, 2)
+
+        for arquivo in ...:
+            numero_processo = ''
+            self.click(self.option_amil, 2)
+            self.click(self.utlimo_mes, 2)
+
+            qtd = self.tamanho_tabela() + 1
+
+            xpath_input_lote = self.encontrar_xpath_processo(numero_processo, qtd)
+
+            if xpath_input_lote == '':
+                #TODO acrescentar não enviado no nome
+                continue
+
+            self.click(self.btn_avancar, 2)
+    
+    def encontrar_xpath_processo(self, numero_processo, qtd):
+        for i in range(1, qtd):
+            input_radio_lote = f'/html/body/div/div/form/div[4]/table/tbody/tr[2]/td/div/table/tbody/tr[{i}]/td[1]'
+            n_lote = self.driver.find_element(*input_radio_lote).text
+
+            if n_lote != numero_processo:
+                continue
+
+            return input_radio_lote
+        
+        return ''
+
+    def tamanho_tabela(self):
+        return len(read_html(self.driver.find_element(*self.table_primeiro_mes).get_attribute('outerHTML')[0]))
