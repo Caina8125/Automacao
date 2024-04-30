@@ -85,3 +85,33 @@ class PageElement(ABC):
     def click(self, element, tempo):
         self.driver.find_element(*element).click()
         sleep(tempo)
+
+    def send_keys(self, element, texto, tempo):
+        self.driver.find_element(*element).send_keys(texto)
+        sleep(tempo)
+
+    def clear(self, element, tempo):
+        self.driver.find_element(*element).clear()
+        sleep(tempo)
+
+class Amil(PageElement):
+    input_usuario = By.ID, 'login-usuario'
+    input_senha = By.ID, 'login-senha'
+    btn_entrar = By.XPATH, '/html/body/as-main-app/as-login-container/div[1]/div/as-login/div[2]/form/fieldset/button'
+    acessar_sis_amil = By.XPATH, '/html/body/as-main-app/as-home/as-base-layout/section/div/as-navbar/nav/div[2]/form/button'
+    menu = By.ID, 'mostraMenu'
+    input_menu = By.ID, 'txtProcuraMenu'
+
+
+    def __init__(self, usuario: str, senha: str, driver: WebDriver, url: str = '') -> None:
+        super().__init__(driver, url)
+        self.usuario = usuario
+        self.senha = senha
+    
+    def login(self):
+        self.send_keys(self.input_usuario, self.usuario, 1.5)
+        self.send_keys(self.input_senha, self.senha, 1.5)
+        self.click(self.btn_entrar, 1.5)
+
+    def caminho(self):
+        ...
