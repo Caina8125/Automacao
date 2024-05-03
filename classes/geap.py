@@ -105,7 +105,7 @@ class Geap(PageElement):
     div_prestador = By.XPATH, '/html/body/main/div/div[1]/div[2]'
     input_file = By.XPATH, '/html/body/form/table/tbody/tr[7]/td/input'
     table_arquivo = By.XPATH, '/html/body/form/table/tbody/tr[9]/td/table'
-    btn_salvar = By.XPATH, '/html/body/form/table/tbody/tr[11]/td/table/tbody/tr/td[1]/input'
+    btn_salvar = By.ID, 'MenuOptionUpdate'
     quantidade_de_nao_enviados = 0
 
     def __init__(self, driver: WebDriver, cpf: str, senha: str, url: str = '') -> None:
@@ -193,18 +193,35 @@ class Geap(PageElement):
                 path_arquivo = dado['path_arquivo']
                 path_arquivo_enviado = path_diretorio + '\\' + dado['guia']
 
-                if not self.guia_na_table(df_table_guias, guia):
+                xpath_guia = self.guia_na_table(df_table_guias, guia)
+                if xpath_guia == '':
                     self.renomear_arquivo(path_arquivo, path_arquivo_enviado + '_nao_encontrado.pdf')
                     self.quantidade_de_nao_enviados += 1
                     continue
-
+                
+                self.driver.find_element(By.XPATH, xpath_guia).click()
+                sleep(2)
                 self.driver.switch_to.window(self.driver.window_handles[-1])
-                table_content = self.driver.find_element(*self.table_arquivo).text
+                sleep(3)
 
-                if '.pdf' in table_content:
-                    self.quantidade_de_nao_enviados += 1
-                    self.renomear_arquivo(path_arquivo, path_arquivo_enviado + '_enviado_anteriormente.pdf')
-                    continue
+                while 'Página não encontrada' in self.driver.find_element(*self.body).text:
+                    self.driver.close()
+                    self.driver.switch_to.window(self.driver.window_handles[-1])
+                    self.driver.find_element(By.XPATH, xpath_guia).click()
+                    sleep(2)
+                    self.driver.switch_to.window(self.driver.window_handles[-1])
+                    sleep(2)
+                
+                try:
+                    self.driver.implicitly_wait(3)
+                    table_content = self.driver.find_element(*self.table_arquivo).text
+
+                    if '.pdf' in table_content:
+                        self.quantidade_de_nao_enviados += 1
+                        self.renomear_arquivo(path_arquivo, path_arquivo_enviado + '_enviado_anteriormente.pdf')
+                        continue
+                except:
+                    self.driver.implicitly_wait(15)
 
                 self.driver.find_element(*self.input_file).send_keys(path_arquivo)
                 sleep(1)
@@ -236,9 +253,8 @@ class Geap(PageElement):
     def guia_na_table(self, df_table_guias, guia):
         for i, linha in df_table_guias.iterrows():
             if f"{linha['Cód Guia Prestador']}" == guia:
-                self.driver.find_element(By.XPATH, f'/html/body/main/div/div/div/table/tbody/tr[{i+2}]/td[7]/a').click()
-                return True
-        return False
+                return f'/html/body/main/div/div/div/table/tbody/tr[{i+2}]/td[7]/a'
+        return ''
     
     @staticmethod
     def renomear_arquivo(path, path_novo) -> None:
@@ -267,5 +283,5 @@ if __name__ == '__main__':
     except:
         driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
-    geap = Geap(driver, '05613381160', 'Sarah608@', url)
+    geap = Geap(driver, '23025662', '82449077', url)
     geap.exec_a_bagaca_toda()

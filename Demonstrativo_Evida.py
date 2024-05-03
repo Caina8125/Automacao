@@ -4,7 +4,10 @@ from selenium import webdriver
 from seleniumwire import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import Pidgin
@@ -43,10 +46,10 @@ class Caminho(PageElement):
             login_page.exe_login(usuario, senha)
 
         self.driver.implicitly_wait(30)
-        time.sleep(3)
-        
+        time.sleep(20)
+
         try:
-            self.driver.implicitly_wait(3)
+            self.driver.implicitly_wait(10)
             self.driver.find_element(*self.fechar_modal).click()
         except:
             self.driver.implicitly_wait(30)
@@ -188,6 +191,7 @@ class BaixarDemonstrativo(PageElement):
 
 def demonstrativo_evida(user, password):
     try:
+        tkinter.messagebox.showinfo( 'Demonstrativos E-Vida' , f"Aguarde efetuar o login e clique em 'Ok' caso apareça um alerta." )
         url = 'https://novowebplanevida.facilinformatica.com.br/GuiasTISS/Logon'
         planilha = filedialog.askopenfilename()
 
