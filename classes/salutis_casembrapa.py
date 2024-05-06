@@ -24,6 +24,7 @@ class SalutisCasembrapa(PageElement):
     credenciados: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[8]/span[2]')
     lotes: tuple = (By.XPATH, '//*[@id="divTreeNavegation"]/div[11]/span[2]')
     lotes_de_credenciados: tuple = (By.XPATH, '/html/body/div[8]/div[2]/div[20]/span[2]')
+    lotes_de_credenciados_casembrapa: tuple = (By.XPATH, '/html/body/div[8]/div[2]/div[21]/span[2]')
     fechar_recurso_de_glosa: tuple = (By.XPATH, '/html/body/div[3]/div/table/tbody/tr/td[1]/table/tbody/tr/td[4]/span/div')
     fechar_lotes_de_credenciados: tuple = (By.XPATH, '//*[@id="tabs"]/td[1]/table/tbody/tr/td[4]/span')
     numero_lote_pesquisa: tuple = (By.XPATH, '//*[@id="grdPesquisa"]/tbody/tr[1]/td[1]/table/tbody/tr[2]/td/table/tbody/tr[5]/td[2]/table/tbody/tr/td[1]/input')
@@ -127,6 +128,70 @@ class SalutisCasembrapa(PageElement):
         self.driver.find_element(*self.numero_lote_na_operadora).clear()
         time.sleep(1)
         self.confirma_valor_inserido(self.numero_lote_pesquisa, numero_fatura)
+        time.sleep(1)
+        self.driver.switch_to.default_content()
+        
+        for i in range(1, 5):
+            try:
+                self.driver.implicitly_wait(5)
+                self.driver.find_element(*self.buscar_lotes).click()
+                time.sleep(2)
+                texto_no_botao = self.driver.find_element(*self.buscar_lotes).text
+
+                if texto_no_botao == 'Pesquisar Lotes' or 'Lote cancelado' in self.driver.find_element(*self.body).text:
+                    break
+
+            except:
+                if 'Lote cancelado' in self.driver.find_element(*self.body).text:
+                    break
+
+                continue
+
+        time.sleep(2)
+
+        self.driver.implicitly_wait(30)
+        if 'Lote cancelado' in self.driver.find_element(*self.body).text:
+            self.driver.switch_to.default_content()
+            self.driver.find_element(*self.ok_alerta_lote).click()
+            time.sleep(2)
+            self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
+            self.driver.find_element(*self.ultimo_lote).click()
+            self.driver.switch_to.default_content()
+            time.sleep(2)
+
+
+        self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
+        selector = self.driver.find_element(*self.numero_lote_operadora)
+        lote_operadora = selector.get_attribute('value')
+        self.driver.switch_to.default_content()
+        self.driver.find_element(*self.fechar_lotes_de_credenciados).click()
+        
+        if lote_operadora == '':
+            self.get_click(self.salutis, "Atalho")
+            lote_operadora = self.pegar_numero_lote_casembrapa(numero_fatura)
+
+        return lote_operadora
+    
+    def pegar_numero_lote_casembrapa(self, numero):
+        data_atual: datetime = datetime.now()
+        data_seis_meses_atras: str = (data_atual - timedelta(days=180)).strftime('%d/%m/%Y')
+        self.driver.implicitly_wait(30)
+        self.driver.find_element(*self.lotes_de_credenciados_casembrapa).click()
+        time.sleep(2)
+        self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
+        self.confirma_valor_inserido(self.data_inicio_lote, data_seis_meses_atras)
+        time.sleep(1)
+        self.confirma_valor_inserido(self.data_fim_lote, data_atual.strftime('%d/%m/%Y'))
+        time.sleep(1)
+        self.confirma_valor_inserido(self.data_inicio_operadora, data_seis_meses_atras)
+        time.sleep(1)
+        self.confirma_valor_inserido(self.data_fim_operadora, data_atual.strftime('%d/%m/%Y'))
+        time.sleep(1)
+        self.driver.find_element(*self.numero_lote_pesquisa).clear()
+        time.sleep(2)
+        self.driver.find_element(*self.numero_lote_na_operadora).clear()
+        time.sleep(1)
+        self.confirma_valor_inserido(self.numero_lote_pesquisa, numero)
         time.sleep(1)
         self.driver.switch_to.default_content()
         
