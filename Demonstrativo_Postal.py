@@ -27,8 +27,8 @@ class Login(PageElement):
         self.driver.find_element(*self.logar).click()
 
 class caminho(PageElement):
-    demonstrativo        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/a/span[1]')
-    analise_conta        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/ul/li[3]/a/span')
+    demonstrativo        = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[27]/a/span[1]')
+    analise_conta        = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[27]/ul/li[3]/a/span')
     selecionar_convenio  = (By.XPATH, '//*[@id="s2id_OperadorasCredenciadas_HandleOperadoraSelected"]/a/span[2]/b')
     opcao_postal         = (By.XPATH, '/html/body/div[14]/ul/li[5]/div')
     inserir_protocolo    = (By.XPATH, '//*[@id="Protocolo"]')
@@ -36,6 +36,10 @@ class caminho(PageElement):
     baixar_xml           = (By.XPATH, '//*[@id="btn-Baixar_XML"]')
     fechar_botao         = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
     fechar_alerta        = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
+    erro                 = False
+    botao_fechar: tuple  = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
+    fechar_lote: tuple   = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/bc-detalhes-lote/div[3]/div/div[1]/div[2]/a[1]/span')
+    proximo_botao: tuple = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
 
     def exe_caminho(self):
         time.sleep(1)
@@ -44,6 +48,7 @@ class caminho(PageElement):
         self.driver.find_element(*self.analise_conta).click()
         time.sleep(2)
         caminho(driver, url).Alert()
+        self.driver.implicitly_wait(30)
         self.driver.find_element(*self.selecionar_convenio).click()
         time.sleep(2)
         self.driver.find_element(*self.opcao_postal).click()
@@ -147,27 +152,17 @@ class caminho(PageElement):
 
 
     def Alert(self):
-        try:
-            modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div')))
-            self.driver.find_element(*self.fechar_botao).click()
-
-            while True:
-                try:
-                    proximo_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')))
-                    proximo_botao.click()
-                except:
-                    break
-
+        self.driver.implicitly_wait(3)
+        while True:
             try:
-                fechar_botao = WebDriverWait(self.driver, 0.2).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')))
-                fechar_botao.click()
+                self.driver.find_element(*self.proximo_botao).click()
+                time.sleep(0.5)
             except:
-                print("Não foi possível encontrar o botão de fechar.")
-                pass
-
+                break
+        try:
+            self.driver.find_element(*self.botao_fechar).click()
         except:
-            print("Não teve Modal")
-            pass
+            return
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def demonstrativo_postal(user, password):
@@ -216,6 +211,7 @@ def demonstrativo_postal(user, password):
 
         print('Pegar Alerta Acionado!')
         caminho(driver, url).Alert()
+        driver.implicitly_wait(30)
 
         
         caminho(driver, url).exe_caminho()
