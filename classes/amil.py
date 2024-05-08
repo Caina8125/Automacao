@@ -118,6 +118,19 @@ class Amil(PageElement):
     td_n_guia_prestador = By.XPATH, '/html/body/form/table/tbody/tr[9]/td/table/tbody/tr[2]/td[1]/font'
     fechar_dicas = By.ID, 'finalizar-walktour'
     procurar_texto_menu = By.ID, 'lnkProcuraMenu'
+    label_numero_guia_prestador = By.ID, 'num_guia_prestador_recurso'
+    label_cod_procedimento = By.ID, 'cod_procedimento'
+    input_valor_recursado = By.ID, 'valor_recursado'
+    input_justificativa = By.ID, 'justificativa_prestador_procedimento'
+    btn_proxima_guia = By.ID, 'btn_guia_posterior'
+    btn_proximo_item = By.ID, 'btn_item_posterior'
+    quantidade_guias = By.ID, 'guia_final'
+    quantidade_itens = By.ID, 'item_final'
+    input_marcar_todos = By.ID, 'chkTudo'
+    btn_salvar = By.ID, 'btnsalvar'
+    btn_fechar  = By.ID, 'btn-fechar-popup'
+    btn_voltar = By.ID, 'btnvoltar'
+    btn_sim = By.XPATH, '/html/body/div[2]/div[2]/div/button[1]'
 
     def __init__(self, usuario: str, senha: str, diretorio: str, driver: WebDriver, url: str = '') -> None:
         super().__init__(driver, url)
@@ -173,6 +186,14 @@ class Amil(PageElement):
 
             self.driver.switch_to.default_content()
             self.driver.switch_to.frame('principal')
+
+            if self.checkbox_is_checked():
+                self.click(self.input_marcar_todos, 1)
+                while "Por favor" in self.driver.find_element(*self.body).text:
+                    sleep(1)
+                self.click(self.input_marcar_todos, 1)
+
+
             tamanho_tabela_guias = len(
                 [
                     element
@@ -183,6 +204,63 @@ class Amil(PageElement):
             quantidade_tr = self.calcular_quant_tr(tamanho_tabela_guias)
 
             self.selecionar_guias_e_procedimentos(quantidade_tr)
+            self.driver.switch_to.default_content()
+            self.driver.switch_to.frame('toolbar')
+            self.click(self.btn_avancar, 2)
+            self.driver.switch_to.default_content()
+            self.driver.switch_to.frame('principal')
+
+            while "Por favor" in self.driver.find_element(*self.body).text:
+                sleep(1)
+
+            quantidade_guia = int(self.driver.find_element(*self.quantidade_guias).get_attribute('value'))
+            count = 0
+
+            while count < quantidade_guia:
+                quantidade_itens = int(self.driver.find_element(*self.quantidade_itens).get_attribute('value'))
+                c_itens = 0
+
+                while c_itens < quantidade_itens:
+                    numero_guia_portal = self.driver.find_element(*self.label_numero_guia_prestador).text
+                    cod_proc_portal = self.driver.find_element(*self.label_cod_procedimento).text
+
+                    dict_cols = {j: i for i, j in enumerate(df_fatura.columns)}
+
+                    for index, row in enumerate(df_fatura.values):
+                        numero_guia = f'{row[dict_cols["Nro. Guia"]]}'.replace('.0', '')
+                        numero_controle = f'{row[dict_cols["Controle"]]}'.replace('.0', '')
+                        codigo_procedimento = f'{row[dict_cols["Procedimento"]]}'.replace('.0', '')
+
+                        if (numero_guia_portal == numero_guia or numero_guia_portal == numero_controle) and cod_proc_portal == codigo_procedimento:
+                            valor_recurso = row[dict_cols["Valor Recursado"]]
+                            justificativa = row[dict_cols["Recurso Glosa"]]
+                            self.clear(self.input_valor_recursado, 1.5)
+                            self.clear(self.input_justificativa, 1.5)
+                            self.send_keys(self.input_valor_recursado, valor_recurso, 1.5)
+                            self.send_keys(self.input_justificativa, justificativa, 1.5)
+                            self.driver.switch_to.default_content()
+                            self.driver.switch_to.frame('toolbar')
+                            self.click(self.btn_salvar, 2)
+                            self.driver.switch_to.default_content()
+                            self.driver.switch_to.frame('principal')
+                            self.click(self.btn_fechar, 2)
+                            index #TODO jogar o sim na planilha
+                            break
+                    
+                    c_itens += 1
+                    if self.driver.find_element(*self.btn_proximo_item).get_attribute('disabled') != 'true':
+                        self.click(self.btn_proximo_item, 1.0)
+
+                count += 1
+                if self.driver.find_element(*self.btn_proxima_guia).get_attribute('disabled') != 'true':
+                    self.click(self.btn_proxima_guia, 1.0)
+
+            self.driver.switch_to.default_content()
+            self.driver.switch_to.frame('toolbar')
+            self.click(self.btn_voltar, 2)
+            self.driver.switch_to.default_content()
+            self.click(self.btn_sim, 2)
+            self.driver.switch_to.frame('principal')
     
     def encontrar_xpath_processo(self, numero_processo, qtd):
         for i in range(1, qtd):
@@ -292,6 +370,18 @@ class Amil(PageElement):
 
             if procedimento_guia_portal not in lista_procedimentos:
                 self.click(checkbox_procedimento, 1)
+
+    def checkbox_is_checked(self):
+        checked_checkboxes = len(
+            [
+                element
+                for element in self.driver.find_elements(By.TAG_NAME, 'input')
+                if element.get_attribute('type') == 'checkbox' 
+                and element.get_attribute('name') == 'contas'
+                and element.get_attribute('checked') == 'true'
+            ]
+            )
+        return checked_checkboxes > 0
 
 user = 'lucas.paz'
 password = 'WheySesc2024*'
