@@ -114,7 +114,7 @@ class SalutisCasembrapa(PageElement):
         self.driver.implicitly_wait(30)
         self.driver.find_element(*self.lotes_de_credenciados).click()
         time.sleep(2)
-        self.driver.win
+        self.driver.switch_to.frame(self.get_attribute_value(self.frame, 'id'))
         self.confirma_valor_inserido(self.data_inicio_lote, data_seis_meses_atras)
         time.sleep(1)
         self.confirma_valor_inserido(self.data_fim_lote, data_atual.strftime('%d/%m/%Y'))

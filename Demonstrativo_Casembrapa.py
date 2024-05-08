@@ -232,7 +232,7 @@ class BaixarDemonstrativo(PageElement):
                     tkinter.messagebox.showerror("Automação", f"Ocorreu uma exceção não tratada. \n {error.__class__.__name__} - {error}")
                     break
                 
-                Caminho(driver, url).refazer_caminho()
+                caminho.exe_caminho()
                 contador_vezes = 1
             
 #--------------------------------------------------------------------------------
@@ -292,7 +292,9 @@ def demonstrativo_casembrapa(user, password):
         login_page = Login(driver, url)
         login_page.open()
         login_page.exe_login(usuario, senha)
-        Caminho(driver, url).exe_caminho()
+        global caminho
+        caminho = Caminho(driver, url)
+        caminho.exe_caminho()
         BaixarDemonstrativo(driver, url).baixar_demonstrativo(planilha)
         driver.quit()
     

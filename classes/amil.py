@@ -1,7 +1,8 @@
 from abc import ABC
-from os import listdir
+from os import listdir, rename
 from tkinter.filedialog import askdirectory
-from pandas import DataFrame, read_excel, read_html
+from openpyxl import load_workbook
+from pandas import DataFrame, ExcelWriter, read_excel, read_html
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
@@ -164,6 +165,10 @@ class Amil(PageElement):
         self.caminho()
 
         for arquivo in self.lista_de_arquivos:
+
+            if 'Enviado' in arquivo or 'Não_enviado' in arquivo:
+                continue
+
             df_fatura = read_excel(arquivo)
             lista_de_guias = list(set(df_fatura['Controle'].values.tolist()))
             numero_processo = arquivo.replace(self.diretorio+'\\', '').replace('.xlsx', '')
@@ -176,7 +181,7 @@ class Amil(PageElement):
             xpath_input_lote = self.encontrar_xpath_processo(numero_processo, qtd)
 
             if xpath_input_lote == '':
-                #TODO acrescentar não enviado no nome
+                self.renomear_planilha(arquivo, 'Não_enviado')
                 continue
             
             self.click((By.XPATH, xpath_input_lote), 1)
@@ -192,7 +197,6 @@ class Amil(PageElement):
                 while "Por favor" in self.driver.find_element(*self.body).text:
                     sleep(1)
                 self.click(self.input_marcar_todos, 1)
-
 
             tamanho_tabela_guias = len(
                 [
@@ -217,50 +221,20 @@ class Amil(PageElement):
             count = 0
 
             while count < quantidade_guia:
-                quantidade_itens = int(self.driver.find_element(*self.quantidade_itens).get_attribute('value'))
-                c_itens = 0
-
-                while c_itens < quantidade_itens:
-                    numero_guia_portal = self.driver.find_element(*self.label_numero_guia_prestador).text
-                    cod_proc_portal = self.driver.find_element(*self.label_cod_procedimento).text
-
-                    dict_cols = {j: i for i, j in enumerate(df_fatura.columns)}
-
-                    for index, row in enumerate(df_fatura.values):
-                        numero_guia = f'{row[dict_cols["Nro. Guia"]]}'.replace('.0', '')
-                        numero_controle = f'{row[dict_cols["Controle"]]}'.replace('.0', '')
-                        codigo_procedimento = f'{row[dict_cols["Procedimento"]]}'.replace('.0', '')
-
-                        if (numero_guia_portal == numero_guia or numero_guia_portal == numero_controle) and cod_proc_portal == codigo_procedimento:
-                            valor_recurso = row[dict_cols["Valor Recursado"]]
-                            justificativa = row[dict_cols["Recurso Glosa"]]
-                            self.clear(self.input_valor_recursado, 1.5)
-                            self.clear(self.input_justificativa, 1.5)
-                            self.send_keys(self.input_valor_recursado, valor_recurso, 1.5)
-                            self.send_keys(self.input_justificativa, justificativa, 1.5)
-                            self.driver.switch_to.default_content()
-                            self.driver.switch_to.frame('toolbar')
-                            self.click(self.btn_salvar, 2)
-                            self.driver.switch_to.default_content()
-                            self.driver.switch_to.frame('principal')
-                            self.click(self.btn_fechar, 2)
-                            index #TODO jogar o sim na planilha
-                            break
-                    
-                    c_itens += 1
-                    if self.driver.find_element(*self.btn_proximo_item).get_attribute('disabled') != 'true':
-                        self.click(self.btn_proximo_item, 1.0)
+                self.lancar_recurso_nos_itens(df_fatura, arquivo)
 
                 count += 1
-                if self.driver.find_element(*self.btn_proxima_guia).get_attribute('disabled') != 'true':
-                    self.click(self.btn_proxima_guia, 1.0)
+                self.passar_proximo(self.btn_proxima_guia)
 
             self.driver.switch_to.default_content()
             self.driver.switch_to.frame('toolbar')
             self.click(self.btn_voltar, 2)
-            self.driver.switch_to.default_content()
-            self.click(self.btn_sim, 2)
             self.driver.switch_to.frame('principal')
+            self.click(self.btn_sim, 2)
+
+    def renomear_planilha(self, path_planilha: str, msg: str):
+        novo_nome: str = path_planilha.replace('.xlsx', '') + f'_{msg}.xlsx'
+        rename(path_planilha, novo_nome)
     
     def encontrar_xpath_processo(self, numero_processo, qtd):
         for i in range(1, qtd):
@@ -371,6 +345,10 @@ class Amil(PageElement):
             if procedimento_guia_portal not in lista_procedimentos:
                 self.click(checkbox_procedimento, 1)
 
+    def passar_proximo(self, element: tuple):
+        if self.driver.find_element(*element).get_attribute('disabled') != 'true':
+            self.click(self.btn_proxima_guia, 1.0)
+
     def checkbox_is_checked(self):
         checked_checkboxes = len(
             [
@@ -382,6 +360,66 @@ class Amil(PageElement):
             ]
             )
         return checked_checkboxes > 0
+    
+    def salvar_valor_planilha(self, path_planilha: str, valor, coluna: int, linha: int):
+        if isinstance(valor, list) or isinstance(valor, tuple):
+            dados = {"Recursado no Portal" : valor}
+        else:
+            dados = {"Recursado no Portal" : [valor]}
+
+        df_dados = DataFrame(dados)
+        book = load_workbook(path_planilha)
+        writer = ExcelWriter(path_planilha, engine='openpyxl')
+        writer.book = book
+        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+        df_dados.to_excel(writer, 'Recurso', startrow=linha, startcol=coluna, header=False, index=False)
+        writer.save()
+        writer.close()
+
+
+    def lancar_recurso_nos_itens(self, df_fatura: DataFrame, path_planilha: str):
+        quantidade_itens = int(self.driver.find_element(*self.quantidade_itens).get_attribute('value'))
+        c_itens = 0
+
+        while c_itens < quantidade_itens:
+                    
+            if self.driver.find_element(*self.input_justificativa).get_attribute('value') != '':
+                self.passar_proximo(self.btn_proximo_item)
+                c_itens += 1
+                continue
+
+            numero_guia_portal = self.driver.find_element(*self.label_numero_guia_prestador).text
+            cod_proc_portal = self.driver.find_element(*self.label_cod_procedimento).text
+
+            dict_cols = {j: i for i, j in enumerate(df_fatura.columns)}
+
+            for index, row in enumerate(df_fatura.values):
+
+                if row[dict_cols["Nro. Guia"]] == "Sim":
+                    continue
+
+                numero_guia = f'{row[dict_cols["Nro. Guia"]]}'.replace('.0', '')
+                numero_controle = f'{row[dict_cols["Controle"]]}'.replace('.0', '')
+                codigo_procedimento = f'{row[dict_cols["Procedimento"]]}'.replace('.0', '')
+
+                if (numero_guia_portal == numero_guia or numero_guia_portal == numero_controle) and cod_proc_portal == codigo_procedimento:
+                    valor_recurso = row[dict_cols["Valor Recursado"]]
+                    justificativa = row[dict_cols["Recurso Glosa"]]
+                    self.clear(self.input_valor_recursado, 1.5)
+                    self.clear(self.input_justificativa, 1.5)
+                    self.send_keys(self.input_valor_recursado, valor_recurso, 1.5)
+                    self.send_keys(self.input_justificativa, justificativa, 1.5)
+                    self.driver.switch_to.default_content()
+                    self.driver.switch_to.frame('toolbar')
+                    self.click(self.btn_salvar, 2)
+                    self.driver.switch_to.default_content()
+                    self.driver.switch_to.frame('principal')
+                    self.click(self.btn_fechar, 2)
+                    self.salvar_valor_planilha(path_planilha, "Sim", 23, index+1)
+                    break
+            
+            c_itens += 1
+            self.passar_proximo(self.btn_proximo_item)
 
 user = 'lucas.paz'
 password = 'WheySesc2024*'
@@ -392,7 +430,6 @@ chrome_options = Options()
 chrome_options.add_argument("--start-maximized")
 chrome_options.add_argument('--ignore-certificate-errors')
 chrome_options.add_argument('--ignore-ssl-errors')
-
 
 options = {
 'proxy': {
