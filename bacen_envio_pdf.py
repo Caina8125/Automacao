@@ -75,7 +75,7 @@ class BacenMapa(PageElement):
             for arquivo in lista_de_arquivos:
                 if arquivo.endswith('.pdf') and "PEG" in arquivo and "GUIAPRESTADOR" in arquivo:
                     zipf.write(arquivo, os.path.relpath(arquivo, pasta))
-                    return f"{pasta}/{nome_arquivo_zip}"
+        return f"{pasta}/{nome_arquivo_zip}"
 
     def anexar_guias(self, arquivo, numero_processo, numero_protocolo):
         tbody_conta_fisica_anexada = self.driver.find_element(*self.tbody_conta_fisica_anexada).text
@@ -229,7 +229,9 @@ class BacenMapa(PageElement):
 
 def enviar_pdf_bacen(user, password):
     try:
+        showinfo('', 'Selecione uma pasta com as subpastas dos processos.')
         diretorio = askdirectory()
+        showinfo('', 'Selecione planilhas com os protocolos. Caso não tenha, fechar a tela de seleção de arquivos.')
         planilhas = askopenfilenames()
 
         url = 'https://www3.bcb.gov.br/pasbcmapa/login.aspx'
