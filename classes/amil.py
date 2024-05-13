@@ -5,6 +5,7 @@ from openpyxl import load_workbook
 from pandas import DataFrame, ExcelWriter, read_excel, read_html
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -67,7 +68,7 @@ class PageElement(ABC):
                     web_element.click()
                     return True
             
-            except:
+            except ElementClickInterceptedException as e:
                 if i == 10:
                     return False
                 
@@ -102,12 +103,20 @@ class PageElement(ABC):
         self.driver.find_element(*element).clear()
         sleep(tempo)
 
+    def elemento_existe(self, element: tuple):
+        try: 
+            self.driver.find_element(*element)
+            return True
+        except:
+            return False
+            
+
 class Amil(PageElement):
     dict_guias_list = [{}]
     input_usuario = By.ID, 'login-usuario'
     input_senha = By.ID, 'login-senha'
     btn_entrar = By.XPATH, '/html/body/as-main-app/as-login-container/div[1]/div/as-login/div[2]/form/fieldset/button'
-    acessar_sis_amil = By.XPATH, '/html/body/as-main-app/as-home/as-base-layout/section/div/as-navbar/nav/div[2]/form/button'
+    acessar_sis_amil = ()
     menu = By.ID, 'mostraMenu'
     input_menu = By.ID, 'txtProcuraMenu'
     solicitacao_de_recurso = By.LINK_TEXT, 'Solicitação de Recurso de Glosas'
@@ -132,6 +141,8 @@ class Amil(PageElement):
     btn_fechar  = By.ID, 'btn-fechar-popup'
     btn_voltar = By.ID, 'btnvoltar'
     btn_sim = By.XPATH, '/html/body/div[2]/div[2]/div/button[1]'
+    input_justificativa_guia = By.ID, 'justificativa_guia'
+    div_sis_amil = By.CLASS_NAME, 'box-sis-amil'
 
     def __init__(self, usuario: str, senha: str, diretorio: str, driver: WebDriver, url: str = '') -> None:
         super().__init__(driver, url)
@@ -148,7 +159,18 @@ class Amil(PageElement):
         self.click(self.btn_entrar, 1.5)
 
     def caminho(self):
-        self.get_element_visible(self.acessar_sis_amil)
+        while "Acessar SisAmil" not in self.driver.find_element(*self.body).text:
+            sleep(2)
+        sis_amil_element = self.driver.find_element(*self.div_sis_amil)
+        btn_acessar_sisamil = sis_amil_element.find_element(By.TAG_NAME, 'button')
+
+        try:
+            self.get_element_visible(web_element=btn_acessar_sisamil)
+        except:
+            sis_amil_element = self.driver.find_element(*self.div_sis_amil)
+            btn_acessar_sisamil = sis_amil_element.find_element(By.TAG_NAME, 'button')
+            self.get_element_visible(web_element=btn_acessar_sisamil)
+
         sleep(2)
         self.driver.switch_to.window(self.driver.window_handles[-1])
         self.click(self.menu, 2)
@@ -158,6 +180,17 @@ class Amil(PageElement):
         self.click(self.solicitacao_de_recurso, 2)
         self.driver.switch_to.default_content()
         self.driver.switch_to.frame('principal')
+
+    # def get_botao_sisamil(self):
+    #     btn_sisamil_list = [btn for btn in self.driver.find_elements(By.TAG_NAME, 'button') if "Acessar SisAmil" in btn.text]
+
+    #     if len(btn_sisamil_list) > 0:
+    #         return btn_sisamil_list[0]
+        
+    #     else:
+    #         sleep(2)
+    #         btn_sisamil_list = [btn for btn in self.driver.find_elements(By.TAG_NAME, 'button') if "Acessar SisAmil" in btn.text]
+    #         return btn_sisamil_list[0]
 
     def exec_recurso(self):
         self.open()
@@ -175,6 +208,10 @@ class Amil(PageElement):
             self.dict_guias_list = self.dict_guias(lista_de_guias, df_fatura)
             self.click(self.option_amil, 2)
             self.click(self.segundo_mes, 2)
+
+            if "Não foi possível processar a requisição" in self.driver.find_element(*self.body).text:
+                self.click(self.btn_fechar, 2)
+                self.click(self.segundo_mes, 2)
 
             qtd = self.tamanho_tabela(self.table_segundo_mes) + 1
 
@@ -211,6 +248,11 @@ class Amil(PageElement):
             self.driver.switch_to.default_content()
             self.driver.switch_to.frame('toolbar')
             self.click(self.btn_avancar, 2)
+            try:
+                alert = self.driver.switch_to.alert
+                alert.accept()
+            except:
+                pass
             self.driver.switch_to.default_content()
             self.driver.switch_to.frame('principal')
 
@@ -229,8 +271,10 @@ class Amil(PageElement):
             self.driver.switch_to.default_content()
             self.driver.switch_to.frame('toolbar')
             self.click(self.btn_voltar, 2)
+            self.driver.switch_to.default_content()
             self.driver.switch_to.frame('principal')
             self.click(self.btn_sim, 2)
+            self.renomear_planilha(arquivo, 'Enviado')
 
     def renomear_planilha(self, path_planilha: str, msg: str):
         novo_nome: str = path_planilha.replace('.xlsx', '') + f'_{msg}.xlsx'
@@ -317,7 +361,12 @@ class Amil(PageElement):
 
             if len(procedimentos_guia) <= 0:
                 u_element_guia.click()
+                sleep(1.0)
                 self.driver.switch_to.window(self.driver.window_handles[-1])
+                
+                if "A SESSÃO EXPIROU!" in self.driver.find_element(*self.body).text:
+                    raise Exception('A sessão no portal expirou. Tente executar a automação novamente.')
+
                 self.driver.switch_to.frame('principal2')
                 num_guia_portal = self.driver.find_element(*self.td_n_guia_prestador).text
                 procedimentos_guia = self.num_in_dict(num_guia_portal)
@@ -330,12 +379,21 @@ class Amil(PageElement):
 
             checkbox_guia = (By.XPATH, f'/html/body/div/div/form/div[3]/div[4]/table/tbody/tr[{i}]/td[1]/input')
             self.click(checkbox_guia, 2)
-            #TODO tratar o erro da requisição
 
             table_procedimentos = By.XPATH, f'/html/body/div/div/form/div[3]/div[4]/table/tbody/tr[{i+1}]/td/div/table'
+
+            if 'Não foi possível processar a requisição' in self.driver.find_element(*self.body).text:
+                self.click(self.btn_fechar, 2)
+                self.click(checkbox_guia, 2)
+                self.click(checkbox_guia, 2)
+
+            if self.driver.find_element(*table_procedimentos).text == '':
+                continue
+
             quantidade_de_procedimentos = self.tamanho_tabela(table_procedimentos) + 1
 
             self.selecionar_procedimentos(quantidade_de_procedimentos, i+1, procedimentos_guia)
+            print(self.driver.find_element(*table_procedimentos).text)
 
     def selecionar_procedimentos(self, qtd_proc, num_tr, lista_procedimentos):
         for i in range(1, qtd_proc):
@@ -378,7 +436,16 @@ class Amil(PageElement):
 
 
     def lancar_recurso_nos_itens(self, df_fatura: DataFrame, path_planilha: str):
-        quantidade_itens = int(self.driver.find_element(*self.quantidade_itens).get_attribute('value'))
+        valor_no_elemento = self.driver.find_element(*self.quantidade_itens).get_attribute('value')
+
+        if valor_no_elemento == '':
+            self.clear(self.input_justificativa_guia, 0.5)
+            self.send_keys(self.input_justificativa_guia, 1.5)
+            self.gravar_recurso(path_planilha, index+1)
+            self.salvar_valor_planilha(path_planilha, "Valor do recurso maior que o glosado!", 23, index+1)
+            return
+
+        quantidade_itens = int(valor_no_elemento)
         c_itens = 0
 
         while c_itens < quantidade_itens:
@@ -401,25 +468,33 @@ class Amil(PageElement):
                 numero_guia = f'{row[dict_cols["Nro. Guia"]]}'.replace('.0', '')
                 numero_controle = f'{row[dict_cols["Controle"]]}'.replace('.0', '')
                 codigo_procedimento = f'{row[dict_cols["Procedimento"]]}'.replace('.0', '')
+                valor_recurso = row[dict_cols["Valor Recursado"]]
+                justificativa = row[dict_cols["Recurso Glosa"]]
 
                 if (numero_guia_portal == numero_guia or numero_guia_portal == numero_controle) and cod_proc_portal == codigo_procedimento:
-                    valor_recurso = row[dict_cols["Valor Recursado"]]
-                    justificativa = row[dict_cols["Recurso Glosa"]]
-                    self.clear(self.input_valor_recursado, 1.5)
-                    self.clear(self.input_justificativa, 1.5)
-                    self.send_keys(self.input_valor_recursado, valor_recurso, 1.5)
+                    self.clear(self.input_valor_recursado, 0.5)
+                    self.clear(self.input_justificativa, 0.5)
+                    self.send_keys(self.input_valor_recursado, valor_recurso, 2)
+
+                    if 'Valor recursado superior ao valor glosado.' in self.driver.find_element(*self.body).text:
+                        self.click(self.btn_fechar, 1.5)
+                         
                     self.send_keys(self.input_justificativa, justificativa, 1.5)
-                    self.driver.switch_to.default_content()
-                    self.driver.switch_to.frame('toolbar')
-                    self.click(self.btn_salvar, 2)
-                    self.driver.switch_to.default_content()
-                    self.driver.switch_to.frame('principal')
-                    self.click(self.btn_fechar, 2)
-                    self.salvar_valor_planilha(path_planilha, "Sim", 23, index+1)
+                    self.gravar_recurso(path_planilha, index+1)
                     break
             
             c_itens += 1
             self.passar_proximo(self.btn_proximo_item)
+
+    def gravar_recurso(self, path_planilha, num_linha):
+        self.driver.switch_to.default_content()
+        self.driver.switch_to.frame('toolbar')
+        self.click(self.btn_salvar, 2)
+        self.driver.switch_to.default_content()
+        self.driver.switch_to.frame('principal')
+        self.click(self.btn_fechar, 2)
+        self.salvar_valor_planilha(path_planilha, "Sim", 23, num_linha)
+
 
 user = 'lucas.paz'
 password = 'WheySesc2024*'
