@@ -1,115 +1,18 @@
 from abc import ABC
 from os import listdir, rename
 from tkinter.filedialog import askdirectory
+from tkinter.messagebox import showerror, showinfo
 from openpyxl import load_workbook
 from pandas import DataFrame, ExcelWriter, read_excel, read_html
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.common.exceptions import ElementClickInterceptedException
+from page_element import PageElement
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from seleniumwire import webdriver
-from time import sleep
-
-class PageElement(ABC):
-    body: tuple = (By.XPATH, '/html/body')
-    a: tuple = (By.TAG_NAME, 'a')
-    p: tuple = (By.TAG_NAME, 'p')
-    h1: tuple = (By.TAG_NAME, 'h1')
-    h2: tuple = (By.TAG_NAME, 'h2')
-    h3: tuple = (By.TAG_NAME, 'h3')
-    h4: tuple = (By.TAG_NAME, 'h4')
-    h5: tuple = (By.TAG_NAME, 'h5')
-    h6: tuple = (By.TAG_NAME, 'h6')
-    table: tuple = (By.TAG_NAME, 'table')
-
-    def __init__(self, driver: WebDriver, url: str = '') -> None:
-        self.driver: WebDriver = driver
-        self._url:str = url
-
-    def open(self) -> None:
-        self.driver.get(self._url)
-
-    def get_attribute_value(self, element: tuple, atributo: str) -> str | None:
-        return self.driver.find_element(*element).get_attribute(atributo)
-
-    def confirma_valor_inserido(self, element: tuple, valor: str) -> None:
-        """Este método verifica se um input recebeu os valores que foram enviados.
-           Caso não tenha recebido, tenta enviar novamente até 10x."""
-        try:
-            self.driver.find_element(*element).clear()
-            valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
-            count: int = 0
-
-            while valor_inserido == '':
-                self.driver.find_element(*element).send_keys(valor)
-                sleep(0.5)
-                valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
-                count += 1
-
-                if count == 10:
-                    raise Exception("Element not interactable")
-
-        except Exception as e:
-            raise Exception(e)
-        
-    def get_element_visible(self, element: tuple | None = None,  web_element: WebElement | None = None) -> bool:
-        """Este método observa se irá ocorrer ElementClickInterceptedException. Caso ocorra
-        irá dar um scroll até 10x na página conforme o comando passado até achar o click do elemento"""
-        for i in range(10):
-            try:
-                if element != None:
-                    self.driver.find_element(*element).click()
-                    return True
-                
-                elif web_element != None:
-                    web_element.click()
-                    return True
-            
-            except ElementClickInterceptedException as e:
-                if i == 10:
-                    return False
-                
-                self.driver.execute_script('scrollBy(0,100)')
-                continue
-
-    def get_click(self, element: tuple, valor: str) -> None:
-        for i in range(10):
-            self.driver.find_element(*element).click()
-            sleep(3)
-            content: str = self.driver.find_element(*self.body).text
-
-            if valor in content:
-                break
-            
-            else:
-                if i == 10:
-                    raise Exception('Element not interactable')
-                
-                sleep(2)
-                continue
-
-    def click(self, element, tempo):
-        self.driver.find_element(*element).click()
-        sleep(tempo)
-
-    def send_keys(self, element, texto, tempo):
-        self.driver.find_element(*element).send_keys(texto)
-        sleep(tempo)
-
-    def clear(self, element, tempo):
-        self.driver.find_element(*element).clear()
-        sleep(tempo)
-
-    def elemento_existe(self, element: tuple):
-        try: 
-            self.driver.find_element(*element)
-            return True
-        except:
-            return False
-            
+from time import sleep      
 
 class Amil(PageElement):
     dict_guias_list = [{}]
@@ -439,18 +342,17 @@ class Amil(PageElement):
         valor_no_elemento = self.driver.find_element(*self.quantidade_itens).get_attribute('value')
 
         if valor_no_elemento == '':
-            self.clear(self.input_justificativa_guia, 0.5)
-            self.send_keys(self.input_justificativa_guia, 1.5)
-            self.gravar_recurso(path_planilha, index+1)
-            self.salvar_valor_planilha(path_planilha, "Valor do recurso maior que o glosado!", 23, index+1)
-            return
+            quantidade_itens = 1
 
-        quantidade_itens = int(valor_no_elemento)
+        else:
+            quantidade_itens = int(valor_no_elemento)
+
         c_itens = 0
 
         while c_itens < quantidade_itens:
                     
-            if self.driver.find_element(*self.input_justificativa).get_attribute('value') != '':
+            if self.driver.find_element(*self.input_justificativa).get_attribute('value') != '' and \
+                self.driver.find_element(*self.input_justificativa).get_attribute('value') != '-':
                 self.passar_proximo(self.btn_proximo_item)
                 c_itens += 1
                 continue
@@ -468,8 +370,17 @@ class Amil(PageElement):
                 numero_guia = f'{row[dict_cols["Nro. Guia"]]}'.replace('.0', '')
                 numero_controle = f'{row[dict_cols["Controle"]]}'.replace('.0', '')
                 codigo_procedimento = f'{row[dict_cols["Procedimento"]]}'.replace('.0', '')
-                valor_recurso = row[dict_cols["Valor Recursado"]]
+                valor_recurso = "{:.2f}".format(row[dict_cols["Valor Recursado"]]).replace('.', ',')
                 justificativa = row[dict_cols["Recurso Glosa"]]
+                teste = self.driver.find_element(*self.input_justificativa).get_attribute('readonly')
+
+                if self.driver.find_element(*self.input_justificativa).get_attribute('readonly') == 'true' and \
+                    (numero_guia_portal == numero_guia or numero_guia_portal == numero_controle):
+                    self.clear(self.input_justificativa_guia, 0.5)
+                    self.send_keys(self.input_justificativa_guia, justificativa, 1.5)
+                    self.gravar_recurso(path_planilha, index+1)
+                    self.salvar_valor_planilha(path_planilha, "Sim", 23, index+1)
+                    break
 
                 if (numero_guia_portal == numero_guia or numero_guia_portal == numero_controle) and cod_proc_portal == codigo_procedimento:
                     self.clear(self.input_valor_recursado, 0.5)
@@ -478,6 +389,8 @@ class Amil(PageElement):
 
                     if 'Valor recursado superior ao valor glosado.' in self.driver.find_element(*self.body).text:
                         self.click(self.btn_fechar, 1.5)
+                        self.salvar_valor_planilha(path_planilha, "Valor do recurso maior que o glosado!", 23, index+1)
+                        break
                          
                     self.send_keys(self.input_justificativa, justificativa, 1.5)
                     self.gravar_recurso(path_planilha, index+1)
@@ -495,28 +408,31 @@ class Amil(PageElement):
         self.click(self.btn_fechar, 2)
         self.salvar_valor_planilha(path_planilha, "Sim", 23, num_linha)
 
+def recursar_amil(user, password):
+    try:
+        url = 'https://credenciado.amil.com.br/login'
+        diretorio = askdirectory()
 
-user = 'lucas.paz'
-password = 'WheySesc2024*'
-url = 'https://credenciado.amil.com.br/login'
-diretorio = askdirectory()
+        chrome_options = Options()
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--ignore-ssl-errors')
 
-chrome_options = Options()
-chrome_options.add_argument("--start-maximized")
-chrome_options.add_argument('--ignore-certificate-errors')
-chrome_options.add_argument('--ignore-ssl-errors')
+        options = {
+        'proxy': {
+                'http': f'http://{user}:{password}@10.0.0.230:3128',
+            'https': f'http://{user}:{password}@10.0.0.230:3128'
+            }
+        }
+        try:
+            servico = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
+        except:
+            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
-options = {
-'proxy': {
-        'http': f'http://{user}:{password}@10.0.0.230:3128',
-    'https': f'http://{user}:{password}@10.0.0.230:3128'
-    }
-}
-try:
-    servico = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
-except:
-    driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+        amil = Amil('10019642', 'Amhpdf2024', diretorio, driver, url)
+        amil.exec_recurso()
+        showinfo('', 'Recursos concluídos com sucesso!')
 
-amil = Amil('10019642', 'Amhpdf2024', diretorio, driver, url)
-amil.exec_recurso()
+    except Exception as e:
+        showerror('', f'Ocorreu uma exceção não tratada\n{e.__class__.__name__}\n{e}')

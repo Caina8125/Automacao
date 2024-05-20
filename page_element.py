@@ -1,6 +1,7 @@
 from abc import ABC
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.common.by import By
 from time import sleep
 
@@ -59,7 +60,7 @@ class PageElement(ABC):
                     web_element.click()
                     return True
             
-            except:
+            except ElementClickInterceptedException as e:
                 if i == 10:
                     return False
                 
@@ -85,3 +86,18 @@ class PageElement(ABC):
     def click(self, element, tempo):
         self.driver.find_element(*element).click()
         sleep(tempo)
+
+    def send_keys(self, element, texto, tempo):
+        self.driver.find_element(*element).send_keys(texto)
+        sleep(tempo)
+
+    def clear(self, element, tempo):
+        self.driver.find_element(*element).clear()
+        sleep(tempo)
+
+    def elemento_existe(self, element: tuple):
+        try: 
+            self.driver.find_element(*element)
+            return True
+        except:
+            return False

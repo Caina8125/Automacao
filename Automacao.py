@@ -5,6 +5,7 @@ import threading
 from PIL import Image, ImageTk
 from itertools import count, cycle
 from bacen_envio_pdf import enviar_pdf_bacen
+from classes.amil import recursar_amil
 from classes.conferencia_protocolos import executar_conferencia_arquivos
 from classes.connect_med import recursar_gama
 from classes.enviar_pdf_benner import enviar_pdf_benner
@@ -470,6 +471,9 @@ class Application:
                 self.gif()
                 filtrar_matricula()
                 self.reiniciar()
+
+            case "Glosa - Recursar Amil":
+                self.inserir_login(recursar_amil)    
 
             case "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)":
                 self.inserir_login(recursar_benner)
