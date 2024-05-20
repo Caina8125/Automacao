@@ -464,7 +464,7 @@ class SalutisCasembrapa(PageElement):
                 codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
                 n_guia_operadora = self.driver.find_element(*self.input_n_guia_operadora).get_attribute('value')
 
-                self.salvar_valor_planilha(planilha, n_guia_operadora, 3, linha+1)
+                self.salvar_valor_planilha(planilha, n_guia_operadora, 3, index+1)
 
                 if isinstance(linha['Valor Glosa'], float) or isinstance(linha['Valor Glosa'], int):
                     valor_glosa = "{:.2f}".format(linha["Valor Glosa"])
