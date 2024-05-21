@@ -1,57 +1,57 @@
-import os
-import tkinter
+from asyncio import sleep
 import requests
 import pandas as pd
+from seleniumwire import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.webdriver import WebDriver
+from page_element import PageElement
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from google_auth_oauthlib.flow import InstalledAppFlow
-
-class LogarGeap():
-    proxies = {
+import os
+    
+class ExtrairDados():
+    url_revisao = 'https://apicore.geap.com.br/auditoriadigital/v1/Guias/prestadores/guias/0?PageSize=1000000&PageNumber=1&Parameters=IdeSituacaoGuia%3A3%3BDtaInicioImportacao%3A%3BDtaFimImportacao%3A%3BNroTpoGsp%3A%3BNomeBeneficiario%3A%3B&Situacao=3'
+    url_pendentes = 'https://apicore.geap.com.br/auditoriadigital/v1/Guias/prestadores/guias/0?PageSize=1000000&PageNumber=1&Parameters=IdeSituacaoGuia%3A1%3BDtaInicioImportacao%3A%3BDtaFimImportacao%3A%3BNroTpoGsp%3A%3BNomeBeneficiario%3A%3B&Situacao=1'
+    proxy = {
     'http': '10.0.0.230:3128',
-    'https': 'lucas.paz:Gsw2022&@10.0.0.230:3128'
+    'https': 'lucas.paz:WheySesc2024*@10.0.0.230:3128'
     }
-    login = {
-    "username": "23003723",
-    "password": "amhpdf0073",
-    "nrotpousuario": "1",
-    "grant_type": "password",
-    "CpfMultiusuario": "66661692120"
-}
-    data = []
-    token = ''
-    headers = {}
-    url = 'https://wwwapi.geap.com.br/authentication/api/Token'
-    
-    def logar(self):
-        response_login = requests.post(url=self.url, data=self.login, proxies=self.proxies)
-        self.data = response_login.json()
-
-    def gerar_token(self):
-        self.token = self.data["access_token"]
-        self.headers = {'Authorization': f'Bearer {self.token}'}
-    
-class ExtrairDados(LogarGeap):
-    url_revisao = 'https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/prestadores/undefined/guias?PageSize=10000000&PageNumber=1&Situacao=3&Filtro=&Ordenacao=Crescente'
-    lista_id = []
-    data_revisao = []
-    quant_guia = 0
-    lista_df = []
 
     def acessar_revisao_prestador(self):
-        response = requests.get(url=self.url_revisao, headers=self.headers, proxies=self.proxies)
+        global token, authorization
+        token = input('Cole aqui o token: ')
+        authorization = {
+        "Authorization": f'Bearer {token}'
+        }
+        response = requests.get(url=self.url_revisao, headers=authorization, proxies=self.proxy, verify=False)
         self.data_revisao = response.json()
-        self.quant_guia = len(self.data_revisao["ResultData"]["Items"])
+        self.quant_guia = len(self.data_revisao["resultData"]["items"])
+
+    def acessar_pendentes(self):
+        global token, authorization
+        token = input('Cole aqui o token: ')
+        authorization = {
+        "Authorization": f'Bearer {token}'
+        }
+        response = requests.get(url=self.url_pendentes, headers=authorization, proxies=self.proxy, verify=False)
+        self.data_revisao = response.json()
+        self.quant_guia = len(self.data_revisao["resultData"]["items"])
 
     def pegar_id(self):
-        updater = ImportarGoogleSheets()
-        creds = updater.authenticate()
-        updater.get_spreadsheet(creds)
+        if __name__ == '__main__':
+            updater = ImportarGoogleSheets()
+            creds = updater.authenticate()
+            updater.get_spreadsheet(creds)
 
+        lista_url = []
         for i in range(0, self.quant_guia):
-            id = str(self.data_revisao["ResultData"]["Items"][i]["Id"])
+            id = str(self.data_revisao["resultData"]["items"][i]["id"])
             id_encontrado = False
 
             for lista in values:
@@ -60,88 +60,160 @@ class ExtrairDados(LogarGeap):
                 if id in link_plan:
                     id_encontrado = True
                     break
-
+                
                 else:
                     continue
-
             if id_encontrado == False:
-                self.lista_id.append(f"https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/{id}")
+                lista_url.append(f"https://apicore.geap.com.br/auditoriadigital/v1/Guias/guias/{id}")
+
+        return lista_url
+    
+    def pegar_id_pendentes(self):
+        lista_url = []
+        for i in range(0, self.quant_guia):
+            id = str(self.data_revisao["resultData"]["items"][i]["id"])
+            lista_url.append(f"https://apicore.geap.com.br/auditoriadigital/v1/Guias/guias/{id}")
+
+        return lista_url
         
     def extrair_dados(self):
-        try:
-            self.logar()
-            self.gerar_token()
-            self.acessar_revisao_prestador()
-            self.pegar_id()
+        self.acessar_revisao_prestador()
+        lista_url = self.pegar_id()
 
-            for link_guia in self.lista_id:
-                
-                response = requests.get(url=link_guia, headers=self.headers, proxies=self.proxies)
-                print(response)
-                data = response.json()
-                n_amhp = data['ResultData']["NumeroGuiaPrestador"]
-                nome_paciente = data['ResultData']["NomeBeneficiario"]
-                carteirinha = data["ResultData"]["NumeroCartao"]
-                link_aba = link_guia + '/abas'
-                response_aba = requests.get(url=link_aba, headers=self.headers, proxies=self.proxies)
-                data_aba = response_aba.json()
-                quant_procedimento = len(data_aba["ResultData"][6]["ResultData"]["Items"])
-                id = "https://www2.geap.com.br/AuditoriaDigital/guia/" + link_guia.replace("https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/", "")
-                motivo_glosa = []
+        for link_guia in lista_url:
+            
+            response = requests.get(url=link_guia, headers=authorization, proxies=self.proxy, verify=False)
+            print(response)
+            data = response.json()
+            n_amhp = data['resultData']["numeroGuiaPrestador"]
+            nome_paciente = data['resultData']["nomeBeneficiario"]
+            carteirinha = data["resultData"]["numeroCartao"]
+            link_aba = link_guia + '/abas'
+            response_aba = requests.get(url=link_aba, headers=authorization, proxies=self.proxy, verify=False)
+            data_aba = response_aba.json()
+            quant_procedimento = len(data_aba["resultData"][6]["itemOutputModel"]['resultData']["items"])
+            id = "https://sisgeap.geap.com.br/auditoriadigital/guia/" + link_guia.replace("https://apicore.geap.com.br/auditoriadigital/v1/Guias/guias/", "")
+            motivo_glosa = []
 
-                for i in range(0, quant_procedimento):
-                    id_procedimento = data_aba["ResultData"][6]["ResultData"]["Items"][i]["Id"]
-                    link_procedimento = f'https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/itens/{id_procedimento}/historico-revisoes?tipoItem=Procedimentos'
-                    response_procedimento = requests.get(url=link_procedimento, headers=self.headers, proxies=self.proxies)
-                    data_procedimento = response_procedimento.json()
-                    ultimo_motivo = len(data_procedimento["ResultData"]["Items"]) - 1
-                    codigo_procedimento = data_procedimento["ResultData"]["Items"][ultimo_motivo]["Codigo"]
-                    
-                    try:
-                        justificativa = data_procedimento["ResultData"]["Items"][ultimo_motivo]["Justificativa"]
-                        motivo_glosa.append(f'{codigo_procedimento} - {justificativa}')
+            for i in range(0, quant_procedimento):
+                id_procedimento = data_aba["resultData"][6]["itemOutputModel"]['resultData']["items"][i]["id"]
+                link_procedimento = f'https://apicore.geap.com.br/auditoriadigital/v1/Itens/{id_procedimento}/historico-revisoes?tipoItem=Procedimentos'
+                response_procedimento = requests.get(url=link_procedimento, headers=authorization, proxies=self.proxy, verify=False)
+                data_procedimento = response_procedimento.json()
+                ultimo_motivo = len(data_procedimento["resultData"]["items"]) - 1
+                codigo_procedimento = data_procedimento["resultData"]["items"][ultimo_motivo]["codigo"]
 
-                    except:
-                        pass
+                try:
+                    justificativa = data_procedimento["resultData"]["items"][ultimo_motivo]["justificativa"]
+                    motivo_glosa.append(f'{codigo_procedimento} - {justificativa}')
 
-                motivos = "/".join(motivo_glosa)    
-                df = pd.DataFrame({'Endereço': [id], 'GUIA': [n_amhp], 'PACIENTE': [nome_paciente], 'CARTEIRINHA': [carteirinha], 'MOTIVO DE GLOSA': [motivos], 'SITUAÇÃO': [""],
-                            'RESPONSAVEL': [""], 'REVISÃO TATIANE': [""], 'OBSERVAÇÃO': [""], 'PARECER TÉCNICO - DR. RICARDO': [""]})
-                global lista_df
-                lista_df = df.values.tolist()
+                except:
+                    pass
+
+            motivos = "/".join(motivo_glosa)    
+            df = pd.DataFrame({'Endereço': [id], 'GUIA': [n_amhp], 'PACIENTE': [nome_paciente], 'CARTEIRINHA': [carteirinha], 'MOTIVO DE GLOSA': [motivos], 'SITUAÇÃO': [""],
+                          'RESPONSAVEL': [""], 'REVISÃO TATIANE': [""], 'OBSERVAÇÃO': [""], 'PARECER TÉCNICO - DR. RICARDO': [""]})
+            global lista_df
+            lista_df = df.values.tolist()
+            if __name__ == '__main__':
                 ImportarGoogleSheets().main()
-        except:
-            tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
 
     def atualizar_situacao(self):
         updater = ImportarGoogleSheets()
         creds = updater.authenticate()
         updater.get_spreadsheet(creds)
         cabecalho = values.pop(0)
-        cabecalho.append('1')
-        cabecalho.append('2')
+        # cabecalho.append('1')
         df = pd.DataFrame(values)
         df.columns = cabecalho
-        count = 0
+        token = input('Cole aqui o token: ')
+        authorization = {
+    "Authorization": f'Bearer {token}'
+        }
 
         for index, linha in df.iterrows():
-
             if linha['SITUAÇÃO'] == 'Revisão Geap':
-                id = str(linha['ENDEREÇO']).replace('https://www2.geap.com.br/AuditoriaDigital/guia/', '')
-                self.logar()
-                self.gerar_token()
-                url = f"https://wwwapi.geap.com.br/AuditoriaDigital/api/v1/guias/{id}"
-                response = requests.get(url=self.url, headers=self.headers, proxies=self.proxies)
+                id = str(linha['ENDEREÇO']).replace('https://sisgeap.geap.com.br/auditoriadigital/guia/', '')
+                url = f"https://apicore.geap.com.br/auditoriadigital/v1/Guias/guias/{id}"
+                response = requests.get(url=url, headers=authorization, proxies=self.proxy, verify=False)
                 data = response.json()
-                situacao = data["ResultData"]["Situacao"]
+                situacao = data["resultData"]["situacao"]
 
                 match situacao:
-                    case 'Revisão Geap':
+                    case 'RevisaoGeap':
                         continue
-                    case 'Revisão Prestador':
-                        valor = ['Revisão Prestador']
-                        ImportarGoogleSheets().update_situacao(index + 1, valor)
+                    case 'RevisaoPrestador':
+                        valor = [['Revisão Prestador ']]
+                        ImportarGoogleSheets().update_situacao(str(index + 2), valor)
+                    case 'Consensuada':
+                        valor = [['Consensuada']]
+                        ImportarGoogleSheets().update_situacao(str(index + 2), valor)
+                    case 'Cancelada':
+                        valor = [['Guia cancelada ']]
+                        ImportarGoogleSheets().update_situacao(str(index + 2), valor)
 
+    def pegar_dados_pendentes(self):
+        self.acessar_pendentes()
+        lista_id = self.pegar_id_pendentes()
+        lista = []
+        token = input('Cole aqui o token: ')
+        authorization = {
+    "Authorization": f'Bearer {token}'
+        }
+        for link_guia in lista_id:    
+            response = requests.get(url=link_guia, headers=authorization, proxies=self.proxy, verify=False)
+            data = response.json()
+            n_amhp = data['resultData']["numeroGuiaPrestador"]
+            nome_paciente = data['resultData']["nomeBeneficiario"]
+            carteirinha = data["resultData"]["numeroCartao"]
+            data_atendimento = data["resultData"]["dataHoraAtendimento"]
+            vet_data_atendimento = data_atendimento.split('T')
+            vet_data_atendimento = vet_data_atendimento[0].split('-')
+            data_atendimento = f"{vet_data_atendimento[2]}/{vet_data_atendimento[1]}/{vet_data_atendimento[0]}"
+            data_importacao = data["resultData"]["dataAtualizacao"]
+            vet_data_importacao = data_importacao.split('T')
+            vet_data_importacao = vet_data_importacao[0].split('-')
+            data_importacao = f"{vet_data_importacao[2]}/{vet_data_importacao[1]}/{vet_data_importacao[0]}"
+            link_aba = link_guia + '/abas'
+            response_aba = requests.get(url=link_aba, headers=authorization, proxies=self.proxy, verify=False)
+            data_aba = response_aba.json()
+            quant_procedimento = len(data_aba["resultData"][6]["itemOutputModel"]["resultData"]["items"])
+            valor_total = 0.0
+
+            for i in range(0, quant_procedimento):
+                valor_proc = float(data_aba["resultData"][6]["itemOutputModel"]["resultData"]["items"][i]["valorTotal"])
+                valor_total += valor_proc
+            
+            lista_guia = [n_amhp, nome_paciente, carteirinha, data_atendimento, data_importacao, valor_total]
+            lista.append(lista_guia)
+        
+        cabecalho = ["Nº AMHPTISS", "Nome do Paciente", "Matrícula", "Data Atendimento", "Data Importação", "Valor Total"]
+        df = pd.DataFrame(lista)
+        df.columns = cabecalho
+        df.to_excel(r'C:\Users\lucas.paz\Documents\Planilhas\Geap.xlsx')
+
+class SisGeap(PageElement):
+    input_usuario = '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[1]/div/div[1]/div/input'
+    input_senha = '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[2]/div/div[1]/div[1]/input'
+    btn_entrar = '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/button'
+
+    def __init__(self, driver: WebDriver, url: str, usuario, senha) -> None:
+        super().__init__(driver, url)
+        self.usuario = usuario
+        self.senha = senha
+
+    def login(self):
+        self.driver.find_element(*self.input_usuario).send_keys(self.usuario)
+        sleep(2)
+        self.driver.find_element(*self.input_senha).send_keys(self.senha)
+        sleep(2)
+        self.driver.find_element(*self.btn_entrar).click()
+        sleep(2)
+
+    def get_token(self):
+        self.open()
+        self.login()
+        local_storage = self.driver.execute_script('localstorage;')
 
 class ImportarGoogleSheets(ExtrairDados):
     def __init__(self)-> None:
@@ -231,3 +303,29 @@ class ImportarGoogleSheets(ExtrairDados):
         creds = updater.authenticate()
         updater.get_spreadsheet(creds)
         updater.injetar_dados()
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+url = r'https://login.geap.com.br/account/signin?p=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3Dgeap.auditoria.digital%26redirect_uri%3Dhttps%253A%252F%252Fsisgeap.geap.com.br%252Fauditoriadigital%252Flogin-callback%26response_type%3Dcode%26scope%3Dopenid%2520profile%252017_E%252037_E%25201104_S%25201104_U%25201104_I%25201104_D%252016_E%26state%3Df2199211ba7b494fa63da011dda15601%26code_challenge%3DrY3xZIoRaQrVs7uAVW1oq8HOFGVeLVGs_0RIytfgPJo%26code_challenge_method%3DS256%26response_mode%3Dquery'
+options = {
+    'proxy' : {
+        'http': 'http://lucas.paz:WheySesc2024*@10.0.0.230:3128',
+        'https': 'http://lucas.paz:WheySesc2024*@10.0.0.230:3128'
+    },
+    'verify_ssl': False
+}
+
+chrome_options = Options()
+chrome_options.add_argument("--start-maximized")
+chrome_options.add_argument('--ignore-certificate-errors')
+try:
+    servico = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=servico, seleniumwire_options= options, options = chrome_options)
+except Exception as err:
+    print(err)
+    driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
+
+usuario = "66661692120"
+senha = "Amhp2023"
+SisGeap(driver, url, usuario, senha).get_token()
+ExtrairDados().atualizar_situacao()
+ExtrairDados().extrair_dados()

@@ -24,19 +24,8 @@ class Facil(PageElement):
     codigo = (By.XPATH, '/html/body/main/div/div[1]/div[2]/div/div/div[2]/div[1]/div[1]/input-text[1]/div/div/input')
     pesquisar = (By.XPATH, '//*[@id="filtro"]/div[2]/div[2]/button')
     recurso_de_glosa = (By.XPATH, '/html/body/main/div/div[1]/div[4]/div/div/div[1]/div/div[2]/a[5]/i')
-    #-----------------------------------------------------------------------------------------------------------------------------
     table = (By.ID, 'recursoGlosaTabelaServicos')
     text_area_justificativa = (By.ID, 'txtJustificativa')
-    #----------------------------------------------------------------------------------------------------------------------------------
-    button_ok = ()
-    salvar_parcialmente = ()
-    i_close = ()
-    proxima_pagina = ()
-    label_registros = ()
-    primeira_pagina = ()
-    fechar = ()
-    ul = ()
-    #-----------------------------------------------------------------------------------------------------------------------------------------------
     close_warning = (By.XPATH, '/html/body/ul/li/div/div/span/h4/i')
     recurso_de_glosa_menu = (By.XPATH, '//*[@id="menuPrincipal"]/div/div[10]/a')
     fatura_input = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/input-number/div/div/input')
@@ -45,6 +34,17 @@ class Facil(PageElement):
     alerta = (By.XPATH, '/html/body/ul/li/div/div[2]/button[2]')
     guia_op = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[2]/input-text-search/div/div/div/input') 
     buscar = (By.XPATH, '/html/body/main/div[1]/div[1]/div[2]/div[1]/div[2]/input-text-search/div/div/div/span/span')
+    
+    def __init__(self, driver, url: str, usuario: str, senha: str, diretorio: str) -> None:
+        super().__init__(driver=driver, url=url)
+        self.usuario: str = usuario
+        self.senha: str = senha
+        self.diretorio: str = diretorio
+        self.lista_de_planilhas: list[str] = [
+            f'{diretorio}\\{arquivo}' 
+            for arquivo in os.listdir(diretorio)
+            if arquivo.endswith('.xlsx')
+            ]
 
     def exe_login(self):
         self.driver.find_element(*self.prestador_pj).click()
@@ -70,22 +70,54 @@ class Facil(PageElement):
         self.driver.find_element(*self.relatorio_de_faturas).click()
         time.sleep(2)
 
-    def inicializar_atributos(self, recurso_iniciado):
-        if recurso_iniciado == False:
-            self.button_ok = (By.XPATH, '/html/body/main/div/div[3]/div/div/div[3]/button[1]')
-            self.salvar_parcialmente = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[2]/button')
-            self.i_close = (By.XPATH, '/html/body/ul/li/div/div/span/h4/i')
-            # self.proxima_pagina = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[6]/a/span')
-            self.label_registros = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/label')
-            self.primeira_pagina = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[1]/a/span')
-            self.fechar = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[3]/button')
-            self.ul = (By.XPATH, '/html/body/main/div/div[2]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul')
-        else:
-            self.button_ok = (By.XPATH, '/html/body/main/div[1]/div[4]/div/div/div[3]/button[1]')
-            self.salvar_parcialmente = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[2]/button')
-            self.i_close = (By.XPATH, '/html/body/ul/li/div/div/span/h4/i')
-            # self.proxima_pagina = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[6]/a/span')
-            self.label_registros = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/label')
-            self.primeira_pagina = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul/li[1]/a/span')
-            self.fechar = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[3]/button')
-            self.ul = (By.XPATH, '/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/nav/ul')
+    def executar_recurso(self):
+        for planilha in self.lista_de_planilhas:
+
+            if "Enviado" in planilha or "Sem_Pagamento" in planilha:
+                continue
+
+            df = pd.read_excel(planilha)
+            protocolo = f"{df['Protocolo Glosa'][0]}".replace(".0", "")
+            self.driver.find_element(*self.codigo).send_keys(protocolo)
+            time.sleep(2)
+            self.driver.find_element(*self.pesquisar).click()
+            time.sleep(2)
+            self.driver.find_element(*self.recurso_de_glosa).click()
+            time.sleep(2)
+            content = self.driver.find_element(*self.body).text
+            recurso_iniciado = False
+
+            if 'Não existe informação de pagamento para a fatura recursada.' in content:
+                planilha_anterior = planilha
+                sem_extensao = planilha.replace('.xlsx', '')
+                novo_nome = sem_extensao + '_Sem_Pagamento.xlsx'
+                try:
+                    time.sleep(2)
+                    os.rename(planilha_anterior, novo_nome)
+                    continue
+                except PermissionError as err:
+                    print(err)
+                    continue
+
+            if 'A fatura não possui itens para gerar o lote de recurso de glosa ou já existem lotes gerados para a mesma.' in content:
+                recurso_iniciado = True
+                self.driver.find_element(*self.close_warning).click()
+                time.sleep(2)
+                self.driver.find_element(*self.recurso_de_glosa_menu).click()
+                time.sleep(2)
+                self.driver.find_element(*self.fatura_input).send_keys(protocolo)
+                time.sleep(2)
+                self.driver.find_element(*self.pesquisar_recurso).click()
+                time.sleep(2)
+                self.driver.find_element(*self.recurso_de_glosa_2).click()
+
+                tamanho_table = len(pd.read_html(self.driver.find_element(*self.table))[0])
+
+                for i in range(1, tamanho_table + 1):
+                    ...
+
+    def abrir_guias(self):
+        i_elements = [i_element for i_element in self.driver.find_elements(By.TAG_NAME, 'i') if i_element.get_attribute('target') != '']
+
+        for i_element in i_elements:
+            i_element.click()

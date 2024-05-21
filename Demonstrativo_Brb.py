@@ -14,7 +14,7 @@ import os
 from page_element import PageElement
 
 class Login(PageElement):
-    medico = (By.XPATH, '//*[@id="tipoAcesso"]/option[9]')
+    medico = (By.XPATH, '//*[@id="tipoAcesso"]/option[6]')
     usuario = (By.XPATH, '//*[@id="login-entry"]')
     senha = (By.XPATH, '//*[@id="password-entry"]')
     entrar = (By.XPATH, '//*[@id="BtnEntrar"]')
@@ -203,7 +203,7 @@ def demonstrativo_brb(user, password):
         global usuario, senha, login_page, caminho
 
         usuario = "00735860000173"
-        senha = "AMHP7356!"
+        senha = "00735860000173"
 
         login_page = Login(driver, url)
         login_page.open()
