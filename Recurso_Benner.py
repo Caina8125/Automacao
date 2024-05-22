@@ -308,7 +308,7 @@ class inserir_dados(PageElement):
                 try:
                     for i in range(0,10):
                         try:
-                            valor1 =  self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[8]').text
+                            valor1 =  self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[8]').text.replace('R$ ', '')
                             codigo1 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[2]').text
                             for k, v in enumerate(codigo1):
                                 if codigo1[0] != "0":
@@ -316,17 +316,17 @@ class inserir_dados(PageElement):
                                 if codigo1[k] != "0":
                                     codigo1 = str(codigo1[k:])
                                     break
-                            vlr_glosado1 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[7]').text
+                            vlr_glosado1 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[1]/tr[1]/td[7]').text.replace('R$ ', '')
                             elementos_encontrados = True
                             print("Elementos Encontrados")
                             break
                         except:
                             time.sleep(2)
 
-                    valor_planilha = f"{linha['Valor Glosa']}"
+                    valor_planilha = f"{linha['Valor Glosa']}".replace('R$', '')
                     procedimento_plan = f"{linha['Procedimento']}"
 
-                    if ((valor1 == "R$0,00") and (codigo1 == procedimento_plan)) and (vlr_glosado1 == valor_planilha):
+                    if ((valor1 == "0,00") and (codigo1 == procedimento_plan)) and (vlr_glosado1 == valor_planilha):
                         print('Valor do 1° Procedimento Encontrado = R$0,00')
                         print('Valor do 1° Procedimento injetado = ' + f"{linha['Valor Recursado']}")
 
@@ -431,7 +431,7 @@ class inserir_dados(PageElement):
                             print('Exceção')
                             continue
 
-                    valor2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[8]').text
+                    valor2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[8]').text.replace('R$ ', '')
                     codigo2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo2):
                         if codigo2[0] != "0":
@@ -439,7 +439,7 @@ class inserir_dados(PageElement):
                         if codigo2[k] != "0":
                             codigo2 = str(codigo2[k:])
                             break
-                    vlr_glosado2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[7]').text
+                    vlr_glosado2 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[2]/tr[1]/td[7]').text.replace('R$ ', '')
 
                     if ((valor2 == "R$0,00") and (codigo2 == f"{linha['Procedimento']}",".0")) and vlr_glosado2 == valor_planilha:
                         print('Valor do 2° Procedimento Encontrado = R$0,00')
@@ -534,7 +534,7 @@ class inserir_dados(PageElement):
                             print('Exceção')
                             continue
 
-                    valor3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[8]').text
+                    valor3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[8]').text.replace('R$ ', '')
                     codigo3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo3):
                         if codigo3[0] != "0":
@@ -542,7 +542,7 @@ class inserir_dados(PageElement):
                         if codigo3[k] != "0":
                             codigo3 = str(codigo3[k:])
                             break
-                    vlr_glosado3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[7]').text
+                    vlr_glosado3 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[3]/tr[1]/td[7]').text.replace('R$ ', '')
 
                     if ((valor3 == "R$0,00") and (codigo3 == f"{linha['Procedimento']}",".0")) and vlr_glosado3 == valor_planilha:
                         print('Valor do 3° Procedimento Encontrado = R$0,00')
@@ -638,7 +638,7 @@ class inserir_dados(PageElement):
                             print('Exceção')
                             continue
 
-                    valor4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[8]').text
+                    valor4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[8]').text.replace('R$ ', '')
                     codigo4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo4):
                         if codigo4[0] != "0":
@@ -646,7 +646,7 @@ class inserir_dados(PageElement):
                         if codigo4[k] != "0":
                             codigo4 = str(codigo4[k:])
                             break
-                    vlr_glosado4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[7]').text
+                    vlr_glosado4 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[4]/tr[1]/td[7]').text.replace('R$ ', '')
 
                     if ((valor4 == "R$0,00") and (codigo4 == f"{linha['Procedimento']}",".0")) and vlr_glosado4 == valor_planilha:
                         print('Valor do 4° Procedimento Encontrado = R$0,00')
@@ -740,7 +740,7 @@ class inserir_dados(PageElement):
                             print('Exceção')
                             continue
 
-                    valor5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[8]').text
+                    valor5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[8]').text.replace('R$ ', '')
                     codigo5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo5):
                         if codigo5[0] != "0":
@@ -748,7 +748,7 @@ class inserir_dados(PageElement):
                         if codigo5[k] != "0":
                             codigo5 = str(codigo5[k:])
                             break
-                    vlr_glosado5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[7]').text
+                    vlr_glosado5 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[5]/tr[1]/td[7]').text.replace('R$ ', '')
 
                     if ((valor5 == "R$0,00") and (codigo5 == f"{linha['Procedimento']}",".0")) and vlr_glosado5 == valor_planilha:
                         print('Valor do 5° Procedimento Encontrado = R$0,00')
@@ -843,7 +843,7 @@ class inserir_dados(PageElement):
                             print('Exceção')
                             continue
 
-                    valor6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[8]').text
+                    valor6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[8]').text.replace('R$ ', '')
                     codigo6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo6):
                         if codigo6[0] != "0":
@@ -851,7 +851,7 @@ class inserir_dados(PageElement):
                         if codigo6[k] != "0":
                             codigo6 = str(codigo6[k:])
                             break
-                    vlr_glosado6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[7]').text
+                    vlr_glosado6 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[6]/tr[1]/td[7]').text.replace('R$ ', '')
 
                     if ((valor6 == "R$0,00") and (codigo6 == f"{linha['Procedimento']}",".0")) and vlr_glosado6 == valor_planilha:
                         print('Valor do 6° Procedimento Encontrado = R$0,00')
@@ -945,7 +945,7 @@ class inserir_dados(PageElement):
 
                         
 
-                    valor7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[8]').text
+                    valor7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[8]').text.replace('R$ ', '')
                     codigo7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo7):
                         if codigo7[0] != "0":
@@ -953,7 +953,7 @@ class inserir_dados(PageElement):
                         if codigo7[k] != "0":
                             codigo7 = str(codigo7[k:])
                             break
-                    vlr_glosado7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[7]').text
+                    vlr_glosado7 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[7]/tr[1]/td[7]').text.replace('R$ ', '')
 
                     if ((valor7 == "R$0,00") and (codigo7 == f"{linha['Procedimento']}",".0")) and vlr_glosado7 == valor_planilha:
                         print('Valor do 7° Procedimento Encontrado = R$0,00')
@@ -1049,7 +1049,7 @@ class inserir_dados(PageElement):
                             print('Exceção')
                             continue
 
-                    valor8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[8]').text
+                    valor8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[8]').text.replace('R$ ', '')
                     codigo8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo8):
                         if codigo8[0] != "0":
@@ -1057,7 +1057,7 @@ class inserir_dados(PageElement):
                         if codigo8[k] != "0":
                             codigo8 = str(codigo8[k:])
                             break
-                    vlr_glosado8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[7]').text
+                    vlr_glosado8 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[8]/tr[1]/td[7]').text.replace('R$ ', '')
 
                     if ((valor8 == "R$0,00") and (codigo8 == f"{linha['Procedimento']}",".0")) and vlr_glosado8 == valor_planilha:
                         print('Valor do 8° Procedimento Encontrado = R$0,00')
@@ -1149,7 +1149,7 @@ class inserir_dados(PageElement):
                             print('Exceção')
                             continue
 
-                    valor9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[8]').text
+                    valor9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[8]').text.replace('R$ ', '')
                     codigo9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo9):
                         if codigo9[0] != "0":
@@ -1157,7 +1157,7 @@ class inserir_dados(PageElement):
                         if codigo9[k] != "0":
                             codigo9 = str(codigo9[k:])
                             break
-                    vlr_glosado9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[7]').text
+                    vlr_glosado9 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[9]/tr[1]/td[7]').text.replace('R$ ', '')
 
                     if ((valor9 == "R$0,00") and (codigo9 == f"{linha['Procedimento']}",".0")) and vlr_glosado9 == valor_planilha:
                         print('Valor do 9° Procedimento Encontrado = R$0,00')
@@ -1247,7 +1247,7 @@ class inserir_dados(PageElement):
                             print('Exceção')
                             continue
 
-                    valor10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[8]').text
+                    valor10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[8]').text.replace('R$ ', '')
                     codigo10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[2]').text
                     for k, v in enumerate(codigo10):
                         if codigo10[0] != "0":
@@ -1255,7 +1255,7 @@ class inserir_dados(PageElement):
                         if codigo10[k] != "0":
                             codigo10 = str(codigo10[k:])
                             break
-                    vlr_glosado10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[7]').text
+                    vlr_glosado10 = self.driver.find_element(By.XPATH, '//*[@id="ProcedimentosGlosadosTable"]/tbody[10]/tr[1]/td[7]').text.replace('R$ ', '')
 
                     if ((valor10 == "R$0,00") and (codigo10 == f"{linha['Procedimento']}",".0")) and vlr_glosado10 == valor_planilha:
                         print('Valor do 10° Procedimento Encontrado = R$0,00')
