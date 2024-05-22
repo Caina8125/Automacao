@@ -28,8 +28,8 @@ class Login(PageElement):
 
 
 class caminho(PageElement):
-    lotes_de_pagamento = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[23]/a/span[1]')
-    pesquisar_lotes = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[23]/ul/li[3]/a/span')
+    lotes_de_pagamento = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[26]/a/span[1]')
+    pesquisar_lotes = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[26]/ul/li[3]/a/span')
     proximo = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
     fechar = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[3]')
     fechar_botao = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')

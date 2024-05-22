@@ -227,21 +227,7 @@ class Recurso(PageElement):
                                 validacao_valor_recursado = valor_recursado_portal == "R$0,00"
                                 validacao_codigo = codigo_procedimento in codigo_proc_portal
                                 validacao_codigo_taxa = "TAXAS" in tabela_convenio and "Taxa" in codigo_proc_portal
-
-
-                                # validacao_numero_guia_alterado = validacao_paciente and not validacao_numero_guia and validacao_valor_glosa and validacao_valor_recursado and (validacao_codigo or validacao_codigo_taxa)
-                        
-                                # if validacao_numero_guia_alterado:
-                                #     self.driver.switch_to.window(self.driver.window_handles[-1])
-                                #     time.sleep(2)
-                                #     numero_anterior = numero_guia
-                                #     numero_guia = self.confere_numero_alterado(numero_guia, nro_guia_portal)
-                                #     numero_alterado = numero_guia
-                                #     if numero_anterior != numero_alterado:
-                                #         df['Nro. Guia'] = df['Nro. Guia'].replace(int(numero_anterior), int(numero_alterado))
-                                #         print(f'Paciente {nome_paciente}, N°Guia {numero_guia}, Código procedimento {codigo_procedimento}, Valor glosa: {valor_glosa}')
-                                #     self.driver.switch_to.window(self.driver.window_handles[0])
-                                    
+                                
                                 validacao_normal = (validacao_numero_guia or validacao_paciente or validacao_matricula) and validacao_codigo and validacao_valor_glosa and validacao_valor_recursado
                                 validacao_taxa = (validacao_numero_guia or validacao_paciente or validacao_matricula) and validacao_codigo_taxa and validacao_valor_glosa and validacao_valor_recursado
 
