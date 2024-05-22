@@ -10,6 +10,7 @@ from classes.conferencia_protocolos import executar_conferencia_arquivos
 from classes.connect_med import recursar_gama
 from classes.enviar_pdf_benner import enviar_pdf_benner
 from classes.enviar_xml_benner import enviar_xml_benner
+from classes.fascal import recursar_fascal
 from classes.orizon import inciar_envio_de_anexos
 from classes.salutis_casembrapa import recursar_casembrapa
 from classes.tst import iniciar_recursar_tst
@@ -27,7 +28,6 @@ from Enviar_Xml_Caixa import Enviar_caixa
 from VerificarSituacao_BRB import verificacao_brb
 from recursar_brb import recursar_brb
 from recursar_cassi import recursar_cassi
-from recursar_fascal import recursar_fascal
 from recursar_evida import recursar_evida
 from Recursar_SemDuplicado import recursar_sem_duplicado
 from Recursar_Caixa import recursar_caixa

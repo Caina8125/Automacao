@@ -11,113 +11,11 @@ from openpyxl import load_workbook
 import tkinter.messagebox
 import tkinter
 import os
-# from page_element import PageElement
-
-from abc import ABC
-from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.common.exceptions import ElementClickInterceptedException
-from selenium.webdriver.common.by import By
+from page_element import PageElement
 from time import sleep
 
-class PageElement(ABC):
-    body: tuple = (By.XPATH, '/html/body')
-    a: tuple = (By.TAG_NAME, 'a')
-    p: tuple = (By.TAG_NAME, 'p')
-    h1: tuple = (By.TAG_NAME, 'h1')
-    h2: tuple = (By.TAG_NAME, 'h2')
-    h3: tuple = (By.TAG_NAME, 'h3')
-    h4: tuple = (By.TAG_NAME, 'h4')
-    h5: tuple = (By.TAG_NAME, 'h5')
-    h6: tuple = (By.TAG_NAME, 'h6')
-    table: tuple = (By.TAG_NAME, 'table')
-
-    def __init__(self, driver: WebDriver, url: str = '') -> None:
-        self.driver: WebDriver = driver
-        self._url:str = url
-
-    def open(self) -> None:
-        self.driver.get(self._url)
-
-    def get_attribute_value(self, element: tuple, atributo: str) -> str | None:
-        return self.driver.find_element(*element).get_attribute(atributo)
-
-    def confirma_valor_inserido(self, element: tuple, valor: str) -> None:
-        """Este método verifica se um input recebeu os valores que foram enviados.
-           Caso não tenha recebido, tenta enviar novamente até 10x."""
-        try:
-            self.driver.find_element(*element).clear()
-            valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
-            count: int = 0
-
-            while valor_inserido == '':
-                self.driver.find_element(*element).send_keys(valor)
-                sleep(0.5)
-                valor_inserido: str = self.driver.find_element(*element).get_attribute('value')
-                count += 1
-
-                if count == 10:
-                    raise Exception("Element not interactable")
-
-        except Exception as e:
-            raise Exception(e)
-        
-    def get_element_visible(self, element: tuple | None = None,  web_element: WebElement | None = None) -> bool:
-        """Este método observa se irá ocorrer ElementClickInterceptedException. Caso ocorra
-        irá dar um scroll até 10x na página conforme o comando passado até achar o click do elemento"""
-        for i in range(10):
-            try:
-                if element != None:
-                    self.driver.find_element(*element).click()
-                    return True
-                
-                elif web_element != None:
-                    web_element.click()
-                    return True
-            
-            except ElementClickInterceptedException as e:
-                if i == 10:
-                    return False
-                
-                self.driver.execute_script('scrollBy(0,100)')
-                continue
-
-    def get_click(self, element: tuple, valor: str) -> None:
-        for i in range(10):
-            self.driver.find_element(*element).click()
-            sleep(3)
-            content: str = self.driver.find_element(*self.body).text
-
-            if valor in content:
-                break
-            
-            else:
-                if i == 10:
-                    raise Exception('Element not interactable')
-                
-                sleep(2)
-                continue
-
-    def click(self, element, tempo):
-        self.driver.find_element(*element).click()
-        sleep(tempo)
-
-    def send_keys(self, element, texto, tempo):
-        self.driver.find_element(*element).send_keys(texto)
-        sleep(tempo)
-
-    def clear(self, element, tempo):
-        self.driver.find_element(*element).clear()
-        sleep(tempo)
-
-    def elemento_existe(self, element: tuple):
-        try: 
-            self.driver.find_element(*element)
-            return True
-        except:
-            return False
-
 class Facil(PageElement):
+    df = pd.DataFrame()
     prestador_pj = (By.XPATH, '//*[@id="tipoAcesso"]/option[7]')
     usuario_input = (By.XPATH, '//*[@id="login-entry"]')
     senha_input = (By.XPATH, '//*[@id="password-entry"]')
@@ -160,8 +58,11 @@ class Facil(PageElement):
 
     def exe_login(self):
         self.driver.find_element(*self.prestador_pj).click()
+        sleep(1)
         self.driver.find_element(*self.usuario_input).send_keys(self.usuario)
+        sleep(1)
         self.driver.find_element(*self.senha_input).send_keys(self.senha)
+        sleep(1)
         self.driver.find_element(*self.entrar).click()
         time.sleep(5)
 
@@ -188,12 +89,13 @@ class Facil(PageElement):
         self.exe_caminho()
         
         for planilha in self.lista_de_planilhas:
+            sem_extensao = planilha.replace('.xlsx', '')
 
             if "Enviado" in planilha or "Sem_Pagamento" in planilha:
                 continue
 
-            df = pd.read_excel(planilha)
-            protocolo = f"{df['Protocolo Glosa'][0]}".replace(".0", "")
+            self.df = pd.read_excel(planilha)
+            protocolo = f"{self.df['Protocolo Glosa'][0]}".replace(".0", "")
             self.driver.find_element(*self.codigo).send_keys(protocolo)
             time.sleep(2)
             self.driver.find_element(*self.pesquisar).click()
@@ -204,12 +106,10 @@ class Facil(PageElement):
             recurso_iniciado = False
 
             if 'Não existe informação de pagamento para a fatura recursada.' in content:
-                planilha_anterior = planilha
-                sem_extensao = planilha.replace('.xlsx', '')
-                novo_nome = sem_extensao + '_Sem_Pagamento.xlsx'
                 try:
                     time.sleep(2)
-                    os.rename(planilha_anterior, novo_nome)
+                    novo_nome = sem_extensao + '_Sem_Pagamento.xlsx'
+                    os.rename(planilha, novo_nome)
                     continue
                 except PermissionError as err:
                     print(err)
@@ -226,24 +126,44 @@ class Facil(PageElement):
                 self.driver.find_element(*self.pesquisar_recurso).click()
                 time.sleep(2)
                 self.driver.find_element(*self.recurso_de_glosa_2).click()
+                sleep(2)
 
             self.inicializar_atributos(recurso_iniciado)
-            self.abrir_guias()
 
             qtd_registros = int(self.driver.find_element(*self.label_registros).text.split(' ')[9])
             numero_paginas = int(qtd_registros / 5)
 
             for _ in range(0, numero_paginas + 1):
+                self.abrir_guias()
                 tamanho_table = len(pd.read_html(self.driver.find_element(*self.table).get_attribute('outerHTML'))[0])
                 qtd_itens = int(self.driver.find_element(*self.label_registros).text.split(' ')[4])
-                self.lançar_recursos(tamanho_table+1, recurso_iniciado, df, planilha)
+                self.lançar_recursos(tamanho_table+1, recurso_iniciado, planilha)
                 
                 if qtd_itens != qtd_registros:
-                    self.driver.find_element(*self.proxima_pagina).click()
+                    self.passar_proxima_pg()
+                    sleep(1)
 
             self.driver.find_element(*self.fechar).click()
             sleep(2)
-            self.driver.get('https://novowebplanfascal.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos')    
+            self.driver.get('https://novowebplanfascal.facilinformatica.com.br/GuiasTISS/Relatorios/ViewRelatorioServicos')
+
+            try:
+                time.sleep(2)
+                novo_nome = sem_extensao + 'Enviado.xlsx'
+                os.rename(planilha, novo_nome)
+                continue
+            except PermissionError as err:
+                print(err)
+                continue
+
+    def passar_proxima_pg(self):
+        self.driver.find_element(*self.label_registros).click()
+        span_elements = [span_element for span_element in self.driver.find_elements(By.TAG_NAME, 'span') if span_element.text == '>']
+        for span_element in span_elements:
+            try:
+                span_element.click()
+            except:
+                continue
 
     def abrir_guias(self):
         i_elements = [i_element for i_element in self.driver.find_elements(By.TAG_NAME, 'i') if i_element.get_attribute('class') == 'fa fa-plus fa-fw open-close-servicos']
@@ -254,6 +174,7 @@ class Facil(PageElement):
                 continue
             else:
                 i_element.click()
+                sleep(2)
 
     def img_in_element(self, element):
         try:
@@ -298,7 +219,7 @@ class Facil(PageElement):
                     continue
 
         else:
-            for j in range(10):
+            for _ in range(10):
                 try:
                     nro_guia_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[2]/span').text
                     codigo_proc_portal = self.driver.find_element(By.XPATH, f'/html/body/main/div[1]/div[3]/div/div/div[2]/div/div[1]/div/div/div[3]/div/table/tbody/tr[{i}]/td[4]/span').text.replace('.', '').replace('-', '')
@@ -311,13 +232,15 @@ class Facil(PageElement):
                     time.sleep(2)
         return (nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal, nome_paciente_portal)
     
-    def lançar_recursos(self, tamanho_table, recurso_iniciado, df, planilha):
+    def lançar_recursos(self, tamanho_table, recurso_iniciado, planilha):
         for i in range(1, tamanho_table):
             nro_guia_portal, codigo_proc_portal, valor_glosa_portal, valor_recursado_portal, nome_paciente_portal = self.get_values(i, recurso_iniciado)
 
-            for index, linha in df.iterrows():
-                if f"{linha['Recursado no Portal']}" == "Sim" or f"{linha['Recursado no Portal']}" == "Não":
+            for index, linha in self.df.iterrows():
+
+                if self.df['Recursado no Portal'][index] == 'Sim':
                     continue
+
                 nome_paciente = f'{linha["Paciente"]}'
                 numero_guia = f'{linha["Nro. Guia"]}'.replace('.0', '')
                 codigo_procedimento = f'{linha["Procedimento"]}'.replace('.0', '')
@@ -359,12 +282,14 @@ class Facil(PageElement):
                     self.driver.find_element(*self.salvar_parcialmente).click()
                     time.sleep(2)
                     self.driver.find_element(*self.i_close).click()
+                    sleep(1)
                     dados = {"Recursado no Portal" : ['Sim']}
                     df_dados = pd.DataFrame(dados)
                     book = load_workbook(planilha)
                     writer = pd.ExcelWriter(planilha, engine='openpyxl')
                     writer.book = book
                     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+                    self.df['Recursado no Portal'][index] = 'Sim'
                     df_dados.to_excel(writer, 'Recurso', startrow=index + 1, startcol=21, header=False, index=False)
                     writer.save()
                     break
@@ -407,6 +332,4 @@ def recursar_fascal(user, password):
     except Exception as e:
         tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma excessão não tratada \n {e.__class__.__name__}: {e}' )
         driver.quit()
-
-if __name__ == '__main__':
-    recursar_fascal('lucas.paz', 'WheySesc2024*')
+        
