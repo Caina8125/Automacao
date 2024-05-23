@@ -98,7 +98,7 @@ def fazer_envio_xml(user, password):
 
     try:
         usuario = "00735860000173",
-        senha = "2024)Amhpdf!"
+        senha = "Amhp2024!!"
         global acessar_portal
         acessar_portal = BuscarProtocolo(usuario, senha,driver, url)
         acessar_portal.open()

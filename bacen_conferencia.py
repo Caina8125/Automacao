@@ -57,7 +57,7 @@ class ConferirFatura(PageElement):
         self.driver.execute_script("window.open('');")
         self.driver.switch_to.window(self.driver.window_handles[-1])
         url = 'https://www3.bcb.gov.br/portalbcsaude/Login'
-        busca_de_protocolo = BuscarProtocolo(driver=driver, url=url)
+        busca_de_protocolo = BuscarProtocolo('00735860000173', 'Amhp2024!!', driver, url)
         busca_de_protocolo.open()
         busca_de_protocolo.login_layout_novo()
         busca_de_protocolo.caminho()
@@ -201,7 +201,7 @@ def conferir_bacen(user, password):
 
         login_page.login(
             usuario = "00735860000173",
-            senha = "2024)Amhpdf!"
+            senha = "Amhp2024!!"
         )
         ConferirFatura(driver, url).fazer_conferencia(planilha)
         driver.quit()

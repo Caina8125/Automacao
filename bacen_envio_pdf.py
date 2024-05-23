@@ -255,9 +255,9 @@ def enviar_pdf_bacen(user, password):
             driver = webdriver.Chrome(options=chrome_options, seleniumwire_options=options)
 
         url_bc_saude = 'https://www3.bcb.gov.br/portalbcsaude/Login'
-        buscar_protocolo = BuscarProtocolo('00735860000173', '2024)Amhpdf!', driver, url_bc_saude)
+        buscar_protocolo = BuscarProtocolo('00735860000173', 'Amhp2024!!', driver, url_bc_saude)
 
-        envio_bacen = BacenMapa(driver, url, '00735860000173', '2024)Amhpdf!', planilhas, diretorio, buscar_protocolo)
+        envio_bacen = BacenMapa(driver, url, '00735860000173', 'Amhp2024!!', planilhas, diretorio, buscar_protocolo)
         envio_bacen.enviar_pdf_bacen()
         showinfo('', 'Envio realizado com sucesso!')
 

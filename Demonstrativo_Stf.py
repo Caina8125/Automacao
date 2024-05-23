@@ -1,226 +1,215 @@
-from tkinter import filedialog
-import tkinter.messagebox
-from selenium.webdriver.common.by import By
-from selenium import webdriver
-import pandas as pd
-import time
 import os
-from selenium.webdriver.chrome.options import Options
-from seleniumwire import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
-import json
+import time
 import shutil
 import Pidgin
+import tkinter
+import pandas as pd
+import tkinter.messagebox
+from selenium import webdriver
+from tkinter import filedialog
+from seleniumwire import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from page_element import PageElement
 
+
 class Login(PageElement):
-    usuario = (By.XPATH, '//*[@id="UserName"]')
-    senha = (By.XPATH, '//*[@id="Password"]')
-    acessar = (By.XPATH, '//*[@id="LoginButton"]')
+    email = (By.XPATH, '//*[@id="Email"]')
+    senha = (By.XPATH, '//*[@id="Senha"]')
+    logar = (By.XPATH, '//*[@id="btnLogin"]')
 
-    def exe_login(self, usuario, senha):
-        self.driver.find_element(*self.usuario).send_keys(usuario)
+    def exe_login(self, email, senha):
+        # caminho().Alert()
+        self.driver.find_element(*self.email).send_keys(email)
         self.driver.find_element(*self.senha).send_keys(senha)
-        self.driver.find_element(*self.acessar).click()
+        self.driver.find_element(*self.logar).click()
 
-class Caminho(PageElement):
-    demonstrativos = (By.XPATH, '//*[@id="sidebar_demonstrativos"]')
-    demonst_analise_de_conta = (By.XPATH, '/html/body/form/div[3]/div[3]/div[1]/div/ul/li[5]/ul/li[3]/a')
+class caminho(PageElement):
+    demonstrativo        = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[27]/a/span[1]')
+    analise_conta        = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[27]/ul/li[3]/a/span')
+    selecionar_convenio  = (By.XPATH, '//*[@id="s2id_OperadorasCredenciadas_HandleOperadoraSelected"]/a/span[2]/b')
+    opcao_stf            = (By.XPATH, '/html/body/div[14]/ul/li[7]')
+    inserir_protocolo    = (By.XPATH, '//*[@id="Protocolo"]')
+    baixar_demonstrativo = (By.XPATH, '//*[@id="btn-Baixar_Demonstrativo"]')
+    baixar_xml           = (By.XPATH, '//*[@id="btn-Baixar_XML"]')
+    fechar_botao         = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
+    fechar_alerta        = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
+    erro                 = False
+    botao_fechar: tuple  = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
+    fechar_lote: tuple   = (By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/bc-detalhes-lote/div[3]/div/div[1]/div[2]/a[1]/span')
+    proximo_botao: tuple = (By.XPATH, '//*[@id="bcInformativosModal"]/div/div/div[3]/button[2]')
 
     def exe_caminho(self):
-        self.driver.implicitly_wait(30)
-        self.driver.find_element(*self.demonstrativos).click()
+        time.sleep(1)
+        self.driver.find_element(*self.demonstrativo).click()
+        time.sleep(1)
+        self.driver.find_element(*self.analise_conta).click()
         time.sleep(2)
-        self.driver.find_element(*self.demonst_analise_de_conta).click()
-        time.sleep(2)
+        caminho(driver, url).Alert()
+        self.driver.find_element(*self.selecionar_convenio).click()
+        time.sleep(1)
+        self.driver.find_element(*self.opcao_stf).click()
+        time.sleep(1)
 
-class BaixarDemonstrativos(PageElement):
-    numero_do_protocolo = (By.XPATH, '//*[@id="ctl00_Main_DEMONSTRATIVODEANLISEDECONTA_PageControl_GERAL_GERAL_NUMEROPROTOCOLO"]')
-    emitir_relatorio = (By.XPATH, '//*[@id="ctl00_Main_DEMONSTRATIVODEANLISEDECONTA_toolbar"]/a[1]')
-
-    def baixar_demonstrativos(self, planilha):
+    def buscar_demonstrativo(self):
         df = pd.read_excel(planilha, header=5)
         df = df.iloc[:-1]
         df = df.dropna()
-        df['Concluído'] = ''
+        global count, quantidade_de_faturas, faturas_com_erro
         count = 0
         quantidade_de_faturas = len(df)
-        lista_diretorio = os.listdir(r"\\10.0.0.239\automacao_financeiro\STF")
-        lista_de_nomes_sem_extensao = [nome.replace('.pdf', '') for nome in lista_diretorio]
-        lista_faturas_com_erro = []
+        faturas_com_erro = []
 
-        for tentativa in range(1, 6):
-            erro_portal = False
-            print(f'Tentativa {tentativa}')
+        for index, linha in df.iterrows():
 
+            erro = False
+
+            global fatura
             try:
+                protocolo =  f"{linha['Nº do Protocolo']}".replace(".0","")
+            except:
+                protocolo =  f"{linha['Nº do Protocolo']}"
+            try:
+                fatura =  f"{linha['Nº Fatura']}".replace(".0","")
+            except:
+                fatura =  f"{linha['Nº Fatura']}"
 
-                for index, linha in df.iterrows():
-                    numero_fatura = str(linha['Nº Fatura']).replace('.0', '')
-                    numero_protocolo_planilha = str(linha['Nº do Protocolo']).replace('.0', '')
+            self.driver.find_element(*self.inserir_protocolo).send_keys(protocolo)
+            time.sleep(1)
+            endereco = r"\\10.0.0.239\automacao_financeiro\STF\Renomear"
+            arquivo_na_pasta = os.listdir(f"{endereco}")
 
-                    if df['Concluído'][index] == "Sim":
-                        continue
+            for arquivo in arquivo_na_pasta:
+                if '.pdf' in arquivo:
+                    endereco_arquivo = f'{endereco}\\{arquivo}'
+                    shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\STF\Não Renomeados")
 
-                    if numero_fatura in lista_de_nomes_sem_extensao:
-                        count += 1
-                        continue
+            self.driver.find_element(*self.baixar_demonstrativo).click()
+            time.sleep(6)
+            self.driver.find_element(*self.baixar_xml).click()
+            time.sleep(8)
 
-                    self.driver.implicitly_wait(30)
-                    self.driver.find_element(*self.numero_do_protocolo).send_keys(numero_protocolo_planilha)
-                    time.sleep(2)
-                    endereco = r"\\10.0.0.239\automacao_financeiro\STF\Renomear"
-                    arquivo_na_pasta = os.listdir(f"{endereco}")
-
-                    for arquivo in arquivo_na_pasta:
-                        endereco_arquivo = f'{endereco}\\{arquivo}'
-                        shutil.move(endereco_arquivo, r"\\10.0.0.239\automacao_financeiro\STF\Não Renomeados")
-
-                    self.driver.find_element(*self.emitir_relatorio).click()
-                    time.sleep(4)
-                    arquivo_renomeado = False
-                    endereco = r"\\10.0.0.239\automacao_financeiro\STF\Renomear"
-                    
-                    for i in range(10):
-                        novo_nome = f"{endereco}\\{numero_fatura}.pdf"
-                        arquivo_na_pasta = os.listdir(f"{endereco}")
-                        pasta_nova = f"\\\\10.0.0.239\\automacao_financeiro\\STF\\{numero_fatura}.pdf"
-
-                        for arquivo in arquivo_na_pasta:
-                            nome_antigo = f"{endereco}\\{arquivo}"
-
-                        try:
-                            os.rename(nome_antigo, novo_nome)
-                            print("Renomeado")
-                            shutil.move(novo_nome, pasta_nova)
-                            print("Arquivo na pasta")
-                            arquivo_renomeado = True
-                            break
+            for i in range(10):
+                pasta = r"\\10.0.0.239\automacao_financeiro\STF\Renomear"
+                nomes_arquivos = os.listdir(pasta)
+                if len(nomes_arquivos) == 0:
+                    break
+                # time.sleep(2)
+                
+                for nome in nomes_arquivos:
+                    if '.pdf' in nome:
+                        nomepdf  = os.path.join(pasta, nome)
+                        renomear = r"\\10.0.0.239\automacao_financeiro\STF\Renomear" +f"\\{fatura}"  +  ".pdf"
+                        arqDest  = r"\\10.0.0.239\automacao_financeiro\STF" + f"\\{fatura}"  +  ".pdf"
                         
+                        try:
+                            os.rename(nomepdf,renomear)
+                            shutil.move(renomear,arqDest)
+                            time.sleep(2)
+                            print("Arquivo renomeado e guardado com sucesso")
+                            break
+
                         except Exception as e:
                             print(e)
                             print("Download ainda não foi feito/Arquivo não renomeado")
                             time.sleep(2)
-                            
-                            try:
-                                self.driver.implicitly_wait(5)
-                                mensagem = self.driver.find_element(By.XPATH, '//*[@id="ctl00_Main_DEMONSTRATIVODEANLISEDECONTA_MsgUser_message"]').text
-
-                                if mensagem == 'Código do protocolo não encontrado' or mensagem == 'Identifica¿¿¿¿o do benefici¿¿rio n¿¿o consistente':
-                                    print(mensagem)
-                                    lista_faturas_com_erro.append(numero_fatura)
-                                    break
-
-                                else:
-                                    continue
-                        
-                            except:
-
-                                if i == 9:
-                                    erro_portal = True
-                                    self.driver.quit()
-
-                    if arquivo_renomeado == True:
-                        count += 1
-                        print(f"Download da fatura {numero_fatura} concluído com sucesso")
-                    
                     else:
+                        arqDest_xml = r"\\10.0.0.239\automacao_financeiro\STF" + f"\\{nome}"
+                        nomexml     = os.path.join(pasta, nome)
+                        try:
+                            shutil.move(nomexml,arqDest_xml)
+                            time.sleep(2)
+                            print("Arquivo renomeado e guardado com sucesso")
+                            break
 
-                        if numero_fatura in lista_faturas_com_erro:
-                            print(f"Download da fatura {numero_fatura} não foi feito ou o arquivo não foi renomeado.")
-                        
-                        else:
-                            print(f"Download da fatura {numero_fatura} não foi feito ou o arquivo não foi renomeado.")
-                            lista_faturas_com_erro.append(numero_fatura)
+                        except Exception as e:
+                            print(e)
+                            print("Download ainda não foi feito/Arquivo não renomeado")
+                            time.sleep(2)
 
+                if i == 9:
+                    faturas_com_erro.append(fatura)
+                    erro = True
 
-                    df.loc[index, 'Concluído'] = 'Sim'
+            time.sleep(2)
+            self.driver.find_element(*self.inserir_protocolo).clear()
+            time.sleep(1)
 
-                    self.driver.implicitly_wait(5)
-                    self.driver.find_element(*self.numero_do_protocolo).clear()
-                    time.sleep(2)
+            if erro == False:
+                count += 1
 
-                    print("-------------------------------------------------------------------------------")
+        if count == quantidade_de_faturas:
+            tkinter.messagebox.showinfo( 'Demonstrativos Câmara' , f"Downloads concluídos: {count} de {quantidade_de_faturas}." )
 
-                if count == quantidade_de_faturas:
-                    tkinter.messagebox.showinfo( 'Demonstrativos STF' , f"Downloads concluídos: {count} de {quantidade_de_faturas}." )
-
-                else:
-                    tkinter.messagebox.showinfo( 'Demonstrativos STF' , f"Downloads concluídos: {count} de {quantidade_de_faturas}. Conferir fatura(s): {', '.join(lista_faturas_com_erro) }." )
-                
-                self.driver.quit()
-
+        else:
+            tkinter.messagebox.showinfo( 'Demonstrativos Câmara' , f"Downloads concluídos: {count} de {quantidade_de_faturas}. Conferir fatura(s): {', '.join(faturas_com_erro) }." )            
+        
+    def Alert(self):
+        self.driver.implicitly_wait(3)
+        while True:
+            try:
+                self.driver.find_element(*self.proximo_botao).click()
+                time.sleep(0.5)
+            except:
                 break
+        try:
+            self.driver.find_element(*self.botao_fechar).click()
+        except:
+            return
 
-            except Exception as error:
-                print(f"{error.__class__.__name__}: {error}")
-
-                if erro_portal == True:
-                    print("Portal sem resposta, tente novamente mais tarde")
-                    break
-                
-                self.driver.refresh()
-
-
-#-------------------------------------------------------------------------------------------------------------------------
-
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def demonstrativo_stf(user, password):
+
     try:
-        planilha = filedialog.askopenfilename()
-
+        global planilha
+        global driver
         global url
-        url = 'http://stfmed.stf.jus.br/portal_stfmed'
-
-        settings = {
-        "recentDestinations": [{
-                "id": "Save as PDF",
-                "origin": "local",
-                "account": "",
-            }],
-            "selectedDestinationId": "Save as PDF",
-            "version": 2
-        }
 
         chrome_options = Options()
-        chrome_options.add_experimental_option('prefs', {
-            "printing.print_to_pdf": True,
-            "download.default_directory": r"\\10.0.0.239\automacao_financeiro\STF\Renomear",
-            "download.prompt_for_download": False,
-            "download.directory_upgrade": True,
-            "plugins.always_open_pdf_externally": True,
-            "safebrowsing.enabled": 'false',
-            "safebrowsing.disable_download_protection,": True,
-            "safebrowsing_for_trusted_sources_enabled": False,
-            "printing.print_preview_sticky_settings.appState": json.dumps(settings),
-            "savefile.default_directory": r"\\10.0.0.239\automacao_financeiro\STF"
-    })
+
+        chrome_options.add_experimental_option('prefs', { "download.default_directory": r"\\10.0.0.239\automacao_financeiro\STF\Renomear",
+                                                "download.prompt_for_download": False,
+                                                "download.directory_upgrade": True,
+                                                "plugins.always_open_pdf_externally": True,
+                                                "safebrowsing.enabled": 'false',
+                                                "safebrowsing.disable_download_protection,": True,
+                                                "safebrowsing_for_trusted_sources_enabled": False
+                                                })
+                                            
         chrome_options.add_argument("--start-maximized")
         chrome_options.add_argument('--ignore-certificate-errors')
         chrome_options.add_argument('--ignore-ssl-errors')
         chrome_options.add_argument('--kiosk-printing')
 
-        options = {
+        url = 'https://portalconectasaude.com.br/Account/Login'
+        
+        planilha = filedialog.askopenfilename()
+
+        proxy = {
         'proxy': {
                 'http': f'http://{user}:{password}@10.0.0.230:3128',
                 'https': f'http://{user}:{password}@10.0.0.230:3128'
             }
         }
-        try:
-            servico = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=servico, seleniumwire_options=options, options=chrome_options)
-        except:
-            driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
+
+        driver = webdriver.Chrome(seleniumwire_options=proxy, options=chrome_options)
 
         login_page = Login(driver, url)
         login_page.open()
-
         login_page.exe_login(
-            usuario = "00735860000173",
-            senha = "#DF0073amhp"
+            email="negociacao.gerencia@amhp.com.br",
+            senha="Amhp@0073"
         )
-        Caminho(driver, url).exe_caminho()
-        BaixarDemonstrativos(driver, url).baixar_demonstrativos(planilha)
+
+        print('Pegar Alerta Acionado!')
+        caminho(driver, url).Alert()
+
+        
+        caminho(driver, url).exe_caminho()
+
+        caminho(driver, url).buscar_demonstrativo()
 
     except FileNotFoundError as err:
         tkinter.messagebox.showerror('Automação', f'Nenhuma planilha foi selecionada!')
