@@ -401,12 +401,12 @@ class ConnectMed(PageElement):
         df_extrato = self.get_extrato_df()
 
         for index, linha in df_extrato.iterrows():
-            mes_extrato = datetime.strptime(f"{linha['Extrato']}", "%d/%m/%Y").date()
-            mes_anterior = (self.data_atual - timedelta(days=30))
-            dois_meses_atras = (mes_anterior - timedelta(days=30))
+            # mes_extrato = datetime.strptime(f"{linha['Extrato']}", "%d/%m/%Y").date()
+            # mes_anterior = (self.data_atual - timedelta(days=30))
+            # dois_meses_atras = (mes_anterior - timedelta(days=30))
 
-            if not self.is_mes_para_recursar(mes_extrato, mes_anterior.month, dois_meses_atras.month):
-                continue
+            # if not self.is_mes_para_recursar(mes_extrato, mes_anterior.month, dois_meses_atras.month):
+            #     continue
 
             lupa_extrato = (By.XPATH, f'/html/body/div[2]/div/div/div[2]/div[1]/table/tbody/tr[{index+1}]/td[5]/form/a')
             self.driver.find_element(*lupa_extrato).click()
