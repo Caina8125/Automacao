@@ -172,6 +172,7 @@ def demonstrativo_camed(user, password):
         global planilha
         global driver
         global url
+        print(password)
 
         chrome_options = Options()
 
