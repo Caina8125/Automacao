@@ -27,8 +27,8 @@ class Login(PageElement):
         self.driver.find_element(*self.logar).click()
 
 class caminho(PageElement):
-    demonstrativo        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/a/span[1]')
-    analise_conta        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/ul/li[3]/a/span')
+    demonstrativo        = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[27]/a/span[1]')
+    analise_conta        = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[27]/ul/li[3]/a/span')
     selecionar_convenio  = (By.XPATH, '//*[@id="s2id_OperadorasCredenciadas_HandleOperadoraSelected"]/a/span[2]/b')
     opcao_camed         = (By.XPATH, '/html/body/div[14]/ul/li[3]/div')
     inserir_protocolo    = (By.XPATH, '//*[@id="Protocolo"]')
