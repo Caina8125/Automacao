@@ -15,6 +15,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 
+from Pidgin import financeiroDemo
 from page_element import PageElement
 
 class Tst(PageElement):
@@ -80,155 +81,162 @@ class Tst(PageElement):
     def recursar_tst(self):
         self.open()
         self.login()
-        self.caminho()
+        self.driver.get('https://aplicacao7.tst.jus.br/tstsaude/DemonstrativoPagamentoConsultar.do?load=1')
 
-        for arquivo in self.lista_de_arquivos:
-            path_planilha = arquivo['path']
-            novo_path = path_planilha.replace('.xlsx', '_enviado.xlsx')
-
-            if 'enviado' in path_planilha:
-                continue
-
-            # numero_processo = arquivo['numero_processo']
-            df_processo =  read_excel(path_planilha)
-            numero_processo = f"{df_processo['Fatura Inicial'][0]}".replace('.0', '')
-            lote_tst = f"{df_processo['Lote'][0]}".replace('.0', '')
-            tipo_guia = int(df_processo['Tipo Guia'][0])
-
-            if lote_tst == 'nan':
-                lista_de_guias = list(set(df_processo['Controle Inicial'].astype(str).values.tolist()))
-                xpath_tipo_guia = self.pegar_xpath_tipo_guia(tipo_guia)
-                self.acessar_lote(numero_processo, xpath_tipo_guia)
-
-                while 'Aguarde, consultando...' in self.driver.find_element(*self.body).text:
-                    sleep(2)
-                
-                self.click_checkbox_guia(lista_de_guias)
-
-                n_lote = self.gera_novo_lote(numero_processo)
-
-                df_processo['Lote'] = n_lote
-                self.salvar_valor_planilha(
-                    path_planilha=path_planilha,
-                    valor=df_processo['Lote'].values.tolist(),
-                    coluna=4,
-                    linha=1
-                )
-
-            else:
-                self.driver.get('https://aplicacao7.tst.jus.br/tstsaude/LotesRecursoConsultar.do?load=1')
-                self.driver.find_element(*self.input_n_lote_recurso).clear()
-                self.driver.find_element(*self.input_n_lote_recurso).send_keys(lote_tst)
-                sleep(1)
-                self.driver.find_element(*self.btn_consultar_recurso).click()
-                sleep(1.5)
-                self.driver.find_element(*self.visualizar_lote).click()
-
-            # self.inicializar_atributos(tipo_guia)          
-            numero_anterior = ''
-            for i, linha in df_processo.iterrows():
-
-                if linha['Recursado no Portal'] == 'Sim' or linha['Recursado no Portal'] == 'Não encontrado':
-                    continue
-
-                controle_inicial = f"{linha['Controle Inicial']}".replace('.0', '')
-
-                if controle_inicial == numero_anterior:
-                    continue
-
-                numero_anterior = f"{linha['Controle Inicial']}".replace('.0', '')
-                self.driver.find_element(*self.input_numero_guia).send_keys(controle_inicial)
-                sleep(1)
-                table_guias = self.driver.find_element(*self.table_guias)
-                a = table_guias.find_elements(By.TAG_NAME, 'a')
-
-                for element in a:
-                    self.driver.implicitly_wait(2)
-                    if element.get_attribute('title') == "Alterar Guia":
-                        try:
-                            element.click()
-                            break
-                        except:
-                            continue
-                self.driver.implicitly_wait(30)
-
-                df_guia = self.df_guia(df_processo, controle_inicial)
-                num = 0
-
-                for _, l in df_guia.iterrows():
-
-                    if l['Recursado no Portal'] == 'Sim' or l['Recursado no Portal'] == 'Não encontrado':
-                        continue
-
-                    linha_na_planilha = i + num + 1
-                    procedimento = f"{l['Procedimento']}".replace('.0', '')
-                    valor_recurso = float(f"{l['Valor Recursado']}".replace(',','.'))
-                    justificativa = l['Recurso Glosa']
-                
-                    if tipo_guia == 2:    
-                        dict_procedimento = self.encontra_id_e_table_do_codigo(procedimento)
-                    else:
-                        dict_procedimento = self.encontra_id_e_table_do_codigo_restante(procedimento, tipo_guia)
-
-                    if not dict_procedimento:
-                        self.salvar_valor_planilha(
-                            path_planilha,
-                            'Não encontrado',
-                            23,
-                            linha_na_planilha
-                        )
-                        df_processo['Recursado no Portal'][linha + num] = 'Não encontrado'
-                        continue
-                    
-                    id_parcial_tag = self.pegar_id_parcial_tag(dict_procedimento['fieldset'], dict_procedimento['id_proc'])
-                    id_motivo_glosa = self.pegar_id_motivo_glosa(dict_procedimento['fieldset'], dict_procedimento['id_proc'])
-                    self.driver.find_element(By.ID, 'ckb' + id_parcial_tag).click()
-                    sleep(2)
-                    valor_total = float(self.driver.find_element(By.ID, 'tot' + id_parcial_tag).get_attribute('value').replace(',', '.'))
-                    valor_recurso_portal = float(self.driver.find_element(By.ID, 'rec' + id_parcial_tag).get_attribute('value').replace(',', '.'))
-                    valor_pago = float(self.driver.find_element(By.ID, 'pago' + id_parcial_tag).get_attribute('value').replace(',', '.'))
-                    valor_unitario = float(self.driver.find_element(By.ID, 'valor' + id_parcial_tag).get_attribute('value').replace(',', '.'))
-
-                    input_qtd = (By.ID, 'qtd' + id_parcial_tag)
-                    input_porcentagem = (By.ID, 'perc' + id_parcial_tag)
-                    motivo_do_recurso = (By.ID, id_motivo_glosa)
-
-                    self.ajustar_valor(valor_recurso, valor_recurso_portal,  valor_total, valor_unitario, valor_pago, input_porcentagem, input_qtd)
-                    self.driver.find_element(*motivo_do_recurso).click()
-                    sleep(1.5)
-                    self.driver.find_element(*self.input_campo_motivo).send_keys(justificativa)
-                    sleep(1)
-                    self.driver.find_element(*self.btn_ok_motivo).click()
-                    sleep(1)
-                    self.driver.find_element(*self.botao_salvar_guia).click()
-
-                    while 'Aguarde, processando...' in self.driver.find_element(*self.body).text:
-                        sleep(2)
-
-                    self.salvar_valor_planilha(
-                        path_planilha,
-                        'Sim',
-                        23,
-                        linha_na_planilha
-                    )
-                    df_processo['Recursado no Portal'][i + num] = 'Sim'
-
-                    sleep(1)
-                    self.clickar_btn('Não')
-                    sleep(1)
-                    self.clickar_btn('Ok')
-                    sleep(1)
-                    num += 1
-
-                self.driver.find_element(*self.btn_voltar).click()
-            
+        for _ in range(0, 10):
             try:
-                os.rename(path_planilha, novo_path)
-            except:
-                print("Erro ao renomear arquivo")
-            self.caminho()
-        
-        self.driver.quit()
+                for arquivo in self.lista_de_arquivos:
+                    path_planilha = arquivo['path']
+                    novo_path = path_planilha.replace('.xlsx', '_enviado.xlsx')
+
+                    if 'enviado' in path_planilha:
+                        continue
+
+                    # numero_processo = arquivo['numero_processo']
+                    df_processo =  read_excel(path_planilha)
+                    numero_processo = f"{df_processo['Fatura Inicial'][0]}".replace('.0', '')
+                    lote_tst = f"{df_processo['Lote'][0]}".replace('.0', '')
+                    tipo_guia = int(df_processo['Tipo Guia'][0])
+
+                    if lote_tst == 'nan':
+                        lista_de_guias = list(set(df_processo['Controle Inicial'].astype(str).values.tolist()))
+                        xpath_tipo_guia = self.pegar_xpath_tipo_guia(tipo_guia)
+                        self.acessar_lote(numero_processo, xpath_tipo_guia)
+
+                        while 'Aguarde, consultando...' in self.driver.find_element(*self.body).text:
+                            sleep(2)
+                        
+                        self.click_checkbox_guia(lista_de_guias)
+
+                        n_lote = self.gera_novo_lote(numero_processo)
+
+                        df_processo['Lote'] = n_lote
+                        self.salvar_valor_planilha(
+                            path_planilha=path_planilha,
+                            valor=df_processo['Lote'].values.tolist(),
+                            coluna=4,
+                            linha=1
+                        )
+
+                    else:
+                        self.driver.get('https://aplicacao7.tst.jus.br/tstsaude/LotesRecursoConsultar.do?load=1')
+                        self.driver.find_element(*self.input_n_lote_recurso).clear()
+                        self.driver.find_element(*self.input_n_lote_recurso).send_keys(lote_tst)
+                        sleep(1)
+                        self.driver.find_element(*self.btn_consultar_recurso).click()
+                        sleep(1.5)
+                        self.driver.find_element(*self.visualizar_lote).click()
+
+                    # self.inicializar_atributos(tipo_guia)          
+                    numero_anterior = ''
+                    for i, linha in df_processo.iterrows():
+
+                        if linha['Recursado no Portal'] == 'Sim' or linha['Recursado no Portal'] == 'Não encontrado':
+                            continue
+
+                        controle_inicial = f"{linha['Controle Inicial']}".replace('.0', '')
+
+                        if controle_inicial == numero_anterior:
+                            continue
+
+                        numero_anterior = f"{linha['Controle Inicial']}".replace('.0', '')
+                        self.driver.find_element(*self.input_numero_guia).send_keys(controle_inicial)
+                        sleep(1)
+                        table_guias = self.driver.find_element(*self.table_guias)
+                        a = table_guias.find_elements(By.TAG_NAME, 'a')
+
+                        for element in a:
+                            self.driver.implicitly_wait(2)
+                            if element.get_attribute('title') == "Alterar Guia":
+                                try:
+                                    element.click()
+                                    break
+                                except:
+                                    continue
+                        self.driver.implicitly_wait(30)
+
+                        df_guia = self.df_guia(df_processo, controle_inicial)
+                        num = 0
+
+                        for _, l in df_guia.iterrows():
+
+                            if l['Recursado no Portal'] == 'Sim' or l['Recursado no Portal'] == 'Não encontrado':
+                                continue
+
+                            linha_na_planilha = i + num + 1
+                            procedimento = f"{l['Procedimento']}".replace('.0', '')
+                            valor_recurso = float(f"{l['Valor Recursado']}".replace('.', '').replace(',','.'))
+                            justificativa = l['Recurso Glosa']
+                        
+                            if tipo_guia == 2:    
+                                dict_procedimento = self.encontra_id_e_table_do_codigo(procedimento)
+                            else:
+                                dict_procedimento = self.encontra_id_e_table_do_codigo_restante(procedimento, tipo_guia)
+
+                            if not dict_procedimento:
+                                self.salvar_valor_planilha(
+                                    path_planilha,
+                                    'Não encontrado',
+                                    23,
+                                    linha_na_planilha
+                                )
+                                df_processo['Recursado no Portal'][linha + num] = 'Não encontrado'
+                                continue
+                            
+                            id_parcial_tag = self.pegar_id_parcial_tag(dict_procedimento['fieldset'], dict_procedimento['id_proc'])
+                            id_motivo_glosa = self.pegar_id_motivo_glosa(dict_procedimento['fieldset'], dict_procedimento['id_proc'])
+                            self.driver.find_element(By.ID, 'ckb' + id_parcial_tag).click()
+                            sleep(2)
+                            valor_total = float(self.driver.find_element(By.ID, 'tot' + id_parcial_tag).get_attribute('value').replace('.', '').replace(',', '.'))
+                            valor_recurso_portal = float(self.driver.find_element(By.ID, 'rec' + id_parcial_tag).get_attribute('value').replace('.', '').replace(',', '.'))
+                            valor_pago = float(self.driver.find_element(By.ID, 'pago' + id_parcial_tag).get_attribute('value').replace('.', '').replace(',', '.'))
+                            valor_unitario = float(self.driver.find_element(By.ID, 'valor' + id_parcial_tag).get_attribute('value').replace('.', '').replace(',', '.'))
+
+                            input_qtd = (By.ID, 'qtd' + id_parcial_tag)
+                            input_porcentagem = (By.ID, 'perc' + id_parcial_tag)
+                            motivo_do_recurso = (By.ID, id_motivo_glosa)
+
+                            self.ajustar_valor(valor_recurso, valor_recurso_portal,  valor_total, valor_unitario, valor_pago, input_porcentagem, input_qtd)
+                            self.driver.find_element(*motivo_do_recurso).click()
+                            sleep(1.5)
+                            self.driver.find_element(*self.input_campo_motivo).send_keys(justificativa)
+                            sleep(1)
+                            self.driver.find_element(*self.btn_ok_motivo).click()
+                            sleep(1)
+                            self.driver.find_element(*self.botao_salvar_guia).click()
+
+                            while 'Aguarde, processando...' in self.driver.find_element(*self.body).text:
+                                sleep(2)
+
+                            self.salvar_valor_planilha(
+                                path_planilha,
+                                'Sim',
+                                23,
+                                linha_na_planilha
+                            )
+                            df_processo['Recursado no Portal'][i + num] = 'Sim'
+
+                            sleep(1)
+                            self.clickar_btn('Não')
+                            sleep(1)
+                            self.clickar_btn('Ok')
+                            sleep(1)
+                            num += 1
+
+                        self.driver.find_element(*self.btn_voltar).click()
+                    
+                    try:
+                        os.rename(path_planilha, novo_path)
+                    except:
+                        print("Erro ao renomear arquivo")
+                    self.caminho()
+                
+                self.driver.quit()
+                break
+            
+            except Exception as e:
+                financeiroDemo(e)
+                self.driver.get('https://aplicacao7.tst.jus.br/tstsaude/DemonstrativoPagamentoConsultar.do?load=1')
 
     def table_in_element(self, element):
         self.driver.implicitly_wait(2)
@@ -525,5 +533,5 @@ def iniciar_recursar_tst(user, password):
         showinfo('', 'Recursos finalizados!')
     
     except Exception as e:
-        showerror('Automação', f'Ocorreu uma exceção não trata\n{e.__class__.__name__}:\n{e}')
+        showerror('Automação', f'Ocorreu uma exceção não tratada\n{e.__class__.__name__}:\n{e}')
         driver.quit()

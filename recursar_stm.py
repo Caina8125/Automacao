@@ -425,7 +425,7 @@ class Recurso(PageElement):
 def recursar_stm(user, password):
     try:
         global driver, url
-        url = 'https://facpres.stm.jus.br/GuiasTISS/Logon'
+        url = 'https://novowebplanstm.facilinformatica.com.br/GuiasTISS/Logon'
         pasta = filedialog.askdirectory()
 
         options = {
