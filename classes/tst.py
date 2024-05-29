@@ -88,6 +88,7 @@ class Tst(PageElement):
                 for arquivo in self.lista_de_arquivos:
                     path_planilha = arquivo['path']
                     novo_path = path_planilha.replace('.xlsx', '_enviado.xlsx')
+                    path_nao_enviado = path_planilha.replace('.xlsx', '_nao_enviado.xlsx')
 
                     if 'enviado' in path_planilha:
                         continue
@@ -109,6 +110,10 @@ class Tst(PageElement):
                         self.click_checkbox_guia(lista_de_guias)
 
                         n_lote = self.gera_novo_lote(numero_processo)
+
+                        if n_lote == '':
+                            os.rename(path_planilha, path_nao_enviado)
+                            continue
 
                         df_processo['Lote'] = n_lote
                         self.salvar_valor_planilha(
@@ -165,7 +170,7 @@ class Tst(PageElement):
 
                             linha_na_planilha = i + num + 1
                             procedimento = f"{l['Procedimento']}".replace('.0', '')
-                            valor_recurso = float(f"{l['Valor Recursado']}".replace('.', '').replace(',','.'))
+                            valor_recurso = float(f"{l['Valor Recursado']}")
                             justificativa = l['Recurso Glosa']
                         
                             if tipo_guia == 2:    
@@ -303,6 +308,9 @@ class Tst(PageElement):
                 sleep(2)
             
             count += 1
+
+            if count == 10:
+                return ''
 
         return numero_lote
     
