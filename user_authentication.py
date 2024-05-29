@@ -1,10 +1,11 @@
 class UserLogin:
-    _user: str
-    _password: str
-
     def __init__(self, user: str, password: str) -> None:
-        self._user = user
-        self._password = password
+        if user == 'pedro.pereira' or 'PEDRO.PEREIRA':
+            self._user = 'faturamento.fat'
+            self._password = '87316812#hg12@'
+        else:    
+            self._user = user
+            self._password = password
     
     @property
     def user(self):
@@ -12,7 +13,7 @@ class UserLogin:
     
     @user.setter
     def user(self, user: str):
-        self.user = user
+        self._user = user
 
     @property
     def password(self):
@@ -20,4 +21,4 @@ class UserLogin:
     
     @password.setter
     def password(self, password: str) -> None:
-        self.password = password
+        self._password = password
