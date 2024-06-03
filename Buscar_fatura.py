@@ -10,13 +10,20 @@ from selenium.webdriver.chrome.service import Service
 from seleniumwire import webdriver
 from page_element import PageElement
 
-class Login(PageElement):
+class capturar_protocolo(PageElement):
     acessar_portal = (By.XPATH, '/html/body/div[3]/div[3]/div[1]/form/div[1]/div[1]/div/a')
     usuario = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[1]/div/div[1]/div/input')
     senha = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[2]/div/div[1]/div[1]/input')
     entrar = (By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/button/div[2]/div/div')
     fechar = (By.XPATH, '/html/body/div[4]/div[2]/div/div[3]/button')
     portal_tiss = (By.XPATH, '/html/body/div[1]/div/div[2]/div/div[1]/div[1]/div[1]/div/div')
+    fechar_modal = By.XPATH, '/html/body/div[3]/div[2]/div/button/span[2]/span/i'
+    relatorios = By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[1]/div[12]/div/div[1]/div[3]/div'
+    arquivo_tiss = By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[1]/div[12]/div/div[2]/div/div[7]/div[3]'
+    inserir_protocolo = (By.XPATH, '//*[@id="NroProtocolo"]')
+    baixar = (By.XPATH, '//*[@id="main"]/div/div/div[2]/div[2]/article/form/div/a')
+    elemento2 = (By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[5]')
+    elemento3 = (By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[3]/td[5]')
 
     def exe_login(self, senha, cpf):
         time.sleep(4)
@@ -25,25 +32,22 @@ class Login(PageElement):
         except:
             pass
         self.driver.find_element(*self.acessar_portal).click()
+        time.sleep(2)
         try:
             self.driver.implicitly_wait(4)
             self.driver.find_element(*self.usuario).send_keys(cpf)
+            time.sleep(2)
             self.driver.find_element(*self.senha).click()
+            time.sleep(2)
             self.driver.find_element(*self.senha).send_keys(senha)
             time.sleep(2)
             self.driver.find_element(*self.entrar).click()
             time.sleep(2)
-            self.driver.find_element(*self.portal_tiss).click()
+            self.driver.find_element(*self.portal_tiss)
             
         except:
             self.driver.implicitly_wait(180)
-            self.driver.find_element(*self.portal_tiss).click()
-
-        
-class caminho(PageElement):
-    fechar_modal = By.XPATH, '/html/body/div[3]/div[2]/div/button/span[2]/span/i'
-    relatorios = By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[1]/div[12]/div/div[1]/div[3]/div'
-    arquivo_tiss = By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[1]/div[12]/div/div[2]/div/div[7]/div[3]'
+            self.driver.find_element(*self.portal_tiss)
 
     def exe_caminho(self):
         try:
@@ -56,12 +60,7 @@ class caminho(PageElement):
         self.driver.find_element(*self.arquivo_tiss).click()
         time.sleep(1)
         self.driver.switch_to.window(self.driver.window_handles[-1])
-
-class capturar_protocolo(PageElement):
-    inserir_protocolo = (By.XPATH, '//*[@id="NroProtocolo"]')
-    baixar = (By.XPATH, '//*[@id="main"]/div/div/div[2]/div[2]/article/form/div/a')
-    elemento2 = (By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[5]')
-    elemento3 = (By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[3]/td[5]')
+        time.sleep(2)
 
     def exe_capturar(self):
 
@@ -110,7 +109,7 @@ class capturar_protocolo(PageElement):
             except:
                 self.open()
                 login_page.exe_login(cpf = '66661692120', senha = "Amhp2023")
-                caminho(driver, url).exe_caminho()
+                self.exe_caminho()
                 self.exe_capturar()
 
     def confere(self):
@@ -181,7 +180,7 @@ def iniciar(user, password):
         except:
             driver = webdriver.Chrome(seleniumwire_options= options, options = chrome_options)
 
-        login_page = Login(driver , url)
+        login_page = capturar_protocolo(driver , url)
 
         login_page.open()
 
@@ -193,9 +192,9 @@ def iniciar(user, password):
         tkinter.messagebox.showerror( 'Erro Automação' , 'Ocorreu um erro inesperado' )
         
     try:
-        caminho(driver, url).exe_caminho()
+        login_page.exe_caminho()
 
-        capturar_protocolo(driver, url).exe_capturar()
+        login_page.exe_capturar()
         tkinter.messagebox.showinfo( 'Automação GEAP Financeiro' , 'Busca de Faturas na GEAP Concluído 😎✌' )
     except Exception as e:
         tkinter.messagebox.showerror( 'Erro Automação' , f'Ocorreu uma exceção não tratada \n {e.__class__.__name__} - {e}' )
