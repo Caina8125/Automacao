@@ -41,23 +41,20 @@ class Login(PageElement):
 
         
 class caminho(PageElement):
-    versao_anterior = (By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[3]/button/span[2]/span')
-    alerta = (By.XPATH,' /html/body/div[2]/div/center/a')
-    guia = (By.XPATH,'//*[@id="objTableDetalhe"]/tbody/tr[3]/td[1]/a')
+    fechar_modal = By.XPATH, '/html/body/div[3]/div[2]/div/button/span[2]/span/i'
+    relatorios = By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[1]/div[12]/div/div[1]/div[3]/div'
+    arquivo_tiss = By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[1]/div[12]/div/div[2]/div/div[7]/div[3]'
 
     def exe_caminho(self):
-        self.driver.implicitly_wait(4)
-        time.sleep(4)
         try:
-            self.driver.find_element(*self.alerta).click()
+            self.driver.find_element(*self.fechar_modal).click()
+            time.sleep(1)
         except:
-            print('Alerta não apareceu')
-        self.driver.implicitly_wait(15)
-        time.sleep(2)
-        driver.switch_to.window(driver.window_handles[1])
+            pass
+        self.driver.find_element(*self.relatorios).click()
         time.sleep(1)
-        driver.get('https://www2.geap.org.br/PRESTADOR/tiss-baixa.asp')
-        time.sleep(3)
+        self.driver.find_element(*self.arquivo_tiss).click()
+        time.sleep(1)
 
 class capturar_protocolo(PageElement):
     inserir_protocolo = (By.XPATH, '//*[@id="NroProtocolo"]')
