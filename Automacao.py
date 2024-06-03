@@ -152,6 +152,14 @@ class Application:
         except:
             pass
 
+    def ocultar_mes(self):
+        try:
+            self.inserir_data_inicial.pack_forget()
+            self.botao_ok.pack_forget()
+            self.voltar.pack_forget()
+        except:
+            pass
+
     def voltar_combobox(self):
         self.nomeLabel.pack_forget()
         self.comboBox.pack_forget()
@@ -209,6 +217,17 @@ class Application:
         self.botao_start.pack(side=LEFT, padx=10)
         self.voltar.pack(side=RIGHT)
 
+    def obter_mes_referencia(self):           
+        global mes_referencia
+        mes_referencia = self.inserir_data_inicial.get()
+        self.ocultar_mes()
+
+        if mes_referencia != '':
+            self.inserir_login(recursar_amil)
+        else:
+            tkinter.messagebox.showerror( 'Data inválida!' , 'Digíte uma data válida')
+            self.inserir_mes_referencia()
+
     def obter_datas(self):           
         global data_inicial, data_final, validacao
         data_inicial = self.inserir_data_inicial.get()
@@ -246,8 +265,11 @@ class Application:
         if funcao1.__name__ == 'demonstrativo_cassi':
             funcao1(data_inicial, data_final, user, password)
 
+        elif funcao1.__name__ == 'recursar_amil':
+            funcao1(user, password, mes_referencia)
+
         elif funcao1.__name__ == 'inciar_envio_de_anexos':
-            funcao1(user, password, login_portal, senha_portal)
+            funcao1(user, password, mes_referencia)
         
         else:
             funcao1(user, password)
@@ -279,6 +301,19 @@ class Application:
         self.inserir_data_inicial.bind("<FocusIn>", self.limpar_placeholder_data1)
         self.inserir_data_final.pack(side=LEFT)
         self.inserir_data_final.bind("<FocusIn>", self.limpar_placeholder_data2)
+        self.botao_ok.pack(side=LEFT, padx=10)
+        self.voltar.pack(side=RIGHT)
+
+    def inserir_mes_referencia(self):
+        self.inserir_data_inicial = tk.Entry(self.quintoContainer, width=50)
+        self.inserir_data_inicial.insert(0, "Digite um mês de referência (ex: 01/2024)")
+
+        self.botao_ok = Button(self.sextoContainer, bg="#274360",foreground="white", text="OK", command=lambda: threading.Thread(target=self.obter_mes_referencia).start())
+
+        self.voltar = Button(self.sextoContainer, bg="#274360", foreground="white", text="Voltar", command=lambda: threading.Thread(target=self.voltar_inicio(self.ocultar_mes)).start())
+
+        self.inserir_data_inicial.pack(side=LEFT)
+        self.inserir_data_inicial.bind("<FocusIn>", self.limpar_placeholder_data1)
         self.botao_ok.pack(side=LEFT, padx=10)
         self.voltar.pack(side=RIGHT)
 
@@ -315,7 +350,7 @@ class Application:
         self.voltar.pack(side=RIGHT)
 
     def limpar_placeholder_data1(self, event):
-        if self.inserir_data_inicial.get() == "Digite a data inicial":
+        if self.inserir_data_inicial.get() == "Digite um mês de referência (ex: 01/2024)":
             self.inserir_data_inicial.delete(0, "end")
             self.inserir_data_inicial.config(fg="black")
 
@@ -473,7 +508,7 @@ class Application:
                 self.reiniciar()
 
             case "Glosa - Recursar Amil":
-                self.inserir_login(recursar_amil)    
+                self.inserir_mes_referencia()    
 
             case "Glosa - Recursar Benner(Câmara, CAMED, FAPES, Postal)":
                 self.inserir_login(recursar_benner)

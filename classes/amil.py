@@ -46,6 +46,7 @@ class Amil(PageElement):
     btn_sim = By.XPATH, '/html/body/div[2]/div[2]/div/button[1]'
     input_justificativa_guia = By.ID, 'justificativa_guia'
     div_sis_amil = By.CLASS_NAME, 'box-sis-amil'
+    tabela_mes = By.ID, 'tbReferencia'
 
     def __init__(self, usuario: str, senha: str, diretorio: str, driver: WebDriver, url: str = '') -> None:
         super().__init__(driver, url)
@@ -95,7 +96,7 @@ class Amil(PageElement):
     #         btn_sisamil_list = [btn for btn in self.driver.find_elements(By.TAG_NAME, 'button') if "Acessar SisAmil" in btn.text]
     #         return btn_sisamil_list[0]
 
-    def exec_recurso(self):
+    def exec_recurso(self, mes_referencia):
         self.open()
         self.login()
         self.caminho()
@@ -110,15 +111,27 @@ class Amil(PageElement):
             numero_processo = arquivo.replace(self.diretorio+'\\', '').replace('.xlsx', '')
             self.dict_guias_list = self.dict_guias(lista_de_guias, df_fatura)
             self.click(self.option_amil, 2)
-            self.click(self.segundo_mes, 2)
+            
+            len_tabela_mes = self.tamanho_tabela(self.tabela_mes)
 
-            if "Não foi possível processar a requisição" in self.driver.find_element(*self.body).text:
-                self.click(self.btn_fechar, 2)
-                self.click(self.segundo_mes, 2)
+            for i in range(1, len_tabela_mes + 1, 2):
+                mes_portal = self.driver.find_element(By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[{i}]/td[2]').text
 
-            qtd = self.tamanho_tabela(self.table_segundo_mes) + 1
+                if mes_portal == mes_referencia:
+                    checkbox_mes = By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[{i}]/td[1]/input'
+                    
+                    self.click(checkbox_mes, 2)
 
-            xpath_input_lote = self.encontrar_xpath_processo(numero_processo, qtd)
+                    if "Não foi possível processar a requisição" in self.driver.find_element(*self.body).text:
+                        self.click(self.btn_fechar, 2)
+                        self.click(checkbox_mes, 2)
+
+                    table_mes_selecionado = By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[{i+1}]/td/div/table'
+                    break
+
+            qtd = self.tamanho_tabela(table_mes_selecionado) + 1
+
+            xpath_input_lote = self.encontrar_xpath_processo(numero_processo, qtd, i+1)
 
             if xpath_input_lote == '':
                 self.renomear_planilha(arquivo, 'Não_enviado')
@@ -183,15 +196,15 @@ class Amil(PageElement):
         novo_nome: str = path_planilha.replace('.xlsx', '') + f'_{msg}.xlsx'
         rename(path_planilha, novo_nome)
     
-    def encontrar_xpath_processo(self, numero_processo, qtd):
+    def encontrar_xpath_processo(self, numero_processo, qtd, tr1):
         for i in range(1, qtd):
-            td_lote = By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[4]/td/div/table/tbody/tr[{i}]/td[1]'
+            td_lote = By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[{tr1}]/td/div/table/tbody/tr[{i}]/td[1]'
             n_lote = self.driver.find_element(*td_lote).text.replace(' ', '')
 
             if n_lote != numero_processo:
                 continue
 
-            return f'/html/body/div/div/form/div[4]/table/tbody/tr[4]/td/div/table/tbody/tr[{i}]/td[1]/input'
+            return f'/html/body/div/div/form/div[4]/table/tbody/tr[{tr1}]/td/div/table/tbody/tr[{i}]/td[1]/input'
         
         return ''
 
@@ -408,7 +421,7 @@ class Amil(PageElement):
         self.click(self.btn_fechar, 2)
         self.salvar_valor_planilha(path_planilha, "Sim", 23, num_linha)
 
-def recursar_amil(user, password):
+def recursar_amil(user, password, mes_referencia):
     try:
         url = 'https://credenciado.amil.com.br/login'
         diretorio = askdirectory()
@@ -431,7 +444,7 @@ def recursar_amil(user, password):
             driver = webdriver.Chrome(seleniumwire_options=options, options=chrome_options)
 
         amil = Amil('10019642', 'Amhpdf2024', diretorio, driver, url)
-        amil.exec_recurso()
+        amil.exec_recurso(mes_referencia)
         showinfo('', 'Recursos concluídos com sucesso!')
 
     except Exception as e:
