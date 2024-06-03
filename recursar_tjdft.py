@@ -141,6 +141,7 @@ class inserir_dados(PageElement):
             sem_extensao = nome.replace('.xlsx', '')
             planilha = os.path.join(pasta, nome)
             faturas_df1 = pd.read_excel(planilha)
+            
             for index, linha in faturas_df1.iterrows():
                 time.sleep(2)
                 try:
@@ -233,6 +234,7 @@ class inserir_dados(PageElement):
                     self.driver.find_element(*self.controle).clear()
                 except:
                     print('Limpar Nº Guia')
+                time.sleep(2)
                 try:
                     self.driver.find_element(*self.alerta2).click()
                 except:
