@@ -55,6 +55,7 @@ class caminho(PageElement):
         time.sleep(1)
         self.driver.find_element(*self.arquivo_tiss).click()
         time.sleep(1)
+        self.driver.switch_to.window(self.driver.window_handles[-1])
 
 class capturar_protocolo(PageElement):
     inserir_protocolo = (By.XPATH, '//*[@id="NroProtocolo"]')
@@ -83,6 +84,7 @@ class capturar_protocolo(PageElement):
                     print(f"{count}) Buscando a fatura do Protocolo => {protocolo_plan}")
                     
                     self.driver.find_element(*self.inserir_protocolo).send_keys(protocolo_plan)
+                    time.sleep(0.3)
                     self.driver.find_element(*self.baixar).click()
                     time.sleep(0.3)
 
