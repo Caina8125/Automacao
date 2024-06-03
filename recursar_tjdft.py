@@ -37,6 +37,7 @@ class caminho(PageElement):
     fechar_alerta = (By.XPATH, '/html/body/bc-modal-evolution/div/div/div/div[3]/button[3]')
 
     def exe_caminho(self):
+        time.sleep(2)
         try:
             modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div')))
             self.driver.find_element(*self.fechar_botao).click()
@@ -141,6 +142,7 @@ class inserir_dados(PageElement):
             planilha = os.path.join(pasta, nome)
             faturas_df1 = pd.read_excel(planilha)
             for index, linha in faturas_df1.iterrows():
+                time.sleep(2)
                 try:
                     modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div')))
                     self.driver.find_element(*self.fechar_botao).click()
@@ -173,6 +175,8 @@ class inserir_dados(PageElement):
                         self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
                 except:
                     None
+
+                time.sleep(2)
 
                 try:
                     modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div')))
@@ -234,7 +238,7 @@ class inserir_dados(PageElement):
                 except:
                     print('Alerta2 não apareceu')
                 break
-
+                time.sleep(2)
             try:
                 modal = WebDriverWait(self.driver, 3.0).until(EC.presence_of_element_located((By.XPATH, '/html/body/bc-modal-evolution/div/div/div')))
                 self.driver.find_element(*self.fechar_botao).click()
