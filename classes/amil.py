@@ -270,6 +270,7 @@ class Amil(PageElement):
         return count + 1
     
     def selecionar_guias_e_procedimentos(self, quant_tr):
+        sleep(3)
         for i in range(1, quant_tr, 3):
             u_element_guia = self.driver.find_element(By.XPATH, f'/html/body/div/div/form/div[3]/div[4]/table/tbody/tr[{i}]/td[2]/a/u')
             num_guia_portal = u_element_guia.text
@@ -294,16 +295,19 @@ class Amil(PageElement):
                     continue
 
             checkbox_guia = (By.XPATH, f'/html/body/div/div/form/div[3]/div[4]/table/tbody/tr[{i}]/td[1]/input')
-            self.click(checkbox_guia, 2)
+            self.click(checkbox_guia, 3)
 
             table_procedimentos = By.XPATH, f'/html/body/div/div/form/div[3]/div[4]/table/tbody/tr[{i+1}]/td/div/table'
 
             if 'Não foi possível processar a requisição' in self.driver.find_element(*self.body).text:
                 self.click(self.btn_fechar, 2)
                 self.click(checkbox_guia, 2)
-                self.click(checkbox_guia, 2)
+                self.click(checkbox_guia, 3)
 
-            if self.driver.find_element(*table_procedimentos).text == '':
+            try:
+                if self.driver.find_element(*table_procedimentos).text == '':
+                    continue
+            except:
                 continue
 
             quantidade_de_procedimentos = self.tamanho_tabela(table_procedimentos) + 1
