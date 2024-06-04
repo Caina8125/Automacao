@@ -14,6 +14,7 @@ from classes.fascal import recursar_fascal
 from classes.orizon import inciar_envio_de_anexos
 from classes.salutis_casembrapa import recursar_casembrapa
 from classes.tst import iniciar_recursar_tst
+from filtro_de_faturas import filtrar_faturas
 from lista_automacoes import LISTA_DE_AUTOMACOES
 from filtro_matricula import filtrar_matricula
 from planilha_serpro import exec_planilha
@@ -252,7 +253,7 @@ class Application:
         clinica = self.comboBox.get()
         
         if clinica == '':
-            tkinter.messagebox.showwarning( '' , 'Selecione uma clínica!')
+            tkinter.messagebox.showwarning('' , 'Selecione uma clínica!')
             return
         self.comboBox.configure(state="disabled")
         
@@ -500,6 +501,11 @@ class Application:
             case "Glosa - Gerar Planilhas SERPRO":
                 self.gif()
                 exec_planilha()
+                self.reiniciar()
+
+            case "Glosa - Filtro Faturas":
+                self.gif()
+                filtrar_faturas()
                 self.reiniciar()
 
             case "Glosa - Filtro Matrículas":

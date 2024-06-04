@@ -193,9 +193,9 @@ class ExtrairDados():
         df.to_excel(r'C:\Users\lucas.paz\Documents\Planilhas\Geap.xlsx')
 
 class SisGeap(PageElement):
-    input_usuario = '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[1]/div/div[1]/div/input'
-    input_senha = '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[2]/div/div[1]/div[1]/input'
-    btn_entrar = '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/button'
+    input_usuario = By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[1]/div/div[1]/div/input'
+    input_senha = By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[1]/div/label[2]/div/div[1]/div[1]/input'
+    btn_entrar = By.XPATH, '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/button'
 
     def __init__(self, driver: WebDriver, url: str, usuario, senha) -> None:
         super().__init__(driver, url)
@@ -213,7 +213,8 @@ class SisGeap(PageElement):
     def get_token(self):
         self.open()
         self.login()
-        local_storage = self.driver.execute_script('localstorage;')
+        local_storage = self.driver.execute_script("return localStorage.getItem('accessToken');")
+        print(local_storage)
 
 class ImportarGoogleSheets(ExtrairDados):
     def __init__(self)-> None:

@@ -47,6 +47,8 @@ class Amil(PageElement):
     input_justificativa_guia = By.ID, 'justificativa_guia'
     div_sis_amil = By.CLASS_NAME, 'box-sis-amil'
     tabela_mes = By.ID, 'tbReferencia'
+    finaliza_sessoes = By.ID, 'btnFinalizaSessao'
+    btn_sim_finalizar = By.ID, 'btnFinalizaSessao_Sim'
 
     def __init__(self, usuario: str, senha: str, diretorio: str, driver: WebDriver, url: str = '') -> None:
         super().__init__(driver, url)
@@ -63,20 +65,16 @@ class Amil(PageElement):
         self.click(self.btn_entrar, 1.5)
 
     def caminho(self):
-        while "Acessar SisAmil" not in self.driver.find_element(*self.body).text:
-            sleep(2)
-        sis_amil_element = self.driver.find_element(*self.div_sis_amil)
-        btn_acessar_sisamil = sis_amil_element.find_element(By.TAG_NAME, 'button')
+        self.get_acesso_sis_amil()
 
-        try:
-            self.get_element_visible(web_element=btn_acessar_sisamil)
-        except:
-            sis_amil_element = self.driver.find_element(*self.div_sis_amil)
-            btn_acessar_sisamil = sis_amil_element.find_element(By.TAG_NAME, 'button')
-            self.get_element_visible(web_element=btn_acessar_sisamil)
+        teste = self.driver.find_element(*self.body).text
 
-        sleep(2)
-        self.driver.switch_to.window(self.driver.window_handles[-1])
+        if 'OPERA' in self.driver.find_element(*self.body).text:
+            self.click(self.finaliza_sessoes, 2)
+            self.click(self.btn_sim_finalizar, 4)
+            self.driver.switch_to.window(self.driver.window_handles[-1])
+            self.get_acesso_sis_amil()
+
         self.click(self.menu, 2)
         self.driver.switch_to.frame('menu')
         self.send_keys(self.input_menu, 'Solicitação de Recurso de Glosas', 1)
@@ -96,101 +94,135 @@ class Amil(PageElement):
     #         btn_sisamil_list = [btn for btn in self.driver.find_elements(By.TAG_NAME, 'button') if "Acessar SisAmil" in btn.text]
     #         return btn_sisamil_list[0]
 
+    def get_acesso_sis_amil(self):
+        while "Acessar SisAmil" not in self.driver.find_element(*self.body).text:
+            sleep(2)
+
+        sis_amil_element = self.driver.find_element(*self.div_sis_amil)
+        btn_acessar_sisamil = sis_amil_element.find_element(By.TAG_NAME, 'button')
+
+        try:
+            self.get_element_visible(web_element=btn_acessar_sisamil)
+        except:
+            sis_amil_element = self.driver.find_element(*self.div_sis_amil)
+            btn_acessar_sisamil = sis_amil_element.find_element(By.TAG_NAME, 'button')
+            self.get_element_visible(web_element=btn_acessar_sisamil)
+            sleep(2)
+        sleep(2)
+        self.driver.switch_to.window(self.driver.window_handles[-1])
+        sleep(1)
+
     def exec_recurso(self, mes_referencia):
         self.open()
         self.login()
-        self.caminho()
-
-        for arquivo in self.lista_de_arquivos:
-
-            if 'Enviado' in arquivo or 'Não_enviado' in arquivo:
-                continue
-
-            df_fatura = read_excel(arquivo)
-            lista_de_guias = list(set(df_fatura['Controle'].values.tolist()))
-            numero_processo = arquivo.replace(self.diretorio+'\\', '').replace('.xlsx', '')
-            self.dict_guias_list = self.dict_guias(lista_de_guias, df_fatura)
-            self.click(self.option_amil, 2)
-            
-            len_tabela_mes = self.tamanho_tabela(self.tabela_mes)
-
-            for i in range(1, len_tabela_mes + 1, 2):
-                mes_portal = self.driver.find_element(By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[{i}]/td[2]').text
-
-                if mes_portal == mes_referencia:
-                    checkbox_mes = By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[{i}]/td[1]/input'
-                    
-                    self.click(checkbox_mes, 2)
-
-                    if "Não foi possível processar a requisição" in self.driver.find_element(*self.body).text:
-                        self.click(self.btn_fechar, 2)
-                        self.click(checkbox_mes, 2)
-
-                    table_mes_selecionado = By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[{i+1}]/td/div/table'
-                    break
-
-            qtd = self.tamanho_tabela(table_mes_selecionado) + 1
-
-            xpath_input_lote = self.encontrar_xpath_processo(numero_processo, qtd, i+1)
-
-            if xpath_input_lote == '':
-                self.renomear_planilha(arquivo, 'Não_enviado')
-                continue
-            
-            self.click((By.XPATH, xpath_input_lote), 1)
-            self.driver.switch_to.default_content()
-            self.driver.switch_to.frame('toolbar')
-            self.click(self.btn_avancar, 2)
-
-            self.driver.switch_to.default_content()
-            self.driver.switch_to.frame('principal')
-
-            if self.checkbox_is_checked():
-                self.click(self.input_marcar_todos, 1)
-                while "Por favor" in self.driver.find_element(*self.body).text:
-                    sleep(1)
-                self.click(self.input_marcar_todos, 1)
-
-            tamanho_tabela_guias = len(
-                [
-                    element
-                    for element in self.driver.find_elements(By.TAG_NAME, 'input')
-                    if element.get_attribute('type') == 'checkbox' and element.get_attribute('name') == 'contas'
-                ]
-            )
-            quantidade_tr = self.calcular_quant_tr(tamanho_tabela_guias)
-
-            self.selecionar_guias_e_procedimentos(quantidade_tr)
-            self.driver.switch_to.default_content()
-            self.driver.switch_to.frame('toolbar')
-            self.click(self.btn_avancar, 2)
+        for tentativa in range(0,5):
             try:
-                alert = self.driver.switch_to.alert
-                alert.accept()
+                self.caminho()
+
+                for arquivo in self.lista_de_arquivos:
+
+                    if 'Enviado' in arquivo or 'Não_enviado' in arquivo:
+                        continue
+
+                    df_fatura = read_excel(arquivo)
+                    lista_de_guias = list(set(df_fatura['Controle'].values.tolist()))
+                    numero_processo = arquivo.replace(self.diretorio+'\\', '').replace('.xlsx', '')
+                    self.dict_guias_list = self.dict_guias(lista_de_guias, df_fatura)
+                    self.click(self.option_amil, 2)
+                    
+                    len_tabela_mes = self.tamanho_tabela(self.tabela_mes)
+
+                    for i in range(1, len_tabela_mes + 1, 2):
+                        mes_portal = self.driver.find_element(By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[{i}]/td[2]').text
+
+                        if mes_portal == mes_referencia:
+                            checkbox_mes = By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[{i}]/td[1]/input'
+                            
+                            self.click(checkbox_mes, 2)
+
+                            if "Não foi possível processar a requisição" in self.driver.find_element(*self.body).text:
+                                self.click(self.btn_fechar, 2)
+                                self.click(checkbox_mes, 2)
+
+                            table_mes_selecionado = By.XPATH, f'/html/body/div/div/form/div[4]/table/tbody/tr[{i+1}]/td/div/table'
+                            break
+
+                    qtd = self.tamanho_tabela(table_mes_selecionado) + 1
+
+                    xpath_input_lote = self.encontrar_xpath_processo(numero_processo, qtd, i+1)
+
+                    if xpath_input_lote == '':
+                        self.renomear_planilha(arquivo, 'Não_enviado')
+                        continue
+                    
+                    self.click((By.XPATH, xpath_input_lote), 1)
+                    self.driver.switch_to.default_content()
+                    self.driver.switch_to.frame('toolbar')
+                    self.click(self.btn_avancar, 2)
+
+                    self.driver.switch_to.default_content()
+                    self.driver.switch_to.frame('principal')
+
+                    if self.checkbox_is_checked():
+                        self.click(self.input_marcar_todos, 1)
+                        while "Por favor" in self.driver.find_element(*self.body).text:
+                            sleep(1)
+                        self.click(self.input_marcar_todos, 1)
+
+                    tamanho_tabela_guias = len(
+                        [
+                            element
+                            for element in self.driver.find_elements(By.TAG_NAME, 'input')
+                            if element.get_attribute('type') == 'checkbox' and element.get_attribute('name') == 'contas'
+                        ]
+                    )
+                    quantidade_tr = self.calcular_quant_tr(tamanho_tabela_guias)
+
+                    self.selecionar_guias_e_procedimentos(quantidade_tr)
+                    self.driver.switch_to.default_content()
+                    self.driver.switch_to.frame('toolbar')
+                    self.click(self.btn_avancar, 2)
+                    try:
+                        alert = self.driver.switch_to.alert
+                        alert.accept()
+                    except:
+                        pass
+                    self.driver.switch_to.default_content()
+                    self.driver.switch_to.frame('principal')
+
+                    while "Por favor" in self.driver.find_element(*self.body).text:
+                        sleep(1)
+
+                    quantidade_guia = int(self.driver.find_element(*self.quantidade_guias).get_attribute('value'))
+                    count = 0
+
+                    while count < quantidade_guia:
+                        self.lancar_recurso_nos_itens(df_fatura, arquivo)
+
+                        count += 1
+                        self.passar_proximo(self.btn_proxima_guia)
+
+                    self.driver.switch_to.default_content()
+                    self.driver.switch_to.frame('toolbar')
+                    self.click(self.btn_voltar, 2)
+                    self.driver.switch_to.default_content()
+                    self.driver.switch_to.frame('principal')
+                    self.click(self.btn_sim, 2)
+                    self.renomear_planilha(arquivo, 'Enviado')
+                    
+                break
+
             except:
-                pass
-            self.driver.switch_to.default_content()
-            self.driver.switch_to.frame('principal')
+                self.fechar_abas()
 
-            while "Por favor" in self.driver.find_element(*self.body).text:
-                sleep(1)
+                if tentativa == 5:
+                    raise Exception('Erro automação. Tente novamente.')
 
-            quantidade_guia = int(self.driver.find_element(*self.quantidade_guias).get_attribute('value'))
-            count = 0
-
-            while count < quantidade_guia:
-                self.lancar_recurso_nos_itens(df_fatura, arquivo)
-
-                count += 1
-                self.passar_proximo(self.btn_proxima_guia)
-
-            self.driver.switch_to.default_content()
-            self.driver.switch_to.frame('toolbar')
-            self.click(self.btn_voltar, 2)
-            self.driver.switch_to.default_content()
-            self.driver.switch_to.frame('principal')
-            self.click(self.btn_sim, 2)
-            self.renomear_planilha(arquivo, 'Enviado')
+    def fechar_abas(self):
+        while "Acessar SisAmil" not in self.driver.find_element(*self.body).text:
+            self.driver.close()
+            sleep(1.5)
+            self.driver.switch_to.window(self.driver.window_handles[-1])
 
     def renomear_planilha(self, path_planilha: str, msg: str):
         novo_nome: str = path_planilha.replace('.xlsx', '') + f'_{msg}.xlsx'
@@ -411,6 +443,7 @@ class Amil(PageElement):
                          
                     self.send_keys(self.input_justificativa, justificativa, 1.5)
                     self.gravar_recurso(path_planilha, index+1)
+                    self.salvar_valor_planilha(path_planilha, "Sim", 23, index+1)
                     break
             
             c_itens += 1
