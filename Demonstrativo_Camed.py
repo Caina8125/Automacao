@@ -30,7 +30,7 @@ class caminho(PageElement):
     demonstrativo        = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[27]/a/span[1]')
     analise_conta        = (By.XPATH, '/html/body/div[3]/div[1]/div/ul/li[27]/ul/li[3]/a/span')
     selecionar_convenio  = (By.XPATH, '//*[@id="s2id_OperadorasCredenciadas_HandleOperadoraSelected"]/a/span[2]/b')
-    opcao_camed         = (By.XPATH, '/html/body/div[14]/ul/li[3]/div')
+    opcao_camed         = (By.XPATH, '/html/body/div[14]/ul/li[3]')
     inserir_protocolo    = (By.XPATH, '//*[@id="Protocolo"]')
     baixar_demonstrativo = (By.XPATH, '//*[@id="btn-Baixar_Demonstrativo"]')
     baixar_xml           = (By.XPATH, '//*[@id="btn-Baixar_XML"]')

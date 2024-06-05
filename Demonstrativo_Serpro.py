@@ -29,7 +29,7 @@ class caminho(PageElement):
     demonstrativo        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/a/span[1]')
     analise_conta        = (By.XPATH, '//*[@id="sidebar-menu"]/li[24]/ul/li[3]/a/span')
     selecionar_convenio  = (By.XPATH, '//*[@id="s2id_OperadorasCredenciadas_HandleOperadoraSelected"]/a/span[2]/b')
-    opcao_serpro         = (By.XPATH, '/html/body/div[14]/ul/li[6]/div')
+    opcao_serpro         = (By.XPATH, '/html/body/div[14]/ul/li[7]/div')
     inserir_protocolo    = (By.XPATH, '//*[@id="Protocolo"]')
     baixar_demonstrativo = (By.XPATH, '//*[@id="btn-Baixar_Demonstrativo"]')
     baixar_xml           = (By.XPATH, '//*[@id="btn-Baixar_XML"]')
