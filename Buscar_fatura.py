@@ -18,8 +18,9 @@ class capturar_protocolo(PageElement):
     fechar = (By.XPATH, '/html/body/div[4]/div[2]/div/div[3]/button')
     portal_tiss = (By.XPATH, '/html/body/div[1]/div/div[2]/div/div[1]/div[1]/div[1]/div/div')
     fechar_modal = By.XPATH, '/html/body/div[3]/div[2]/div/button/span[2]/span/i'
-    relatorios = By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[1]/div[12]/div/div[1]/div[3]/div'
-    arquivo_tiss = By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[1]/div[12]/div/div[2]/div/div[7]/div[3]'
+    fechar_modal2 = By.XPATH, "/html/body/div[3]/div[2]/div/div/button/span[2]/span/i"
+    relatorios = By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[1]/div[13]/div/div[1]/div[3]/div'
+    arquivo_tiss = By.XPATH, '/html/body/div[1]/div/div[1]/aside/div[1]/div[1]/div[13]/div/div[2]/div/div[7]/div[3]'
     inserir_protocolo = (By.XPATH, '//*[@id="NroProtocolo"]')
     baixar = (By.XPATH, '//*[@id="main"]/div/div/div[2]/div[2]/article/form/div/a')
     elemento2 = (By.XPATH, '//*[@id="main"]/div/div/div/table/tbody/tr[2]/td[5]')
@@ -50,11 +51,20 @@ class capturar_protocolo(PageElement):
             self.driver.find_element(*self.portal_tiss)
 
     def exe_caminho(self):
+        time.sleep(5)
+        self.driver.implicitly_wait(3)
         try:
-            self.driver.find_element(*self.fechar_modal).click()
+            lista = [element for element in self.driver.find_elements(By.TAG_NAME, 'i') if element.text == 'close']
             time.sleep(1)
+            for _ in range(0, len(lista)):
+                for element in lista:
+                    try:
+                        element.click()
+                    except:
+                        pass
         except:
             pass
+        self.driver.implicitly_wait(30)
         self.driver.find_element(*self.relatorios).click()
         time.sleep(1)
         self.driver.find_element(*self.arquivo_tiss).click()
