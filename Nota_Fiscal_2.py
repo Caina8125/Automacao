@@ -25,41 +25,42 @@ class Caminho(PageElement):
     
 
     def exe_caminho(self):
-        time.sleep(2)
-        try:
-            try:
-                self.driver.implicitly_wait(3)
-                self.driver.find_element(*self.declararServico).click()
-                time.sleep(2)
-                self.driver.find_element(*self.incluir).click()
-                time.sleep(3)
-            except:
-                self.driver.find_element(*self.botaoMenu).click()
-                time.sleep(1)
-                try:
-                    self.driver.find_element(*self.declararServico).click()
-                    time.sleep(2)
-                    self.driver.find_element(*self.incluir).click()
-                except:
-                    time.sleep(2)
-                    self.driver.find_element(*self.incluir).click()
-        except:
-            try:
-                self.driver.implicitly_wait(3)
-                self.driver.find_element(*self.declararServico).click()
-                time.sleep(2)
-                self.driver.find_element(*self.incluir).click()
-                time.sleep(3)
-            except:
-                self.driver.find_element(*self.botaoMenu).click()
-                time.sleep(1)
-                try:
-                    self.driver.find_element(*self.declararServico).click()
-                    time.sleep(2)
-                    self.driver.find_element(*self.incluir).click()
-                except:
-                    time.sleep(2)
-                    self.driver.find_element(*self.incluir).click()
+        self.driver.implicitly_wait(180)
+        # time.sleep(2)
+        # try:
+        #     try:
+        #         self.driver.implicitly_wait(3)
+        #         self.driver.find_element(*self.declararServico).click()
+        #         time.sleep(2)
+        #         self.driver.find_element(*self.incluir).click()
+        #         time.sleep(3)
+        #     except:
+        #         self.driver.find_element(*self.botaoMenu).click()
+        #         time.sleep(1)
+        #         try:
+        #             self.driver.find_element(*self.declararServico).click()
+        #             time.sleep(2)
+        #             self.driver.find_element(*self.incluir).click()
+        #         except:
+        #             time.sleep(2)
+        #             self.driver.find_element(*self.incluir).click()
+        # except:
+        #     try:
+        #         self.driver.implicitly_wait(3)
+        #         self.driver.find_element(*self.declararServico).click()
+        #         time.sleep(2)
+        #         self.driver.find_element(*self.incluir).click()
+        #         time.sleep(3)
+        #     except:
+        #         self.driver.find_element(*self.botaoMenu).click()
+        #         time.sleep(1)
+        #         try:
+        #             self.driver.find_element(*self.declararServico).click()
+        #             time.sleep(2)
+        #             self.driver.find_element(*self.incluir).click()
+        #         except:
+        #             time.sleep(2)
+        #             self.driver.find_element(*self.incluir).click()
 
         self.driver.switch_to.frame('iframe')
         time.sleep(2)
