@@ -64,6 +64,7 @@ class Caminho(PageElement):
 
         self.driver.switch_to.frame('iframe')
         time.sleep(2)
+        self.driver.implicitly_wait(30)
         self.driver.find_element(*self.fecharModal).click()
         time.sleep(2)
         self.driver.switch_to.default_content()
