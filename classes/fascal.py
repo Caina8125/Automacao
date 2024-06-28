@@ -257,11 +257,13 @@ class Facil(PageElement):
                 validacao_valor_recursado = valor_recursado_portal == "R$0,00"
                 validacao_codigo = codigo_procedimento in codigo_proc_portal
                 validacao_codigo_taxa = "TAXAS" in tabela_convenio and "Taxa" in codigo_proc_portal
+                validacao_item_visita = (codigo_procedimento == '10104020' or codigo_procedimento == '10104011' or codigo_procedimento == '10104011') and "Visita" in codigo_proc_portal
 
                 validacao_normal = (validacao_numero_guia or validacao_paciente or validacao_matricula) and validacao_codigo and validacao_valor_glosa and validacao_valor_recursado
                 validacao_taxa = (validacao_numero_guia or validacao_paciente or validacao_matricula) and validacao_codigo_taxa and validacao_valor_glosa and validacao_valor_recursado
+                validacao_visita = (validacao_numero_guia or validacao_paciente or validacao_matricula) and validacao_item_visita and validacao_valor_glosa and validacao_valor_recursado
 
-                if validacao_normal or validacao_taxa:
+                if validacao_normal or validacao_taxa or validacao_visita:
                     input_valor_recursado, preencher_justificativa = self.xpath_preencher_valores(i, recurso_iniciado)
                     self.driver.find_element(*input_valor_recursado).send_keys(valor_recurso)
                     time.sleep(2)
