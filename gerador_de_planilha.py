@@ -81,7 +81,7 @@ def gerar_planilha():
 
             for ind, lin in fatura_df_gdf.iterrows():
                 numero_senha_plan_gdf = str(lin['Autorização Origem']).replace('.0', '')
-                data_de_atendimento_gdf = lin['Data de Realização']
+                data_de_atendimento_gdf = lin['Data de Realizacao']
                 codigo_gdf = str(lin['Código']).replace('.0', '')
                 autorizacao_nova = str(lin['Autorização']).replace('.0', '')
 
