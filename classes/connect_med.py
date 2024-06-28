@@ -54,7 +54,7 @@ class ConnectMed(PageElement):
     btn_ok = ...
     ok_sucesso = ...
     div_contas_medicas = (By.ID, 'dadosLotesRecursoAberto_divResultado-contas')
-    fechar_comunicado = (By.XPATH, '/html/body/div[6]/div[2]/div/div/div[2]/div/a')
+    fechar_comunicado = (By.XPATH, '/html/body/div[8]/div[2]/div/div/div[2]/div/a')
 
     def __init__(self, driver: WebDriver, url: str, usuario: str, senha: str, proxies: dict, diretorio: str='', diretorio_anexos: str='', convenio: str='') -> None:
         super().__init__(driver, url)
