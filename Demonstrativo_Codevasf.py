@@ -17,8 +17,8 @@ class Login(PageElement):
     prestador = (By.XPATH, '/html/body/div[1]/div[10]/div[1]/ul/li[2]/ul/li[2]/h2')
     cnpj = (By.XPATH, '//*[@id="login-prestador"]/label[2]/input')
     usuario = (By.XPATH, '//*[@id="pssTpField"]')
-    senha = (By.XPATH, '/html/body/div[1]/div[10]/div[1]/ul/li[2]/ul/li[2]/ul/div/form/input[4]') 
-    entrar = (By.XPATH, '//*[@id="login-prestador"]/input[5]')
+    senha = (By.XPATH, '/html/body/div[1]/div[10]/div[1]/ul/li[2]/ul/li[2]/ul/div/form/div[4]/input') 
+    entrar = (By.XPATH, '/html/body/div[1]/div[10]/div[1]/ul/li[2]/ul/li[2]/ul/div/form/input[4]')
 
     def exe_login(self, usuario, senha):
         self.driver.implicitly_wait(30)
