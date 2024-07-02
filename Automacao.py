@@ -270,7 +270,7 @@ class Application:
             funcao1(user, password, mes_referencia)
 
         elif funcao1.__name__ == 'inciar_envio_de_anexos':
-            funcao1(user, password, mes_referencia)
+            funcao1(user, password, login_portal, senha_portal)
         
         else:
             funcao1(user, password)
